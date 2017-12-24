@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMusicMagic", "ZMusicMagic\ZMusicMagic.csproj", "{4153A988-8C1A-4228-87B2-16E1E4341BE5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMusicMagicLibrary", "ZMusicMagicLibrary\ZMusicMagicLibrary.csproj", "{EA456E4B-5269-4B66-9F96-307F57EDECCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMusicMagicLibraryTests", "ZMusicMagicLibraryTests\ZMusicMagicLibraryTests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,9 +16,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4153A988-8C1A-4228-87B2-16E1E4341BE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4153A988-8C1A-4228-87B2-16E1E4341BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4153A988-8C1A-4228-87B2-16E1E4341BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4153A988-8C1A-4228-87B2-16E1E4341BE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA456E4B-5269-4B66-9F96-307F57EDECCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA456E4B-5269-4B66-9F96-307F57EDECCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA456E4B-5269-4B66-9F96-307F57EDECCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA456E4B-5269-4B66-9F96-307F57EDECCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
