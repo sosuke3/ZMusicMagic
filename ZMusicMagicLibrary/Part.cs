@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ZMusicMagicLibrary
 {
-    public class Track
+    public class Part
     {
-        public List<TrackChannel> Channels { get; set; } = new List<TrackChannel>(8);
+        public List<Channel> Channels { get; set; } = new List<Channel>(8);
     }
 }

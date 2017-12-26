@@ -14,6 +14,8 @@ namespace ZMusicMagicLibrary.NSPC
         int baseAddress;
         internal byte[] aramBuffer;
 
+        public List<Song> Songs { get; set; } = new List<Song>();
+
         public void LoadRom(Rom romData, int startingAddress = NSPCBaseAddress)
         {
             this.romData = romData;
@@ -49,19 +51,11 @@ namespace ZMusicMagicLibrary.NSPC
 
         void LoadSongs()
         {
-            var songs = LoadSongAddresses();
+            this.Songs = LoadSongAddresses();
 
-            FindMaxLengths(songs);
+            FindMaxLengths(this.Songs);
 
-            LoadSongParts(songs);
-        }
-
-        void LoadSongParts(List<Song> songs)
-        {
-            foreach(var s in songs)
-            {
-                s.LoadParts(aramBuffer);
-            }
+            LoadSongParts(this.Songs);
         }
 
         List<Song> LoadSongAddresses()
@@ -89,6 +83,7 @@ namespace ZMusicMagicLibrary.NSPC
             return songs;
         }
 
+        // probably don't even need this???
         void FindMaxLengths(List<Song> songAddresses)
         {
             var addressLengths = songAddresses.Select(x => x.Address).Distinct().OrderBy(x => x).ToDictionary(x => x, x => -1);
@@ -135,6 +130,20 @@ namespace ZMusicMagicLibrary.NSPC
             return length;
         }
 
+        void LoadSongParts(List<Song> songs)
+        {
+            foreach (var s in songs)
+            {
+                s.LoadAddresses(aramBuffer);
+            }
+
+            foreach (var s in songs)
+            {
+                s.LoadPartData(aramBuffer, songs);
+            }
+        }
+
+        #region ExtracAllBRR
         public void ExtractAllBRR(string path)
         {
             var instrumentTable = Chunks.FirstOrDefault(x => x.ChunkARAMAddress == 0x3D00);
@@ -162,5 +171,6 @@ namespace ZMusicMagicLibrary.NSPC
                 sample.BRR.WriteFile(Path.Combine(path, $"{sample.SampleNumber} ({(sample.BRR.IsValid ? "Valid" : "Invalid")}) (0x{sample.SampleARAMAddress}).brr"));
             }
         }
+        #endregion
     }
 }

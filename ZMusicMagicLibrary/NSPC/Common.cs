@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZMusicMagicLibrary
+namespace ZMusicMagicLibrary.NSPC
 {
-    public class TrackChannel
+
+    public static class Common
     {
     }
 }

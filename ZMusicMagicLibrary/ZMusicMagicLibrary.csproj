@@ -52,18 +52,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="NSPC\BRR.cs" />
+    <Compile Include="NSPC\Common.cs" />
     <Compile Include="NSPC\NSPC.cs" />
     <Compile Include="NSPC\Chunk.cs" />
     <Compile Include="NSPC\Sample.cs" />
     <Compile Include="NSPC\Song.cs" />
     <Compile Include="NSPC\SongPart.cs" />
+    <Compile Include="NSPC\Track.cs" />
     <Compile Include="Rom.cs" />
     <Compile Include="Song.cs" />
     <Compile Include="SongCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Track.cs" />
-    <Compile Include="TrackChannel.cs" />
+    <Compile Include="Part.cs" />
+    <Compile Include="Channel.cs" />
+    <Compile Include="ChannelCommand.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>

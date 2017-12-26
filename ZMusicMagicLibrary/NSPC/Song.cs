@@ -14,9 +14,10 @@ namespace ZMusicMagicLibrary.NSPC
 
         public bool IsEmpty { get { return Address == 0x0 || MaxLength == 0x0 || MaxLength == -1; } }
 
-        List<SongPart> Parts { get; set; } = new List<SongPart>();
+        public List<SongPart> Parts { get; set; } = new List<SongPart>();
 
-        public void LoadParts(byte[] aramBuffer)
+
+        void LoadPartTrackAddresses(byte[] aramBuffer)
         {
             if (IsEmpty)
             {
@@ -24,20 +25,41 @@ namespace ZMusicMagicLibrary.NSPC
                 return;
             }
 
-            LoadPartAddresses(aramBuffer);
-            LoadPartData(aramBuffer);
+            foreach (var p in Parts)
+            {
+                p.LoadTrackAddresses(aramBuffer);
+            }
         }
 
-        private void LoadPartData(byte[] aramBuffer)
+        public void LoadPartData(byte[] aramBuffer, List<Song> songs)
         {
-            foreach(var p in Parts)
+            if (IsEmpty)
             {
-                p.LoadTracks(aramBuffer);
+                // can't load something that doesn't exist
+                return;
             }
+
+            foreach (var p in Parts)
+            {
+                p.LoadTrackData(aramBuffer, songs);
+            }
+        }
+
+        public void LoadAddresses(byte[] aramBuffer)
+        {
+            this.LoadPartAddresses(aramBuffer);
+
+            this.LoadPartTrackAddresses(aramBuffer);
         }
 
         void LoadPartAddresses(byte[] aramBuffer)
         {
+            if (IsEmpty)
+            {
+                // can't load something that doesn't exist
+                return;
+            }
+
             int lowestAddress = 0xFFFF;
             int index = this.Address; // starting address for parts pointer table for this song
 

@@ -14,6 +14,11 @@ namespace ZMusicMagicLibrary
         public SongCollection IndoorSongs { get; set; }
         public SongCollection EndingSongs { get; set; }
 
+        public NSPC.NSPC BaseNSPC { get; set; }
+        public NSPC.NSPC OverworldNSPC { get; set; }
+        public NSPC.NSPC IndoorNSPC { get; set; }
+        public NSPC.NSPC EndingNSPC { get; set; }
+
         byte[] romData;
         public byte[] RomData { get { return romData; } }
 
@@ -21,7 +26,7 @@ namespace ZMusicMagicLibrary
         {
             romData = File.ReadAllBytes(filename);
 
-            if(false == isValidRom())
+            if(false == this.IsValidRom)
             {
                 throw new Exception("Invalid rom file");
             }
@@ -38,18 +43,22 @@ namespace ZMusicMagicLibrary
             var baseNspc = new NSPC.NSPC();
             int baseNspcAddress = LoadNspcAddress(0x90A, 0x906, 0x902); // vanilla should be $198000 -> $C8000
             baseNspc.LoadRom(this, baseNspcAddress);
+            this.BaseNSPC = baseNspc;
 
             var overworldNspc = new NSPC.NSPC();
             int overworldNspcAddress = LoadNspcAddress(0x91C, 0x918, 0x914); // vanilla should be $1A9EF5 -> 0xD1EF5
             overworldNspc.LoadRom(this, overworldNspcAddress);
+            this.OverworldNSPC = overworldNspc;
 
             var indoorNspc = new NSPC.NSPC();
             int indoorNspcAddress = LoadNspcAddress(0x92E, 0x92A, 0x926); // vanilla should be $1B8000 -> 0xD8000
             indoorNspc.LoadRom(this, indoorNspcAddress);
+            this.IndoorNSPC = indoorNspc;
 
             var endingNspc = new NSPC.NSPC();
             int endingNspcAddress = LoadNspcAddress(0x93A, 0x936, 0x932); // vanilla should be $1AD380 -> 0xD5380
             endingNspc.LoadRom(this, endingNspcAddress);
+            this.EndingNSPC = endingNspc;
         }
 
         private void LoadSongCollection(SongCollection songCollection, int bankByteAddress, int highByteAddress, int lowByteAddress)
@@ -75,29 +84,32 @@ namespace ZMusicMagicLibrary
         }
 
         #region Helper Methods and Properties
-        bool isValidRom()
+        public bool IsValidRom
         {
-            if(romData.Length < 0x10000)
+            get
             {
+                if (romData.Length < 0x10000)
+                {
+                    return false;
+                }
+
+                if (IsVanillaRom)
+                {
+                    return true;
+                }
+
+                if (romData.Length < 0x20000)
+                {
+                    return false;
+                }
+
+                if (IsRandomizerRom)
+                {
+                    return true;
+                }
+
                 return false;
             }
-
-            if(IsVanillaRom)
-            {
-                return true;
-            }
-
-            if(romData.Length < 0x20000)
-            {
-                return false;
-            }
-
-            if(IsRandomizerRom)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public bool IsVanillaRom
@@ -112,6 +124,10 @@ namespace ZMusicMagicLibrary
         {
             get
             {
+                if (romData.Length < 0x7FCF)
+                {
+                    return false;
+                }
                 // vanilla JP
                 // ZELDANODENSETSU
                 if (romData[0x7FC0] == 'Z'
@@ -141,6 +157,10 @@ namespace ZMusicMagicLibrary
         {
             get
             {
+                if (romData.Length < 0x7FD3)
+                {
+                    return false;
+                }
                 // vanilla US
                 //THE LEGEND OF ZELDA
                 if (romData[0x7FC0] == 'T'
@@ -182,6 +202,11 @@ namespace ZMusicMagicLibrary
         {
             get
             {
+                if (romData.Length < 0x7FC1)
+                {
+                    return false;
+                }
+
                 // item randomizer
                 if (romData[0x7FC0] == 0x56 && romData[0x7FC1] == 0x54)
                 {
@@ -196,6 +221,11 @@ namespace ZMusicMagicLibrary
         {
             get
             {
+                if (romData.Length < 0x7FC1)
+                {
+                    return false;
+                }
+
                 // entrance randomizer
                 if (romData[0x7FC0] == 0x45 && romData[0x7FC1] == 0x52)
                 {
@@ -210,6 +240,11 @@ namespace ZMusicMagicLibrary
         {
             get
             {
+                if(romData.Length < 0x180214)
+                {
+                    return false;
+                }
+
                 if (romData[0x180213] == 0x01 && romData[0x180214] == 0x00)
                 {
                     return true;

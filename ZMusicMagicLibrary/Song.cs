@@ -8,6 +8,6 @@ namespace ZMusicMagicLibrary
 {
     public class Song
     {
-        public List<Track> Tracks { get; set; } = new List<Track>();
+        public List<Part> Parts { get; set; } = new List<Part>();
     }
 }
