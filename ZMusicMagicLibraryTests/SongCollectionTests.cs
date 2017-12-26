@@ -40,7 +40,7 @@ namespace ZMusicMagicLibraryTests
                 output.WriteLine($"Song - Address:{s.Address.ToString("X")}, Loop Address:{s.LoopAddress.ToString("X")}, Part Count: {s.Parts.Count}");
                 foreach(var p in s.Parts)
                 {
-                    output.WriteLine($"Part - Address:{p.PartPointerAddress.ToString("X")}, Track Table Address:{p.SongPartTrackTableAddress.ToString("X")}, Loop Count:{p.LoopCount}, Goto Address:{p.GotoPartAddress.ToString("X")}, Track Count:{p.Tracks.Where(x => x.Address != 0x0).Count()}");
+                    output.WriteLine($"Part - Address:{p.PartPointerAddress.ToString("X")}, Track Table Address:{p.SongPartTrackTableAddress.ToString("X")}, Loop Count:{p.LoopCount}, Goto Address:{p.GotoPartAddress.ToString("X")}, Track Count:{p.Tracks.Count(x => x.Address != 0x0)}");
                     foreach (var t in p.Tracks)
                     {
                         output.WriteLine($"Track - Address:{t.Address.ToString("X")}, Raw Data Length:{t.RawTrackData.Length}");

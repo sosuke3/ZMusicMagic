@@ -21,8 +21,16 @@ namespace ZMusicMagic
         private bool m_bSaveLayout = true;
         private DeserializeDockContent m_deserializeDockContent;
 
+        private ProjectForm m_projectWindow;
+        //private DummyPropertyWindow m_propertyWindow;
+        //private DummyToolbox m_toolbox;
+        private OutputForm m_outputWindow;
+        //private DummyTaskList m_taskList;
+
         private bool _showSplash;
         private SplashScreen _splashScreen;
+
+        private ZMusicMagicLibrary.Rom m_currentRom;
 
         public ZMusicMagicForm()
         {
@@ -30,6 +38,7 @@ namespace ZMusicMagic
             AutoScaleMode = AutoScaleMode.Dpi;
 
             //SetSplashScreen();
+            CreateStandardControls();
 
             this.vsToolStripExtender1 = new VisualStudioToolStripExtender(this.components);
             this.vsToolStripExtender1.DefaultRenderer = _toolStripProfessionalRenderer;
@@ -42,28 +51,29 @@ namespace ZMusicMagic
             this.dockpanel.Theme = theme;
             this.EnableVSRenderer(VisualStudioToolStripExtender.VsVersion.Vs2015, theme);
             this.Controls.Add(this.dockpanel);
-
-            var part = new SongPartForm();
-            part.Text = "something";
-            part.Show(this.dockpanel);
+            this.Controls.SetChildIndex(this.dockpanel, 0);
 
             m_deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
         }
 
         private IDockContent GetContentFromPersistString(string persistString)
         {
-            //if (persistString == typeof(DummySolutionExplorer).ToString())
-            //    return m_solutionExplorer;
+            if (persistString == typeof(ProjectForm).ToString())
+            {
+                return m_projectWindow;
+            }
             //else if (persistString == typeof(DummyPropertyWindow).ToString())
             //    return m_propertyWindow;
             //else if (persistString == typeof(DummyToolbox).ToString())
             //    return m_toolbox;
-            //else if (persistString == typeof(DummyOutputWindow).ToString())
-            //    return m_outputWindow;
+            else if (persistString == typeof(OutputForm).ToString())
+            {
+                return m_outputWindow;
+            }
             //else if (persistString == typeof(DummyTaskList).ToString())
             //    return m_taskList;
-            //else
-            //{
+            else
+            {
                 // DummyDoc overrides GetPersistString to add extra information into persistString.
                 // Any DockContent may override this value to add any needed information for deserialization.
 
@@ -81,7 +91,7 @@ namespace ZMusicMagic
                     songPart.Text = parsedStrings[2];
 
                 return songPart;
-            //}
+            }
         }
 
         private void LoadRom()
@@ -91,8 +101,37 @@ namespace ZMusicMagic
 
             if(ofd.ShowDialog() == DialogResult.OK)
             {
-                Rom rom = new Rom();
-                rom.LoadRom(ofd.FileName);
+                var fullPath = ofd.FileName;
+                var filename = Path.GetFileName(ofd.FileName);
+
+
+                m_currentRom = new Rom();
+                m_currentRom.LoadRom(fullPath);
+                m_projectWindow.SetRom(m_currentRom);
+
+
+                //if (FindDocument(filename) != null)
+                //{
+                //    MessageBox.Show($"The document: {filename} has already opened!");
+                //    return;
+                //}
+
+                //SongPartForm songpart = new SongPartForm();
+                //songpart.Text = filename;
+                //songpart.Show(dockpanel);
+
+                //try
+                //{
+                //    songpart.FileName = fullPath;
+                //}
+                //catch (Exception exception)
+                //{
+                //    songpart.Close();
+                //    MessageBox.Show(exception.Message);
+                //}
+
+                //Rom rom = new Rom();
+                //rom.LoadRom(ofd.FileName);
             }
         }
 
@@ -135,6 +174,15 @@ namespace ZMusicMagic
         }
         #endregion
 
+        private void CreateStandardControls()
+        {
+            m_projectWindow = new ProjectForm();
+            //m_propertyWindow = new DummyPropertyWindow();
+            //m_toolbox = new DummyToolbox();
+            m_outputWindow = new OutputForm();
+            //m_taskList = new DummyTaskList();
+        }
+
         private IDockContent FindDocument(string text)
         {
             foreach (IDockContent content in dockpanel.Documents)
@@ -146,6 +194,29 @@ namespace ZMusicMagic
             }
 
             return null;
+        }
+
+        private SongPartForm CreateNewDocument()
+        {
+            SongPartForm dummyDoc = new SongPartForm();
+
+            int count = 1;
+            string text = $"Document{count}";
+            while (FindDocument(text) != null)
+            {
+                count++;
+                text = $"Document{count}";
+            }
+
+            dummyDoc.Text = text;
+            return dummyDoc;
+        }
+
+        private SongPartForm CreateNewDocument(string text)
+        {
+            SongPartForm dummyDoc = new SongPartForm();
+            dummyDoc.Text = text;
+            return dummyDoc;
         }
 
         private void CloseAllDocuments()
@@ -177,7 +248,15 @@ namespace ZMusicMagic
 
             if (File.Exists(configFile))
             {
-                dockpanel.LoadFromXml(configFile, m_deserializeDockContent);
+                try
+                {
+                    dockpanel.LoadFromXml(configFile, m_deserializeDockContent);
+                }
+                catch
+                {
+                    // invalid config, might as well delete it
+                    File.Delete(configFile);
+                }
             }
         }
 
@@ -204,7 +283,6 @@ namespace ZMusicMagic
             AboutDialog about = new AboutDialog();
             about.ShowDialog(this);
         }
-        #endregion
 
         private void fileToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
@@ -217,5 +295,62 @@ namespace ZMusicMagic
         {
             dockpanel.ActiveDocument.DockHandler.Close();
         }
+
+        private void toolbarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolBar.Visible = toolbarToolStripMenuItem.Checked = !toolbarToolStripMenuItem.Checked;
+        }
+
+        private void statusBarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            statusBar.Visible = statusBarToolStripMenuItem.Checked = !statusBarToolStripMenuItem.Checked;
+        }
+
+        private void toolBar_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (e.ClickedItem == newToolStripButton)
+                newToolStripMenuItem_Click(null, null);
+            else if (e.ClickedItem == openToolStripButton)
+                openToolStripMenuItem_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonSolutionExplorer)
+            //    menuItemSolutionExplorer_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonPropertyWindow)
+            //    menuItemPropertyWindow_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonToolbox)
+            //    menuItemToolbox_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonOutputWindow)
+            //    menuItemOutputWindow_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonTaskList)
+            //    menuItemTaskList_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonLayoutByCode)
+            //    menuItemLayoutByCode_Click(null, null);
+            //else if (e.ClickedItem == toolBarButtonLayoutByXml)
+            //    menuItemLayoutByXml_Click(null, null);
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //var part = new SongPartForm();
+            //part.Text = "something";
+            //part.Show(this.dockpanel);
+            SongPartForm dummyDoc = CreateNewDocument();
+            dummyDoc.Show(dockpanel);
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadRom();
+        }
+
+        private void outputToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_outputWindow.Show(dockpanel);
+        }
+
+        private void projectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_projectWindow.Show(dockpanel);
+        }
+        #endregion
     }
 }
