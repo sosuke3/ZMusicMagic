@@ -155,6 +155,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ZMusicMagicControls\ZMusicMagicControls.csproj">
+      <Project>{4B2C7881-6377-440C-A60B-8B195C4E64B9}</Project>
+      <Name>ZMusicMagicControls</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ZMusicMagicLibrary\ZMusicMagicLibrary.csproj">
       <Project>{ea456e4b-5269-4b66-9f96-307f57edeccd}</Project>
       <Name>ZMusicMagicLibrary</Name>

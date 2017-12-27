@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.projectTreeView = new System.Windows.Forms.TreeView();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
@@ -42,16 +42,18 @@
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // treeView1
+            // projectTreeView
             // 
-            this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeView1.ImageIndex = 0;
-            this.treeView1.ImageList = this.imageList;
-            this.treeView1.Location = new System.Drawing.Point(0, 25);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.SelectedImageIndex = 0;
-            this.treeView1.Size = new System.Drawing.Size(387, 447);
-            this.treeView1.TabIndex = 1;
+            this.projectTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTreeView.ImageIndex = 0;
+            this.projectTreeView.ImageList = this.imageList;
+            this.projectTreeView.Location = new System.Drawing.Point(0, 25);
+            this.projectTreeView.Name = "projectTreeView";
+            this.projectTreeView.SelectedImageIndex = 0;
+            this.projectTreeView.Size = new System.Drawing.Size(387, 447);
+            this.projectTreeView.TabIndex = 1;
+            this.projectTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseClick);
+            this.projectTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseDoubleClick);
             // 
             // imageList
             // 
@@ -64,7 +66,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(387, 472);
-            this.Controls.Add(this.treeView1);
+            this.Controls.Add(this.projectTreeView);
             this.Controls.Add(this.toolStrip1);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop) 
@@ -82,7 +84,7 @@
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.TreeView projectTreeView;
         private System.Windows.Forms.ImageList imageList;
     }
 }

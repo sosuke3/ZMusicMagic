@@ -8,16 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using ZMusicMagicLibrary;
 
 namespace ZMusicMagic
 {
     public partial class SongPartForm : DockContent
     {
-        public SongPartForm()
+        public Part m_part;
+
+        public SongPartForm(Part part)
         {
             InitializeComponent();
             AutoScaleMode = AutoScaleMode.Dpi;
+
+            m_part = part;
+            this.trackControl1.Part = part;
         }
+
+
 
         private string m_fileName = string.Empty;
         public string FileName

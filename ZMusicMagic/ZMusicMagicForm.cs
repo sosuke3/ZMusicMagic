@@ -77,20 +77,22 @@ namespace ZMusicMagic
                 // DummyDoc overrides GetPersistString to add extra information into persistString.
                 // Any DockContent may override this value to add any needed information for deserialization.
 
-                string[] parsedStrings = persistString.Split(new char[] { ',' });
-                if (parsedStrings.Length != 3)
-                    return null;
+                //string[] parsedStrings = persistString.Split(new char[] { ',' });
+                //if (parsedStrings.Length != 3)
+                //    return null;
 
-                if (parsedStrings[0] != typeof(SongPartForm).ToString())
-                    return null;
+                //if (parsedStrings[0] != typeof(SongPartForm).ToString())
+                //    return null;
 
-                SongPartForm songPart = new SongPartForm();
-                if (parsedStrings[1] != string.Empty)
-                    songPart.FileName = parsedStrings[1];
-                if (parsedStrings[2] != string.Empty)
-                    songPart.Text = parsedStrings[2];
+                //SongPartForm songPart = new SongPartForm();
+                //if (parsedStrings[1] != string.Empty)
+                //    songPart.FileName = parsedStrings[1];
+                //if (parsedStrings[2] != string.Empty)
+                //    songPart.Text = parsedStrings[2];
 
-                return songPart;
+                //return songPart;
+
+                return null;
             }
         }
 
@@ -177,10 +179,28 @@ namespace ZMusicMagic
         private void CreateStandardControls()
         {
             m_projectWindow = new ProjectForm();
+            m_projectWindow.OnSongPartSelectionChanged += ProjectWindows_SelectedPartChanged;
             //m_propertyWindow = new DummyPropertyWindow();
             //m_toolbox = new DummyToolbox();
             m_outputWindow = new OutputForm();
             //m_taskList = new DummyTaskList();
+        }
+
+        private void ProjectWindows_SelectedPartChanged(object sender, SongPartChangedEventArgs e)
+        {
+            var docTitle = $"{e.SongTitle} - {e.PartTitle}";
+            var doc = FindDocument(docTitle);
+            if(doc != null)
+            {
+                // activate window
+                doc.DockHandler.Show();
+            }
+            else
+            {
+                SongPartForm partForm = new SongPartForm(e.Part);
+                partForm.Text = docTitle;
+                partForm.Show(dockpanel);
+            }
         }
 
         private IDockContent FindDocument(string text)
@@ -198,7 +218,7 @@ namespace ZMusicMagic
 
         private SongPartForm CreateNewDocument()
         {
-            SongPartForm dummyDoc = new SongPartForm();
+            SongPartForm dummyDoc = new SongPartForm(null);
 
             int count = 1;
             string text = $"Document{count}";
@@ -214,7 +234,7 @@ namespace ZMusicMagic
 
         private SongPartForm CreateNewDocument(string text)
         {
-            SongPartForm dummyDoc = new SongPartForm();
+            SongPartForm dummyDoc = new SongPartForm(null);
             dummyDoc.Text = text;
             return dummyDoc;
         }

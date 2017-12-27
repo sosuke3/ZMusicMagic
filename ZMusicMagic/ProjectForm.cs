@@ -17,9 +17,14 @@ namespace ZMusicMagic
 
         SongCollection m_primarySongCollection;
 
+        public event EventHandler<SongPartChangedEventArgs> OnSongPartSelectionChanged;
+
         public ProjectForm()
         {
             InitializeComponent();
+
+            CloseButton = false;
+            CloseButtonVisible = false;
         }
 
         public void SetRom(Rom currentRom)
@@ -34,29 +39,60 @@ namespace ZMusicMagic
 
         void LoadProjectTree()
         {
-            this.treeView1.Nodes.Clear();
+            this.projectTreeView.Nodes.Clear();
 
             int songNumber = 0;
-            foreach(var s in m_primarySongCollection.Songs)
+            foreach (var s in m_primarySongCollection.Songs)
             {
                 var node = new TreeNode();
                 node.Text = $"Song {songNumber}";
+                node.Tag = s;
 
                 int partNumber = 0;
-                foreach(var p in s.Parts)
+                foreach (var p in s.Parts)
                 {
                     var partNode = new TreeNode();
                     partNode.Text = $"Part {partNumber}";
+
+                    partNode.Tag = p;
 
                     node.Nodes.Add(partNode);
 
                     partNumber++;
                 }
 
-                this.treeView1.Nodes.Add(node);
+                this.projectTreeView.Nodes.Add(node);
 
                 songNumber++;
             }
         }
+
+        private void projectTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            OpenSongPart(e);
+        }
+
+        private void OpenSongPart(TreeNodeMouseClickEventArgs e)
+        {
+            TreeNode selected = e.Node;
+
+            Part selectedPart = selected.Tag as Part;
+            if (selectedPart != null && OnSongPartSelectionChanged != null)
+            {
+                OnSongPartSelectionChanged(this, new SongPartChangedEventArgs() { Part = selectedPart, SongTitle = selected.Parent.Text, PartTitle = selected.Text });
+            }
+        }
+
+        private void projectTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            OpenSongPart(e);
+        }
+    }
+
+    public class SongPartChangedEventArgs : EventArgs
+    {
+        public Part Part { get; set; }
+        public string SongTitle { get; set; }
+        public string PartTitle { get; set; }
     }
 }
