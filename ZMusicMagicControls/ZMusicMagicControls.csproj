@@ -42,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PianoRoll.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PianoRoll.Designer.cs">
+      <DependentUpon>PianoRoll.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrackControl.cs">
       <SubType>Component</SubType>

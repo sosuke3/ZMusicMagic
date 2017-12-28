@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CallLoopPart.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="NSPC\BRR.cs" />

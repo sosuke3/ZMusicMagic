@@ -54,5 +54,10 @@ namespace ZMusicMagicLibrary
             }
             return (addressBytes[1] << 8) | (addressBytes[0]);
         }
+
+        public static int Clamp(int value, int min, int max)
+        {
+            return (value < min) ? min : (value > max) ? max : value;
+        }
     }
 }
