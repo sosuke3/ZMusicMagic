@@ -12,6 +12,44 @@ namespace ZMusicMagicLibrary
         public byte Command { get; set; }
         public List<byte> Parameters { get; set; } = new List<byte>();
 
+        public static bool NoteIsSharp(NSPC.Track.Command command)
+        {
+            switch(command)
+            {
+                case NSPC.Track.Command._81_Db1:
+                case NSPC.Track.Command._83_Eb1:
+                case NSPC.Track.Command._86_Gb1:
+                case NSPC.Track.Command._88_Ab1:
+                case NSPC.Track.Command._8A_Bb1:
+                case NSPC.Track.Command._8D_Db2:
+                case NSPC.Track.Command._8F_Eb2:
+                case NSPC.Track.Command._92_Gb2:
+                case NSPC.Track.Command._94_Ab2:
+                case NSPC.Track.Command._96_Bb2:
+                case NSPC.Track.Command._99_Db3:
+                case NSPC.Track.Command._9B_Eb3:
+                case NSPC.Track.Command._9E_Gb3:
+                case NSPC.Track.Command._A0_Ab3:
+                case NSPC.Track.Command._A2_Bb3:
+                case NSPC.Track.Command._A5_Db4:
+                case NSPC.Track.Command._A7_Eb4:
+                case NSPC.Track.Command._AA_Gb4:
+                case NSPC.Track.Command._AC_Ab4:
+                case NSPC.Track.Command._AE_Bb4:
+                case NSPC.Track.Command._B1_Db5:
+                case NSPC.Track.Command._B3_Eb5:
+                case NSPC.Track.Command._B6_Gb5:
+                case NSPC.Track.Command._B8_Ab5:
+                case NSPC.Track.Command._BA_Bb5:
+                case NSPC.Track.Command._BD_Db6:
+                case NSPC.Track.Command._BF_Eb6:
+                case NSPC.Track.Command._C2_Gb6:
+                case NSPC.Track.Command._C4_Ab6:
+                case NSPC.Track.Command._C6_Bb6:
+                    return true;
+            }
+            return false;
+        }
         public static List<ChannelCommand> GetChannelCommandsFromRawData(byte[] rawData, int address = 0)
         {
             var commands = new List<ChannelCommand>();

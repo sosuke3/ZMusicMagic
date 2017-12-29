@@ -42,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NoteLegend.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NoteLegend.Designer.cs">
+      <DependentUpon>NoteLegend.cs</DependentUpon>
+    </Compile>
     <Compile Include="NoteEditor.cs">
       <SubType>Component</SubType>
     </Compile>

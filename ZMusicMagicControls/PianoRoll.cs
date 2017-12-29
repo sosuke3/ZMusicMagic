@@ -19,6 +19,7 @@ namespace ZMusicMagicControls
         ScrollBar m_commandVerticalScroll;
         ScrollBar m_notesVerticalScroll;
         NoteEditor m_noteEditor;
+        NoteLegend m_noteLegend;
 
         public Channel Channel
         {
@@ -89,8 +90,19 @@ namespace ZMusicMagicControls
             this.m_noteEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
             this.m_notesVerticalScroll.ValueChanged += this.m_noteEditor.VerticalScroll_ValueChanged;
             this.m_horizontalScroll.ValueChanged += this.m_noteEditor.HorizontalScroll_ValueChanged;
-            this.m_noteEditor.MouseWheel += this.m_notesVerticalScroll.MouseWheelHandler;
+            this.m_noteEditor.MouseScroll += this.m_notesVerticalScroll.MouseWheelHandler;
             this.Controls.Add(this.m_noteEditor);
+
+            this.m_noteLegend = new NoteLegend();
+            this.m_noteLegend.Location = new Point(0, upperLeftHeight + guiThickLineWidth);
+            this.m_noteLegend.Size = new Size(upperLeftWidth, this.Height - upperLeftHeight - guiThickLineWidth);
+            this.m_noteLegend.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom;
+            this.m_notesVerticalScroll.ValueChanged += this.m_noteLegend.VerticalScroll_ValueChanged;
+            this.m_noteLegend.MouseScroll += this.m_notesVerticalScroll.MouseWheelHandler;
+            this.m_noteLegend.TextAreaWidth = legendWidth;
+            this.m_noteLegend.KeyAreaWidth = upperLeftWidth - legendWidth;
+            this.Controls.Add(this.m_noteLegend);
+
             this.ResumeLayout(false);
         }
 
