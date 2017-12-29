@@ -12,6 +12,9 @@ namespace ZMusicMagicLibrary.NSPC
         public int Address { get; set; }
         public byte[] RawTrackData { get; set; } = new byte[0]; // this might contain extra data past the end of the actual track data
 
+        // ♭
+        // ♯
+
         public enum Command : byte
         {
             [Description("Return")]
@@ -19,150 +22,150 @@ namespace ZMusicMagicLibrary.NSPC
 
             [Description("C 1")]
             _80_C1 = 0x80,
-            [Description("C# 1")]
+            [Description("C♯ 1")]
             _81_Db1 = 0x81,
             [Description("D 1")]
             _82_D1 = 0x82,
-            [Description("D# 1")]
+            [Description("D♯ 1")]
             _83_Eb1 = 0x83,
             [Description("E 1")]
             _84_E1 = 0x84,
             [Description("F 1")]
             _85_F1 = 0x85,
-            [Description("F# 1")]
+            [Description("F♯ 1")]
             _86_Gb1 = 0x86,
             [Description("G 1")]
             _87_G1 = 0x87,
-            [Description("G# 1")]
+            [Description("G♯ 1")]
             _88_Ab1 = 0x88,
             [Description("A 1")]
             _89_A1 = 0x89,
-            [Description("A# 1")]
+            [Description("A♯ 1")]
             _8A_Bb1 = 0x8A,
             [Description("B 1")]
             _8B_B1 = 0x8B,
 
             [Description("C 2")]
             _8C_C2 = 0x8C,
-            [Description("C# 2")]
+            [Description("C♯ 2")]
             _8D_Db2 = 0x8D,
             [Description("D 2")]
             _8E_D2 = 0x8E,
-            [Description("D# 2")]
+            [Description("D♯ 2")]
             _8F_Eb2 = 0x8F,
             [Description("E 2")]
             _90_E2 = 0x90,
             [Description("F 2")]
             _91_F2 = 0x91,
-            [Description("F# 2")]
+            [Description("F♯ 2")]
             _92_Gb2 = 0x92,
             [Description("G 2")]
             _93_G2 = 0x93,
-            [Description("G# 2")]
+            [Description("G♯ 2")]
             _94_Ab2 = 0x94,
             [Description("A 2")]
             _95_A2 = 0x95,
-            [Description("A# 2")]
+            [Description("A♯ 2")]
             _96_Bb2 = 0x96,
             [Description("B 2")]
             _97_B2 = 0x97,
 
             [Description("C 3")]
             _98_C3 = 0x98,
-            [Description("C# 3")]
+            [Description("C♯ 3")]
             _99_Db3 = 0x99,
             [Description("D 3")]
             _9A_D3 = 0x9A,
-            [Description("D# 3")]
+            [Description("D♯ 3")]
             _9B_Eb3 = 0x9B,
             [Description("E 3")]
             _9C_E3 = 0x9C,
             [Description("F 3")]
             _9D_F3 = 0x9D,
-            [Description("F# 3")]
+            [Description("F♯ 3")]
             _9E_Gb3 = 0x9E,
             [Description("G 3")]
             _9F_G3 = 0x9F,
-            [Description("G# 3")]
+            [Description("G♯ 3")]
             _A0_Ab3 = 0xA0,
             [Description("A 3")]
             _A1_A3 = 0xA1,
-            [Description("A# 3")]
+            [Description("A♯ 3")]
             _A2_Bb3 = 0xA2,
             [Description("B 3")]
             _A3_B3 = 0xA3,
 
             [Description("C 4")]
             _A4_C4 = 0xA4,
-            [Description("C# 4")]
+            [Description("C♯ 4")]
             _A5_Db4 = 0xA5,
             [Description("D 4")]
             _A6_D4 = 0xA6,
-            [Description("D# 4")]
+            [Description("D♯ 4")]
             _A7_Eb4 = 0xA7,
             [Description("E 4")]
             _A8_E4 = 0xA8,
             [Description("F 4")]
             _A9_F4 = 0xA9,
-            [Description("F# 4")]
+            [Description("F♯ 4")]
             _AA_Gb4 = 0xAA,
             [Description("G 4")]
             _AB_G4 = 0xAB,
-            [Description("G# 4")]
+            [Description("G♯ 4")]
             _AC_Ab4 = 0xAC,
             [Description("A 4")]
             _AD_A4 = 0xAD,
-            [Description("A# 4")]
+            [Description("A♯ 4")]
             _AE_Bb4 = 0xAE,
             [Description("B 4")]
             _AF_B4 = 0xAF,
 
             [Description("C 5")]
             _B0_C5 = 0xB0,
-            [Description("C# 5")]
+            [Description("C♯ 5")]
             _B1_Db5 = 0xB1,
             [Description("D 5")]
             _B2_D5 = 0xB2,
-            [Description("D# 5")]
+            [Description("D♯ 5")]
             _B3_Eb5 = 0xB3,
             [Description("E 5")]
             _B4_E5 = 0xB4,
             [Description("F 5")]
             _B5_F5 = 0xB5,
-            [Description("F# 5")]
+            [Description("F♯ 5")]
             _B6_Gb5 = 0xB6,
             [Description("G 5")]
             _B7_G5 = 0xB7,
-            [Description("G# 5")]
+            [Description("G♯ 5")]
             _B8_Ab5 = 0xB8,
             [Description("A 5")]
             _B9_A5 = 0xB9,
-            [Description("A# 5")]
+            [Description("A♯ 5")]
             _BA_Bb5 = 0xBA,
             [Description("B 5")]
             _BB_B5 = 0xBB,
 
             [Description("C 6")]
             _BC_C6 = 0xBC,
-            [Description("C# 6")]
+            [Description("C♯ 6")]
             _BD_Db6 = 0xBD,
             [Description("D 6")]
             _BE_D6 = 0xBE,
-            [Description("D# 6")]
+            [Description("D♯ 6")]
             _BF_Eb6 = 0xBF,
             [Description("E 6")]
             _C0_E6 = 0xC0,
             [Description("F 6")]
             _C1_F6 = 0xC1,
-            [Description("F# 6")]
+            [Description("F♯ 6")]
             _C2_Gb6 = 0xC2,
             [Description("G 6")]
             _C3_G6 = 0xC3,
-            [Description("G# 6")]
+            [Description("G♯ 6")]
             _C4_Ab6 = 0xC4,
             [Description("A 6")]
             _C5_A6 = 0xC5,
-            [Description("A# 6")]
+            [Description("A♯ 6")]
             _C6_Bb6 = 0xC6,
             [Description("B 6")]
             _C7_B6 = 0xC7,

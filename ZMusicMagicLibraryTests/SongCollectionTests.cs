@@ -31,14 +31,35 @@ namespace ZMusicMagicLibraryTests
         [Fact]
         public void loads_song_banks()
         {
+            VerifyRomLoad("zelda.sfc");
+
+            VerifyRomLoad("zeldaUS.sfc");
+        }
+
+        void VerifyRomLoad(string filename)
+        {
             Rom rom = new Rom();
-            rom.LoadRom("zelda.sfc");
+            rom.LoadRom(filename);
 
             output.WriteLine($"BaseNSPC");
             foreach (var s in rom.BaseNSPC.Songs)
             {
                 output.WriteLine($"Song - Address:{s.Address.ToString("X")}, Loop Address:{s.LoopAddress.ToString("X")}, Part Count: {s.Parts.Count}");
-                foreach(var p in s.Parts)
+                foreach (var p in s.Parts)
+                {
+                    output.WriteLine($"Part - Address:{p.PartPointerAddress.ToString("X")}, Track Table Address:{p.SongPartTrackTableAddress.ToString("X")}, Loop Count:{p.LoopCount}, Goto Address:{p.GotoPartAddress.ToString("X")}, Track Count:{p.Tracks.Count(x => x.Address != 0x0)}");
+                    foreach (var t in p.Tracks)
+                    {
+                        output.WriteLine($"Track - Address:{t.Address.ToString("X")}, Raw Data Length:{t.RawTrackData.Length}");
+                    }
+                }
+            }
+
+            output.WriteLine($"IndoorNSPC");
+            foreach (var s in rom.IndoorNSPC.Songs)
+            {
+                output.WriteLine($"Song - Address:{s.Address.ToString("X")}, Loop Address:{s.LoopAddress.ToString("X")}, Part Count: {s.Parts.Count}");
+                foreach (var p in s.Parts)
                 {
                     output.WriteLine($"Part - Address:{p.PartPointerAddress.ToString("X")}, Track Table Address:{p.SongPartTrackTableAddress.ToString("X")}, Loop Count:{p.LoopCount}, Goto Address:{p.GotoPartAddress.ToString("X")}, Track Count:{p.Tracks.Count(x => x.Address != 0x0)}");
                     foreach (var t in p.Tracks)
