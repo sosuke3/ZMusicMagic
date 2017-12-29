@@ -42,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NoteEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NoteEditor.Designer.cs">
+      <DependentUpon>NoteEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="PianoRoll.cs">
       <SubType>UserControl</SubType>
     </Compile>

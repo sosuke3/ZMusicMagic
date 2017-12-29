@@ -18,6 +18,7 @@ namespace ZMusicMagicControls
         ScrollBar m_horizontalScroll;
         ScrollBar m_commandVerticalScroll;
         ScrollBar m_notesVerticalScroll;
+        NoteEditor m_noteEditor;
 
         [Browsable(false)]
         [Category("")]
@@ -42,62 +43,54 @@ namespace ZMusicMagicControls
 
             this.SetStyle(ControlStyles.Selectable | ControlStyles.OptimizedDoubleBuffer, true);
 
+            InitializeMyComonents();
+        }
+
+        private void InitializeMyComonents()
+        {
             this.SuspendLayout();
+
             this.m_horizontalScroll = new ScrollBar();
             this.m_horizontalScroll.Location = new Point(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth);
             this.m_horizontalScroll.Size = new Size(this.ClientRectangle.Right - scrollBarFrameWidth - upperLeftWidth - guiThickLineWidth, scrollBarFrameWidth);
-                //new Rectangle(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth, 2, 2));
             this.m_horizontalScroll.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             this.m_horizontalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_horizontalScroll.ScrollBarColor = scrollBarColor;
             this.m_horizontalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            //this.m_horizontalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_horizontalScroll.Orientation = ScrollBar.ScrollBarDirection.Horizonal;
-            //this.m_horizontalScroll.PositionChanged += OnHorizontalScrollPositionChanged;
             this.Controls.Add(this.m_horizontalScroll);
 
             this.m_commandVerticalScroll = new ScrollBar();
-                //new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, 0, 2, commandAreaHeight - guiThickLineWidth / 2));
             this.m_commandVerticalScroll.Location = new Point(this.ClientRectangle.Right - scrollBarFrameWidth, 0);
             this.m_commandVerticalScroll.Size = new Size(scrollBarFrameWidth, commandAreaHeight - guiThickLineWidth / 2);
             this.m_commandVerticalScroll.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             this.m_commandVerticalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_commandVerticalScroll.ScrollBarColor = scrollBarColor;
             this.m_commandVerticalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            //this.m_commandVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_commandVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
-            //this.m_commandVerticalScroll.PositionChanged += OnCommandVerticalScrollPositionChanged;
             this.Controls.Add(this.m_commandVerticalScroll);
 
             this.m_notesVerticalScroll = new ScrollBar();
-                //new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, upperLeftHeight + guiThickLineWidth, 2, 2));
             this.m_notesVerticalScroll.Location = new Point(this.ClientRectangle.Right - scrollBarFrameWidth, upperLeftHeight + guiThickLineWidth);
             this.m_notesVerticalScroll.Size = new Size(scrollBarFrameWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth - upperLeftHeight - guiThickLineWidth);
             this.m_notesVerticalScroll.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             this.m_notesVerticalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_notesVerticalScroll.ScrollBarColor = scrollBarColor;
             this.m_notesVerticalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            //this.m_notesVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_notesVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
-            //this.m_notesVerticalScroll.PositionChanged += OnNotesVerticalScrollPositionChanged;
             this.Controls.Add(this.m_notesVerticalScroll);
+
+            this.m_noteEditor = new NoteEditor();
+            this.m_noteEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, upperLeftHeight + guiThickLineWidth);
+            this.m_noteEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, 
+                this.Height - upperLeftHeight - guiThickLineWidth - scrollBarFrameWidth);
+            this.m_noteEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+            this.m_notesVerticalScroll.ValueChanged += this.m_noteEditor.VerticalScroll_ValueChanged;
+            this.m_horizontalScroll.ValueChanged += this.m_noteEditor.HorizontalScroll_ValueChanged;
+            this.Controls.Add(this.m_noteEditor);
             this.ResumeLayout(false);
         }
 
-        private void OnNotesVerticalScrollPositionChanged(object sender, EventArgs e)
-        {
-            this.Invalidate();
-        }
-
-        private void OnCommandVerticalScrollPositionChanged(object sender, EventArgs e)
-        {
-            this.Invalidate();
-        }
-
-        private void OnHorizontalScrollPositionChanged(object sender, EventArgs e)
-        {
-            this.Invalidate();
-        }
 
         const int scrollBarWidth = 6;
         const int halfScrollWidth = scrollBarWidth / 2;
@@ -228,81 +221,6 @@ namespace ZMusicMagicControls
             // left line
             g.DrawLine(thickLinePenBlack, minX + upperLeftWidth + halfThickLineWidth, minY, minX + upperLeftWidth + halfThickLineWidth, maxY);
 
-            // bottom scroll bar
-            //int bottomScrollMinX = minX + upperLeftWidth + guiThickLineWidth;
-            //int bottomScrollY = maxY - scrollBarFrameWidth;
-            //int bottomScrollWidth = maxX - bottomScrollMinX - scrollBarFrameWidth;
-            //DrawHorizontalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, bottomScrollMinX, bottomScrollY, bottomScrollWidth);
-
-            //m_horizontalScroll.Draw(g);
-
-            // command scroll bar
-            //int commandScrollX = maxX - scrollBarFrameWidth;
-            //int commandScrollMinY = minY;
-            //int commandScrollHeight = commandAreaHeight - halfThickLineWidth;
-            //DrawVerticalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, commandScrollX, commandScrollMinY, commandScrollHeight);
-            
-            //m_commandVerticalScroll.Draw(g);
-
-            // note scroll bar
-            //int noteScrollX = maxX - scrollBarFrameWidth;
-            //int noteScrollMinY = upperLeftHeight + guiThickLineWidth;
-            //int noteScrollHeight = maxY - (upperLeftHeight + guiThickLineWidth) - scrollBarFrameWidth;
-            //DrawVerticalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, noteScrollX, noteScrollMinY, noteScrollHeight);
-
-            //m_notesVerticalScroll.Draw(g);
-
-
-
-
-            //g.DrawString(yScroll.ToString(), this.Font, new SolidBrush(ForeColor), 0, 0);
-
-            //g.DrawLine(Pens.Black, this.ClientRectangle.Left + legendWidth, this.ClientRectangle.Top, this.ClientRectangle.Left + legendWidth, this.ClientRectangle.Bottom);
-
-            //// C1 - B6
-            //var totalNumberOfNotes = (int)ZMusicMagicLibrary.NSPC.Track.Command._C7_B6 - (int)ZMusicMagicLibrary.NSPC.Track.Command._80_C1;
-            //var totalHeight = totalNumberOfNotes * noteHeight;
-            //var currentNote = totalNumberOfNotes - (yScroll / noteHeight);
-            //Debug.WriteLine($"totalNumberOfNotes: {totalNumberOfNotes}, totalHeight: {totalHeight}, currentNote: {currentNote}, yScroll: {yScroll}, noteHeight: {noteHeight}");
-
-            //var note = (ZMusicMagicLibrary.NSPC.Track.Command)((int)ZMusicMagicLibrary.NSPC.Track.Command._80_C1 + currentNote);
-
-            //for (int i = 1; i < this.ClientRectangle.Height / noteHeight; i++)
-            //{
-            //    g.DrawString(note.GetDescription(), this.Font, new SolidBrush(ForeColor), this.ClientRectangle.Left, this.ClientRectangle.Top + (noteHeight * i) + (noteHeight / 2) - g.MeasureString(note.GetDescription(), this.Font).Height / 2);
-            //    g.DrawLine(Pens.Black, this.ClientRectangle.Left + legendWidth, this.ClientRectangle.Top + (noteHeight * i), this.ClientRectangle.Right, this.ClientRectangle.Top + (noteHeight * i));
-
-            //    note = (ZMusicMagicLibrary.NSPC.Track.Command)((int)note - 1);
-            //}
-
-        }
-
-        private static void DrawVerticalScrollBar(Graphics g, Brush scrollBarFrameBrush, Brush scrollBarHandleBrush, int x, int y, int length)
-        {
-            g.FillRectangle(scrollBarFrameBrush, x, y, scrollBarFrameWidth, length);
-
-            // handle
-            int scrollStartY = 11; // TODO: calculate this
-            int scrollHandleLength = 20; // TODO: calculate this
-
-            g.FillRectangle(scrollBarHandleBrush,
-                x + 2,
-                y + scrollStartY + 2 + halfScrollWidth,
-                scrollBarWidth,
-                scrollHandleLength - halfScrollWidth - 2);
-            // top rounded cap
-            g.FillEllipse(scrollBarHandleBrush,
-                x + 2,
-                y + scrollStartY + 2,
-                scrollBarWidth,
-                scrollBarWidth);
-
-            // bottom rounded cap
-            g.FillEllipse(scrollBarHandleBrush,
-                x + 2,
-                y + scrollStartY + scrollHandleLength - halfScrollWidth,
-                scrollBarWidth,
-                scrollBarWidth);
         }
 
         private static void DrawHorizontalScrollBar(Graphics g, Brush scrollBarFrameBrush, Brush scrollBarHandleBrush, int x, int y, int length)
