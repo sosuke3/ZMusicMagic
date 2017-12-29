@@ -173,6 +173,22 @@ namespace ZMusicMagicControls
         //public void OnMouseLeave(MouseEventArgs e)
         //{
         //}
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            this.MouseWheelHandler(this, e);
+        }
+
+        public void MouseWheelHandler(object source, MouseEventArgs e)
+        {
+            this.Value -= ZMusicMagicLibrary.Utilities.Clamp(e.Delta, -1, 1); // todo: make this go faster depending on delta, or something
+
+            Invalidate();
+
+            this.ValueChanged?.Invoke(this, new EventArgs());
+            this.Scroll?.Invoke(this, new EventArgs());
+        }
 
         int clickOffset;
         protected override void OnMouseMove(MouseEventArgs e)

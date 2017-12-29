@@ -23,6 +23,8 @@ namespace ZMusicMagic
 
             m_part = part;
             this.trackControl1.Part = part;
+            // TODO: fix this
+            this.pianoRoll1.Channel = part.Channels[0];
         }
 
 

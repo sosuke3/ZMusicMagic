@@ -51,7 +51,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.pianoRoll1);
-            this.splitContainer1.Size = new System.Drawing.Size(633, 498);
+            this.splitContainer1.Size = new System.Drawing.Size(885, 498);
             this.splitContainer1.SplitterDistance = 233;
             this.splitContainer1.TabIndex = 1;
             // 
@@ -62,24 +62,24 @@
             this.trackControl1.Location = new System.Drawing.Point(0, 0);
             this.trackControl1.Name = "trackControl1";
             this.trackControl1.Part = null;
-            this.trackControl1.Size = new System.Drawing.Size(633, 233);
+            this.trackControl1.Size = new System.Drawing.Size(885, 233);
             this.trackControl1.TabIndex = 1;
             this.trackControl1.Text = "trackControl1";
             // 
             // pianoRoll1
             // 
+            this.pianoRoll1.Channel = null;
             this.pianoRoll1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pianoRoll1.Location = new System.Drawing.Point(0, 0);
             this.pianoRoll1.Name = "pianoRoll1";
-            this.pianoRoll1.Part = null;
-            this.pianoRoll1.Size = new System.Drawing.Size(633, 261);
+            this.pianoRoll1.Size = new System.Drawing.Size(885, 261);
             this.pianoRoll1.TabIndex = 0;
             // 
             // SongPartForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(633, 498);
+            this.ClientSize = new System.Drawing.Size(885, 498);
             this.Controls.Add(this.splitContainer1);
             this.Name = "SongPartForm";
             this.Text = "SongPartForm";

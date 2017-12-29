@@ -14,22 +14,24 @@ namespace ZMusicMagicControls
 {
     public partial class PianoRoll : UserControl
     {
-        Part m_part;
+        Channel m_channel;
         ScrollBar m_horizontalScroll;
         ScrollBar m_commandVerticalScroll;
         ScrollBar m_notesVerticalScroll;
         NoteEditor m_noteEditor;
 
-        [Browsable(false)]
-        [Category("")]
-        [Description("")]
-        [DisplayName("")]
-        public Part Part
+        public Channel Channel
         {
-            get { return m_part; }
+            get { return m_channel; }
             set
             {
-                m_part = value;
+                m_channel = value;
+
+                if (m_noteEditor != null)
+                {
+                    m_noteEditor.Channel = m_channel;
+                }
+
                 // repaint
                 Invalidate();
             }
@@ -87,6 +89,7 @@ namespace ZMusicMagicControls
             this.m_noteEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
             this.m_notesVerticalScroll.ValueChanged += this.m_noteEditor.VerticalScroll_ValueChanged;
             this.m_horizontalScroll.ValueChanged += this.m_noteEditor.HorizontalScroll_ValueChanged;
+            this.m_noteEditor.MouseWheel += this.m_notesVerticalScroll.MouseWheelHandler;
             this.Controls.Add(this.m_noteEditor);
             this.ResumeLayout(false);
         }
