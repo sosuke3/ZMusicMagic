@@ -112,7 +112,33 @@ namespace ZMusicMagicControls
             int canvasX = visibleAreaRectangle.X;
             int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
             int x = 0;
-            foreach(var c in Channel.Commands)
+
+            DrawNotes(g, ref x, ref duration, ref noteWidth, Channel.Commands, visibleAreaRectangle, visibleNoteList);
+
+        }
+
+        private void DrawNotes(Graphics g, ref int x, ref int duration, ref int noteWidth, List<ChannelCommand> commands, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList, bool isLoop = false)
+        {
+            if(commands == null || commands.Count == 0)
+            {
+                return;
+            }
+
+            var unselectedBrush = Brushes.Purple;
+            var selectedBrush = Brushes.Orange;
+            if (isLoop)
+            {
+                unselectedBrush = Brushes.LightSlateGray;
+            }
+            var outlineBrush = Brushes.Black;
+
+            int fullNoteDuration = 0x60;
+            float pixelsPerDuration = (float)fullNoteWidth / (float)fullNoteDuration;
+
+            int width = canvasWidth;
+            int canvasX = visibleAreaRectangle.X;
+            int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
+            foreach (var c in commands)
             {
                 var cmd = (Track.Command)c.Command;
 
@@ -122,9 +148,18 @@ namespace ZMusicMagicControls
                     noteWidth = (int)(duration * pixelsPerDuration);
                 }
 
-                if(c is NoteCommand)
+                if (c is CallLoopCommand)
                 {
-                    if(cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
+                    var loop = c as CallLoopCommand;
+                    if(loop != null)
+                    {
+                        DrawNotes(g, ref x, ref duration, ref noteWidth, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, true);
+                    }
+                }
+
+                if (c is NoteCommand)
+                {
+                    if (cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
                     {
                         // skip these for now
                     }
@@ -141,7 +176,9 @@ namespace ZMusicMagicControls
                             {
                                 //g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
 
-                                g.FillRectangle(Brushes.Purple, x - horizontalOffset, info.LineArea.Top, noteWidth, info.LineArea.Height);
+                                var noteRectangle = new Rectangle(x - horizontalOffset, info.LineArea.Top, noteWidth, info.LineArea.Height);
+                                g.FillRectangle(unselectedBrush, noteRectangle);
+                                g.DrawRectangle(Pens.Black, noteRectangle);
                             }
 
 
