@@ -12,7 +12,7 @@ using ZMusicMagicLibrary;
 
 namespace ZMusicMagicControls
 {
-    public partial class PianoRoll : Control
+    public partial class PianoRoll : UserControl
     {
         Part m_part;
         ScrollBar m_horizontalScroll;
@@ -42,35 +42,46 @@ namespace ZMusicMagicControls
 
             this.SetStyle(ControlStyles.Selectable | ControlStyles.OptimizedDoubleBuffer, true);
 
-            this.m_horizontalScroll = new ScrollBar(
-                new Rectangle(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth, 2, 2));
+            this.SuspendLayout();
+            this.m_horizontalScroll = new ScrollBar();
+            this.m_horizontalScroll.Location = new Point(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth);
+            this.m_horizontalScroll.Size = new Size(this.ClientRectangle.Right - scrollBarFrameWidth - upperLeftWidth - guiThickLineWidth, scrollBarFrameWidth);
+                //new Rectangle(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth, 2, 2));
             this.m_horizontalScroll.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             this.m_horizontalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_horizontalScroll.ScrollBarColor = scrollBarColor;
             this.m_horizontalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            this.m_horizontalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
+            //this.m_horizontalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_horizontalScroll.Orientation = ScrollBar.ScrollBarDirection.Horizonal;
-            this.m_horizontalScroll.PositionChanged += OnHorizontalScrollPositionChanged;
+            //this.m_horizontalScroll.PositionChanged += OnHorizontalScrollPositionChanged;
+            this.Controls.Add(this.m_horizontalScroll);
 
-            this.m_commandVerticalScroll = new ScrollBar(
-                new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, 0, 2, commandAreaHeight - guiThickLineWidth / 2));
+            this.m_commandVerticalScroll = new ScrollBar();
+                //new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, 0, 2, commandAreaHeight - guiThickLineWidth / 2));
+            this.m_commandVerticalScroll.Location = new Point(this.ClientRectangle.Right - scrollBarFrameWidth, 0);
+            this.m_commandVerticalScroll.Size = new Size(scrollBarFrameWidth, commandAreaHeight - guiThickLineWidth / 2);
             this.m_commandVerticalScroll.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             this.m_commandVerticalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_commandVerticalScroll.ScrollBarColor = scrollBarColor;
             this.m_commandVerticalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            this.m_commandVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
+            //this.m_commandVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_commandVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
-            this.m_commandVerticalScroll.PositionChanged += OnCommandVerticalScrollPositionChanged;
+            //this.m_commandVerticalScroll.PositionChanged += OnCommandVerticalScrollPositionChanged;
+            this.Controls.Add(this.m_commandVerticalScroll);
 
-            this.m_notesVerticalScroll = new ScrollBar(
-                new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, upperLeftHeight + guiThickLineWidth, 2, 2));
+            this.m_notesVerticalScroll = new ScrollBar();
+                //new Rectangle(this.ClientRectangle.Right - scrollBarFrameWidth, upperLeftHeight + guiThickLineWidth, 2, 2));
+            this.m_notesVerticalScroll.Location = new Point(this.ClientRectangle.Right - scrollBarFrameWidth, upperLeftHeight + guiThickLineWidth);
+            this.m_notesVerticalScroll.Size = new Size(scrollBarFrameWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth - upperLeftHeight - guiThickLineWidth);
             this.m_notesVerticalScroll.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             this.m_notesVerticalScroll.ScrollFrameColor = scrollFrameColor;
             this.m_notesVerticalScroll.ScrollBarColor = scrollBarColor;
             this.m_notesVerticalScroll.ScrollFrameThickness = scrollBarFrameWidth;
-            this.m_notesVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
+            //this.m_notesVerticalScroll.AnchorEndRelativeOffset = new Size(scrollBarFrameWidth, scrollBarFrameWidth);
             this.m_notesVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
-            this.m_notesVerticalScroll.PositionChanged += OnNotesVerticalScrollPositionChanged;
+            //this.m_notesVerticalScroll.PositionChanged += OnNotesVerticalScrollPositionChanged;
+            this.Controls.Add(this.m_notesVerticalScroll);
+            this.ResumeLayout(false);
         }
 
         private void OnNotesVerticalScrollPositionChanged(object sender, EventArgs e)
@@ -123,9 +134,9 @@ namespace ZMusicMagicControls
         {
             base.OnResize(e);
 
-            m_horizontalScroll.ParentRectangle = this.ClientRectangle;
-            m_commandVerticalScroll.ParentRectangle = this.ClientRectangle;
-            m_notesVerticalScroll.ParentRectangle = this.ClientRectangle;
+            //m_horizontalScroll.ParentRectangle = this.ClientRectangle;
+            //m_commandVerticalScroll.ParentRectangle = this.ClientRectangle;
+            //m_notesVerticalScroll.ParentRectangle = this.ClientRectangle;
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -147,45 +158,45 @@ namespace ZMusicMagicControls
         {
             base.OnMouseDoubleClick(e);
 
-            m_horizontalScroll.OnMouseDoubleClick(e);
-            m_commandVerticalScroll.OnMouseDoubleClick(e);
-            m_notesVerticalScroll.OnMouseDoubleClick(e);
+            //m_horizontalScroll.OnMouseDoubleClick(e);
+            //m_commandVerticalScroll.OnMouseDoubleClick(e);
+            //m_notesVerticalScroll.OnMouseDoubleClick(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
 
-            m_horizontalScroll.OnMouseClick(e);
-            m_commandVerticalScroll.OnMouseClick(e);
-            m_notesVerticalScroll.OnMouseClick(e);
+            //m_horizontalScroll.OnMouseClick(e);
+            //m_commandVerticalScroll.OnMouseClick(e);
+            //m_notesVerticalScroll.OnMouseClick(e);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
 
-            m_horizontalScroll.OnMouseDown(e);
-            m_commandVerticalScroll.OnMouseDown(e);
-            m_notesVerticalScroll.OnMouseDown(e);
+            //m_horizontalScroll.OnMouseDown(e);
+            //m_commandVerticalScroll.OnMouseDown(e);
+            //m_notesVerticalScroll.OnMouseDown(e);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            m_horizontalScroll.OnMouseMove(e);
-            m_commandVerticalScroll.OnMouseMove(e);
-            m_notesVerticalScroll.OnMouseMove(e);
+            //m_horizontalScroll.OnMouseMove(e);
+            //m_commandVerticalScroll.OnMouseMove(e);
+            //m_notesVerticalScroll.OnMouseMove(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
 
-            m_horizontalScroll.OnMouseUp(e);
-            m_commandVerticalScroll.OnMouseUp(e);
-            m_notesVerticalScroll.OnMouseUp(e);
+            //m_horizontalScroll.OnMouseUp(e);
+            //m_commandVerticalScroll.OnMouseUp(e);
+            //m_notesVerticalScroll.OnMouseUp(e);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -222,21 +233,24 @@ namespace ZMusicMagicControls
             //int bottomScrollY = maxY - scrollBarFrameWidth;
             //int bottomScrollWidth = maxX - bottomScrollMinX - scrollBarFrameWidth;
             //DrawHorizontalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, bottomScrollMinX, bottomScrollY, bottomScrollWidth);
-            m_horizontalScroll.Draw(g);
+
+            //m_horizontalScroll.Draw(g);
 
             // command scroll bar
             //int commandScrollX = maxX - scrollBarFrameWidth;
             //int commandScrollMinY = minY;
             //int commandScrollHeight = commandAreaHeight - halfThickLineWidth;
             //DrawVerticalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, commandScrollX, commandScrollMinY, commandScrollHeight);
-            m_commandVerticalScroll.Draw(g);
+            
+            //m_commandVerticalScroll.Draw(g);
 
             // note scroll bar
             //int noteScrollX = maxX - scrollBarFrameWidth;
             //int noteScrollMinY = upperLeftHeight + guiThickLineWidth;
             //int noteScrollHeight = maxY - (upperLeftHeight + guiThickLineWidth) - scrollBarFrameWidth;
             //DrawVerticalScrollBar(g, scrollBarFrameBrush, scrollBarHandleBrush, noteScrollX, noteScrollMinY, noteScrollHeight);
-            m_notesVerticalScroll.Draw(g);
+
+            //m_notesVerticalScroll.Draw(g);
 
 
 

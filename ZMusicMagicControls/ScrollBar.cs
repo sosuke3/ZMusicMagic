@@ -9,30 +9,25 @@ using System.Windows.Forms;
 
 namespace ZMusicMagicControls
 {
-    public class ScrollBar
+    public class ScrollBar : Control
     {
         public enum ScrollBarDirection { Horizonal, Vertical }
-
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
 
         public int Minimum { get; set; } = 0;
         public int Maximum { get; set; } = 100;
 
-        int value;
+        float value = 0;
         int largeChange = 10;
         int smallChange = 1;
 
-        public int Value
+        public float Value
         {
             get { return value; }
             set
             {
                 this.value = ZMusicMagicLibrary.Utilities.Clamp(value, this.Minimum, this.Maximum);
 
-                PositionChanged?.Invoke(this, new EventArgs());
+                //PositionChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -54,40 +49,13 @@ namespace ZMusicMagicControls
             }
         }
 
-        Rectangle controlPosition;
-        public Rectangle Position
-        {
-            get { return controlPosition; }
-            set
-            {
-                controlPosition = value;
-
-                //PositionChanged?.Invoke(this, new EventArgs());
-            }
-        }
-
-        public Size AnchorEndRelativeOffset { get; set; } = new Size(10, 10);
         public int ScrollFrameThickness { get; set; } = 10;
 
-        Rectangle parentRectange;
-        public Rectangle ParentRectangle
-        {
-            get { return parentRectange; }
-            set
-            {
-                parentRectange = value;
-
-                Resize();
-                //PositionChanged?.Invoke(this, new EventArgs());
-            }
-        }
-
-        public AnchorStyles Anchor { get; set; } = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         public ScrollBarDirection Orientation { get; set; }
 
         public event EventHandler<EventArgs> ValueChanged;
         public event EventHandler<EventArgs> Scroll;
-        public event EventHandler<EventArgs> PositionChanged;
+        //public event EventHandler<EventArgs> PositionChanged;
 
         Color scrollFrameColor;
         Brush scrollFrameBrush;
@@ -115,29 +83,85 @@ namespace ZMusicMagicControls
 
         bool isDragging = false;
 
-        public ScrollBar(Rectangle position)
+        public ScrollBar()
         {
-            Position = position;
+            this.DoubleBuffered = true;
+            SetStyle(ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer, true);
         }
 
         //public void OnMouseCaptureChanged(MouseEventArgs e)
         //{
         //}
-        public void OnMouseClick(MouseEventArgs e)
+        protected override void OnMouseClick(MouseEventArgs e)
         {
             // scroll to where they clicked
         }
-        public void OnMouseDoubleClick(MouseEventArgs e)
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
             OnMouseClick(e);
         }
-        public void OnMouseDown(MouseEventArgs e)
+        protected override void OnMouseDown(MouseEventArgs e)
         {
-            // start dragging
-            if (this.Position.Contains(e.Location))
+            //Debug.WriteLine($"OnMouseDown {e.Location.ToString()}");
+            var point = e.Location;
+            var barRectangle = CalculateHandleRectangle(true);
+            //Debug.WriteLine($"barRectangle {barRectangle.ToString()}");
+
+            if (barRectangle.Contains(point))
             {
-                previousLocation = e.Location;
+                //previousLocation = e.Location;
+                if (this.Orientation == ScrollBarDirection.Horizonal)
+                {
+                    clickOffset = point.X - barRectangle.Left;
+                }
+                else
+                {
+                    clickOffset = point.Y - barRectangle.Top;
+                }
                 isDragging = true;
+                //Debug.WriteLine($"clickOffset {clickOffset}");
+            }
+            else
+            {
+                // outside the bar
+                // was it before or after?
+                int clickSpot = 0;
+                int beforeBar = 0;
+                int afterBar = 0;
+                if(this.Orientation == ScrollBarDirection.Horizonal)
+                {
+                    clickSpot = point.X;
+                    beforeBar = barRectangle.Left;
+                    afterBar = barRectangle.Right;
+                }
+                else
+                {
+                    clickSpot = point.Y;
+                    beforeBar = barRectangle.Top;
+                    afterBar = barRectangle.Bottom;
+                }
+                //Debug.WriteLine($"clickSpot {clickSpot}");
+                //Debug.WriteLine($"beforeBar {beforeBar}");
+                //Debug.WriteLine($"afterBar {afterBar}");
+                //Debug.WriteLine($"Value {Value}");
+
+                if (clickSpot < beforeBar)
+                {
+                    // less
+                    Value -= LargeChange;
+                }
+                else
+                {
+                    // more
+                    Value += LargeChange;
+                }
+                //Debug.WriteLine($"Value {Value}");
+                Application.DoEvents();
+
+                Invalidate();
+
+                this.ValueChanged?.Invoke(this, new EventArgs());
+                this.Scroll?.Invoke(this, new EventArgs());
             }
         }
         //public void OnMouseEnter(MouseEventArgs e)
@@ -149,199 +173,129 @@ namespace ZMusicMagicControls
         //public void OnMouseLeave(MouseEventArgs e)
         //{
         //}
-        Point previousLocation;
-        public void OnMouseMove(MouseEventArgs e)
+
+        int clickOffset;
+        protected override void OnMouseMove(MouseEventArgs e)
         {
             if(this.isDragging)
             {
-                // move
-                if(Orientation == ScrollBarDirection.Horizonal)
-                {
-                    Value = this.Position.Left + 2 - e.X;
+                //Debug.WriteLine($"OnMouseMove {e.Location.ToString()}");
 
-                    Debug.WriteLine($"e.X {e.X}");
-                    Value += e.X - previousLocation.X;
+                var point = e.Location;
+                var barRectangle = CalculateHandleRectangle();
+                //Debug.WriteLine($"barRectangle {barRectangle.ToString()}");
+                var valueRange = Maximum - Minimum;
+                var pixelRange = 0;
+                int newClickOffset = 0;
+                if (this.Orientation == ScrollBarDirection.Horizonal)
+                {
+                    newClickOffset = point.X - clickOffset;
+                    pixelRange = this.Width - barRectangle.Width - 4;
                 }
                 else
                 {
-                    Value += e.Y - previousLocation.Y;
+                    newClickOffset = point.Y - clickOffset;
+                    pixelRange = this.Height - barRectangle.Height - 4;
                 }
+                //Debug.WriteLine($"newClickOffset {newClickOffset}");
+                //Debug.WriteLine($"pixelRange {pixelRange}");
 
-                previousLocation = e.Location;
+                if (valueRange > 0 && pixelRange > 0)
+                {
+                    newClickOffset = ZMusicMagicLibrary.Utilities.Clamp(newClickOffset, 0, pixelRange);
+                    //Debug.WriteLine($"newClickOffset {newClickOffset}");
+
+                    float perc = (float)newClickOffset / (float)pixelRange;
+                    value = perc * (Maximum);
+                    //Debug.WriteLine($"value {value}");
+                    Application.DoEvents();
+
+                    Invalidate();
+
+                    this.ValueChanged?.Invoke(this, new EventArgs());
+                    this.Scroll?.Invoke(this, new EventArgs());
+                }
             }
         }
-        public void OnMouseUp(MouseEventArgs e)
+        protected override void OnMouseUp(MouseEventArgs e)
         {
             isDragging = false;
         }
 
-        private void Resize()
+        protected override void OnPaint(PaintEventArgs e)
         {
-            int x = this.Position.X;
-            int y = this.Position.Y;
-            int width = this.Position.Width;
-            int height = this.Position.Height;
+            base.OnPaint(e);
+            var g = e.Graphics;
 
-            if (Orientation == ScrollBarDirection.Horizonal)
-            {
-                height = this.ScrollFrameThickness;
-            }
-            else
-            {
-                width = this.ScrollFrameThickness;
-            }
-
-            if ((Anchor & AnchorStyles.Left) == AnchorStyles.Left)
-            {
-                // don't change X
-            }
-
-            if((Anchor & AnchorStyles.Right) == AnchorStyles.Right)
-            {
-                // update width
-                if (Orientation == ScrollBarDirection.Horizonal)
-                {
-                    width = this.parentRectange.Right - x - this.AnchorEndRelativeOffset.Width;
-                }
-                else if ((Anchor & AnchorStyles.Left) != AnchorStyles.Left)
-                {
-                    // vertical scroll bar without anchor left
-                    x = this.parentRectange.Right - this.AnchorEndRelativeOffset.Width;
-                }
-            }
-
-            if((Anchor & AnchorStyles.Top) == AnchorStyles.Top)
-            {
-                // don't change Y
-            }
-
-            if((Anchor & AnchorStyles.Bottom) == AnchorStyles.Bottom)
-            {
-                if(Orientation == ScrollBarDirection.Vertical)
-                {
-                    height = this.parentRectange.Bottom - y - this.AnchorEndRelativeOffset.Height;
-                }
-                else if((Anchor & AnchorStyles.Top) != AnchorStyles.Top)
-                {
-                    // horizontal scroll bar without anchor top
-                    y = this.parentRectange.Bottom - this.AnchorEndRelativeOffset.Height;
-                }
-            }
-
-            this.controlPosition = new Rectangle(x, y, width, height);
-        }
-
-        public void Draw(Graphics g)
-        {
             // draw frame
-            g.FillRectangle(scrollFrameBrush, Position.Left, Position.Top, Position.Width, Position.Height);
+            g.FillRectangle(scrollFrameBrush, 0, 0, this.Width, this.Height);
 
-            // draw handle
+            // draw bar
+            var barRectange = CalculateHandleRectangle();
+            g.FillRectangle(this.scrollBarBrush, barRectange);
+        }
+
+
+        Rectangle CalculateHandleRectangle(bool fullWidth = false)
+        {
+            int maxHandleLength = 0;
             if (Orientation == ScrollBarDirection.Horizonal)
             {
-                DrawHorizontalScrollBar(g);
-                //g.FillRectangle(Brushes.Magenta, this.parentRectange.Right - 30 - ScrollFrameThickness - 2, this.parentRectange.Bottom - 20, 30, 10);
+                maxHandleLength = this.Width - 4; // 2 pixel padding
             }
             else
             {
-                DrawVerticalScrollBar(g);
+                maxHandleLength = this.Height - 4;
             }
-        }
 
-        private void DrawHorizontalScrollBar(Graphics g)
-        {
-
-
-            int maxHandleWidth = this.controlPosition.Width - 4; // 2 pixel padding
-            if(maxHandleWidth < 1)
+            if (maxHandleLength < 1)
             {
                 // nothing to draw
-                return;
+                return Rectangle.Empty;
             }
 
             int range = Maximum - Minimum;
             if (range <= 0)
             {
                 // wtf did you do!
-                return;
+                return Rectangle.Empty;
             }
 
-            int barWidth = maxHandleWidth < 30 ? maxHandleWidth : 30; // TODO: maybe do something different with this to scale it
+            int barLength = maxHandleLength < 30 ? maxHandleLength : 30; // TODO: maybe do something different with this to scale it
 
-            float barHeadMaxRelativePosition = maxHandleWidth - barWidth;
-            if(barHeadMaxRelativePosition < 1)
+            float barHeadMaxRelativePosition = maxHandleLength - barLength;
+            if (barHeadMaxRelativePosition < 1)
             {
                 barHeadMaxRelativePosition = 1;
             }
 
             float pixelsPerDivision = (barHeadMaxRelativePosition) / range;
 
-            int offsetPosition = value - Minimum;
+            float offsetPosition = value - Minimum;
             int barStart = (int)(pixelsPerDivision * offsetPosition);
 
             int barThickness = this.ScrollFrameThickness - 4;
             int barOffset = 2;
-            if(barThickness < 0)
+            if (fullWidth || barThickness < 0)
             {
                 barThickness = this.ScrollFrameThickness;
                 barOffset = 0;
             }
 
-            g.FillRectangle(this.scrollBarBrush, 
-                this.controlPosition.Left + barStart + 2, 
-                this.controlPosition.Top + barOffset, 
-                barWidth, 
-                barThickness);
-
-            //// handle
-            //int scrollStartY = 11; // TODO: calculate this
-            //int scrollHandleLength = 20; // TODO: calculate this
-
-            //g.FillRectangle(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + 2 + halfScrollWidth,
-            //    scrollBarWidth,
-            //    scrollHandleLength - halfScrollWidth - 2);
-            //// top rounded cap
-            //g.FillEllipse(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + 2,
-            //    scrollBarWidth,
-            //    scrollBarWidth);
-
-            //// bottom rounded cap
-            //g.FillEllipse(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + scrollHandleLength - halfScrollWidth,
-            //    scrollBarWidth,
-            //    scrollBarWidth);
+            if(Orientation == ScrollBarDirection.Horizonal)
+            {
+                return new Rectangle(barStart + 2,
+                    barOffset,
+                    barLength,
+                    barThickness);
+            }
+            else
+            {
+                return new Rectangle(barOffset,
+                    barStart + 2,
+                    barThickness,
+                    barLength);
+            }
         }
-
-        private void DrawVerticalScrollBar(Graphics g)
-        {
-            //// handle
-            //int scrollStartY = 11; // TODO: calculate this
-            //int scrollHandleLength = 20; // TODO: calculate this
-
-            //g.FillRectangle(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + 2 + halfScrollWidth,
-            //    scrollBarWidth,
-            //    scrollHandleLength - halfScrollWidth - 2);
-            //// top rounded cap
-            //g.FillEllipse(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + 2,
-            //    scrollBarWidth,
-            //    scrollBarWidth);
-
-            //// bottom rounded cap
-            //g.FillEllipse(scrollBarHandleBrush,
-            //    x + 2,
-            //    y + scrollStartY + scrollHandleLength - halfScrollWidth,
-            //    scrollBarWidth,
-            //    scrollBarWidth);
-        }
-
     }
 }
