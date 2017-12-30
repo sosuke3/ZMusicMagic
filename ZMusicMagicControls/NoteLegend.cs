@@ -177,11 +177,11 @@ namespace ZMusicMagicControls
             int height = 72 * noteHeightWithLine;
 
             int verticalOffset = (int)(scrollPosition.Y / 100.0 * height);
-            Debug.WriteLine($"verticalOffset {verticalOffset}");
+            //Debug.WriteLine($"verticalOffset {verticalOffset}");
             int y = noteThickness;
             for(int i = (int)Track.Command._C7_B6; i > (int)Track.Command._80_C1 - 1; --i)
             {
-                Debug.WriteLine($"i: y {i} {y}");
+                //Debug.WriteLine($"i: y {i} {y}");
                 int topY = y - verticalOffset - noteThickness;
                 int offsetY = y - verticalOffset;
 

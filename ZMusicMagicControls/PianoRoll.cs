@@ -93,15 +93,25 @@ namespace ZMusicMagicControls
             this.m_notesVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
             this.Controls.Add(this.m_notesVerticalScroll);
 
-            this.m_noteEditor = new NoteEditor();
-            this.m_noteEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, upperLeftHeight + guiThickLineWidth);
-            this.m_noteEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, 
-                this.Height - upperLeftHeight - guiThickLineWidth - scrollBarFrameWidth);
-            this.m_noteEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-            this.m_notesVerticalScroll.ValueChanged += this.m_noteEditor.VerticalScroll_ValueChanged;
-            this.m_horizontalScroll.ValueChanged += this.m_noteEditor.HorizontalScroll_ValueChanged;
-            this.m_noteEditor.MouseScroll += this.m_notesVerticalScroll.MouseWheelHandler;
-            this.Controls.Add(this.m_noteEditor);
+            this.m_commandEditor = new CommandEditor();
+            this.m_commandEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, 0);
+            this.m_commandEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, commandAreaHeight - guiThickLineWidth / 2);
+            this.m_commandEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            this.m_commandVerticalScroll.ValueChanged += this.m_commandEditor.VerticalScroll_ValueChanged;
+            this.m_horizontalScroll.ValueChanged += this.m_commandEditor.HorizontalScroll_ValueChanged;
+            this.m_commandEditor.MouseScroll += this.m_commandVerticalScroll.MouseWheelHandler;
+            this.Controls.Add(this.m_commandEditor);
+
+            this.m_beatLegend = new BeatLegend();
+            this.m_beatLegend.Location = new Point(upperLeftWidth + guiThickLineWidth, commandAreaHeight + guiThickLineWidth / 2);
+            this.m_beatLegend.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth, barLegendHeight);
+            this.m_beatLegend.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            this.m_horizontalScroll.ValueChanged += this.m_beatLegend.HorizontalScroll_ValueChanged;
+            this.m_beatLegend.BeatLineColor = barLineColor;
+            this.m_beatLegend.BeatLineThickness = barLineThickness;
+            this.m_beatLegend.SubBeatLineColor = subBarLineColor;
+            this.m_beatLegend.SubBeatLineThickness = subBarLineThickness;
+            this.Controls.Add(this.m_beatLegend);
 
             this.m_noteLegend = new NoteLegend();
             this.m_noteLegend.Location = new Point(0, upperLeftHeight + guiThickLineWidth);
@@ -113,22 +123,19 @@ namespace ZMusicMagicControls
             this.m_noteLegend.KeyAreaWidth = upperLeftWidth - legendWidth;
             this.Controls.Add(this.m_noteLegend);
 
-            this.m_beatLegend = new BeatLegend();
-            this.m_beatLegend.Location = new Point(upperLeftWidth + guiThickLineWidth, commandAreaHeight + guiThickLineWidth / 2);
-            this.m_beatLegend.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth,
-                upperLeftHeight - commandAreaHeight - guiThickLineWidth / 2);
-            this.m_beatLegend.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-            this.m_horizontalScroll.ValueChanged += this.m_beatLegend.HorizontalScroll_ValueChanged;
-            this.Controls.Add(this.m_beatLegend);
-
-            this.m_commandEditor = new CommandEditor();
-            this.m_commandEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, 0);
-            this.m_commandEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, commandAreaHeight);
-            this.m_commandEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-            this.m_commandVerticalScroll.ValueChanged += this.m_commandEditor.VerticalScroll_ValueChanged;
-            this.m_horizontalScroll.ValueChanged += this.m_commandEditor.HorizontalScroll_ValueChanged;
-            this.m_commandEditor.MouseScroll += this.m_commandVerticalScroll.MouseWheelHandler;
-            this.Controls.Add(this.m_commandEditor);
+            this.m_noteEditor = new NoteEditor();
+            this.m_noteEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, upperLeftHeight + guiThickLineWidth);
+            this.m_noteEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, 
+                this.Height - upperLeftHeight - guiThickLineWidth - scrollBarFrameWidth);
+            this.m_noteEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+            this.m_notesVerticalScroll.ValueChanged += this.m_noteEditor.VerticalScroll_ValueChanged;
+            this.m_horizontalScroll.ValueChanged += this.m_noteEditor.HorizontalScroll_ValueChanged;
+            this.m_noteEditor.MouseScroll += this.m_notesVerticalScroll.MouseWheelHandler;
+            this.m_noteEditor.BeatLineColor = barLineColor;
+            this.m_noteEditor.BeatLineThickness = barLineThickness;
+            this.m_noteEditor.SubBeatLineColor = subBarLineColor;
+            this.m_noteEditor.SubBeatLineThickness = subBarLineThickness;
+            this.Controls.Add(this.m_noteEditor);
 
             this.ResumeLayout(false);
         }
@@ -146,18 +153,23 @@ namespace ZMusicMagicControls
         const int guiThickLineWidth = 2;
         const int guiThinLineWidth = 1;
 
-        const int upperLeftWidth = 62;
-        const int upperLeftHeight = 113;
-
-        const int commandAreaHeight = 95;
+        const int commandAreaHeight = 50;
 
         const int barLegendHeight = 16;
+
+        const int upperLeftWidth = 62;
+        const int upperLeftHeight = commandAreaHeight + barLegendHeight + guiThickLineWidth / 2;
 
         Color noteColorUnselected = Color.FromArgb(192, 76, 233); // purple
         Color noteColorSelected = Color.FromArgb(255, 192, 0); // orange
         Color scrollFrameColor = Color.FromArgb(152, 152, 152); // gray
         Color scrollBarColor = Color.FromArgb(105, 105, 105); // dark gray
         Color backgroundColor = Color.FromArgb(229, 229, 229); // light gray
+
+        const int barLineThickness = 1;
+        Color barLineColor = Color.FromArgb(150, 150, 150);
+        const int subBarLineThickness = 1;
+        Color subBarLineColor = Color.FromArgb(200, 200, 200);
 
         const int fontSize = 14;
         const string font = "Arial";

@@ -138,7 +138,7 @@ namespace ZMusicMagicControls
 
             var visibleNoteList = MakeVisibleNoteList(visibleAreaRectangle);
 
-            Debug.WriteLine(String.Join(",", visibleNoteList));
+            //Debug.WriteLine(String.Join(",", visibleNoteList));
 
             DrawLines(g, visibleAreaRectangle);
             DrawNotes(g, visibleAreaRectangle, visibleNoteList);
@@ -312,31 +312,11 @@ namespace ZMusicMagicControls
 
         void DrawLines(Graphics g, Rectangle visibleArea)
         {
-            // horizontal lines
-            int noteHeightWithLine = noteThickness + 1;
-            int height = 72 * noteHeightWithLine;
-
-            int verticalOffset = (int)(scrollPosition.Y / 100.0 * height);
-            Debug.WriteLine($"verticalOffset {verticalOffset}");
-            int y = noteThickness;
-            for(int i = (int)Track.Command._C7_B6; i > (int)Track.Command._80_C1 - 1; --i)
-            {
-                Debug.WriteLine($"i: y {i} {y}");
-                int topY = y - verticalOffset - noteThickness;
-                int offsetY = y - verticalOffset;
-
-                if (offsetY >= 0 && offsetY <= this.Height)
-                {
-                    g.DrawLine(Pens.Black, 0, y - verticalOffset, this.Right, y - verticalOffset);
-                }
-                y += noteHeightWithLine;
-            }
-
             // vertical lines
             int width = canvasWidth;
             int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
             int x = 0;
-            for (int i = 0; i < width; i+=fullNoteWidth)
+            for (int i = 0; i < width; i += fullNoteWidth)
             {
                 int startX = x - horizontalOffset;
                 int offsetX = x - horizontalOffset + fullNoteWidth;
@@ -349,6 +329,27 @@ namespace ZMusicMagicControls
 
                 x += fullNoteWidth;
             }
+
+            // horizontal lines
+            int noteHeightWithLine = noteThickness + 1;
+            int height = 72 * noteHeightWithLine;
+
+            int verticalOffset = (int)(scrollPosition.Y / 100.0 * height);
+            //Debug.WriteLine($"verticalOffset {verticalOffset}");
+            int y = noteThickness;
+            for(int i = (int)Track.Command._C7_B6; i > (int)Track.Command._80_C1 - 1; --i)
+            {
+                //Debug.WriteLine($"i: y {i} {y}");
+                int topY = y - verticalOffset - noteThickness;
+                int offsetY = y - verticalOffset;
+
+                if (offsetY >= 0 && offsetY <= this.Height)
+                {
+                    g.DrawLine(Pens.Black, 0, y - verticalOffset, this.Right, y - verticalOffset);
+                }
+                y += noteHeightWithLine;
+            }
+
         }
 
         void DrawBeatLines(Graphics g, int x, int y, int width, int height)
