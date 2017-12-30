@@ -24,7 +24,9 @@ namespace ZMusicMagic
             AutoScaleMode = AutoScaleMode.Dpi;
 
             m_part = part;
-            //this.trackControl1.Part = part;
+
+            this.trackControl1.Part = part; // TODO: take this back out
+
             int i = 0;
             this.pianoRolls[i++] = this.pianoRoll1;
             this.pianoRolls[i++] = this.pianoRoll2;

@@ -17,6 +17,7 @@ namespace ZMusicMagicControls
     {
         public event EventHandler<MouseEventArgs> MouseScroll;
 
+        #region Properties and Fields
         public Channel Channel { get; set; }
 
         PointF scrollPosition;
@@ -118,6 +119,7 @@ namespace ZMusicMagicControls
                 Invalidate();
             }
         }
+        #endregion
 
         public NoteEditor()
         {
@@ -141,125 +143,12 @@ namespace ZMusicMagicControls
             //Debug.WriteLine(String.Join(",", visibleNoteList));
 
             DrawLines(g, visibleAreaRectangle);
-            DrawNotes(g, visibleAreaRectangle, visibleNoteList);
+            DrawNotes2(g, visibleAreaRectangle, visibleNoteList);
 
             //g.DrawString($"{visibleAreaRectangle}", this.Font, new SolidBrush(this.ForeColor), 0, 0);
             //g.DrawString($"{String.Join(",", visibleNoteList)}", this.Font, new SolidBrush(this.ForeColor), 0, 20);
         }
 
-        private void DrawNotes(Graphics g, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList)
-        {
-            if(Channel == null)
-            {
-                // nothing to draw
-                return;
-            }
-
-            int duration = 1;
-            int noteWidth = 1;
-            int fullNoteDuration = 0x60;
-            float pixelsPerDuration = (float)fullNoteWidth / (float)fullNoteDuration;
-
-            int width = canvasWidth;
-            int canvasX = visibleAreaRectangle.X;
-            int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
-            int x = 0;
-
-            DrawNotes(g, ref x, ref duration, ref noteWidth, Channel.Commands, visibleAreaRectangle, visibleNoteList);
-
-        }
-
-        private void DrawNotes(Graphics g, ref int x, ref int duration, ref int noteWidth, List<ChannelCommand> commands, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList, bool isLoop = false)
-        {
-            if(commands == null || commands.Count == 0)
-            {
-                return;
-            }
-
-            var unselectedBrush = Brushes.Purple;
-            var selectedBrush = Brushes.Orange;
-            if (isLoop)
-            {
-                unselectedBrush = Brushes.LightSlateGray;
-            }
-            var outlineBrush = Brushes.Black;
-
-            int loopStartX = x;
-
-            int fullNoteDuration = 0x60;
-            float pixelsPerDuration = (float)fullNoteWidth / (float)fullNoteDuration;
-
-            int width = canvasWidth;
-            int canvasX = visibleAreaRectangle.X;
-            int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
-            foreach (var c in commands)
-            {
-                var cmd = (Track.Command)c.Command;
-
-                if (c is DurationCommand)
-                {
-                    duration = c.Command;
-                    noteWidth = (int)(duration * pixelsPerDuration);
-                }
-
-                if (c is CallLoopCommand)
-                {
-                    var loop = c as CallLoopCommand;
-                    if(loop != null)
-                    {
-                        for (int i = 0; i < loop.LoopCount; ++i)
-                        {
-                            DrawNotes(g, ref x, ref duration, ref noteWidth, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, true);
-                        }
-                    }
-                }
-
-                if (c is NoteCommand)
-                {
-                    if (cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
-                    {
-                        // skip these for now
-                    }
-                    else
-                    {
-                        if (visibleNoteList.ContainsKey(cmd))
-                        {
-                            var info = visibleNoteList[cmd];
-
-                            int startX = x - horizontalOffset;
-                            int offsetX = x - horizontalOffset + noteWidth;
-
-                            if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
-                            {
-                                //g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
-
-                                var noteRectangle = new Rectangle(startX, info.LineArea.Top, noteWidth, info.LineArea.Height);
-                                g.FillRectangle(unselectedBrush, noteRectangle);
-                                g.DrawRectangle(Pens.Black, noteRectangle);
-                            }
-
-
-                        }
-                    }
-
-                    x += noteWidth;
-                }
-            }
-
-            int loopEndX = x;
-
-            if (isLoop)
-            {
-                int startX = loopStartX - horizontalOffset;
-                int offsetX = loopEndX - horizontalOffset;
-
-                if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
-                {
-                    var loopRectangle = new Rectangle(startX, 0, loopEndX - loopStartX, this.Height);
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(40, 0, 0, 0)), loopRectangle);
-                }
-            }
-        }
 
         Rectangle MakeVisibleNotesRectangle()
         {
@@ -268,6 +157,7 @@ namespace ZMusicMagicControls
             int canvasHeight = 72 * noteHeightWithLine;
             int verticalOffset = (int)(scrollPosition.Y / 100.0 * canvasHeight);
 
+            int horizontalOffset = (int)(scrollPosition.X / 100.0 * canvasWidth);
 
             int left;
             int top;
@@ -275,7 +165,7 @@ namespace ZMusicMagicControls
             int height;
 
             // todo: fix this
-            left = 0;
+            left = horizontalOffset;
             width = this.Width;
 
             top = verticalOffset;
@@ -314,7 +204,7 @@ namespace ZMusicMagicControls
         {
             // vertical lines
             int width = canvasWidth;
-            int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
+            int horizontalOffset = visibleArea.X;
             int x = 0;
             for (int i = 0; i < width; i += fullNoteWidth)
             {
@@ -332,9 +222,8 @@ namespace ZMusicMagicControls
 
             // horizontal lines
             int noteHeightWithLine = noteThickness + 1;
-            int height = 72 * noteHeightWithLine;
 
-            int verticalOffset = (int)(scrollPosition.Y / 100.0 * height);
+            int verticalOffset = visibleArea.Y;
             //Debug.WriteLine($"verticalOffset {verticalOffset}");
             int y = noteThickness;
             for(int i = (int)Track.Command._C7_B6; i > (int)Track.Command._80_C1 - 1; --i)
@@ -354,16 +243,149 @@ namespace ZMusicMagicControls
 
         void DrawBeatLines(Graphics g, int x, int y, int width, int height)
         {
+            // beat
             g.DrawLine(beatLinePen, x, y, x, height);
-
+            // 1/2
             int halfX = x + (width / 2);
             g.DrawLine(subBeatLinePen, halfX, y, halfX, height);
-
+            // 1/4
             int quarterX = x + (width / 4);
             g.DrawLine(subBeatLinePen, quarterX, y, quarterX, height);
+            // 3/4
             int threeQuarterX = x + 3 * (width / 4);
             g.DrawLine(subBeatLinePen, threeQuarterX, y, threeQuarterX, height);
         }
+
+        private void DrawNotes2(Graphics g, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList)
+        {
+            if (Channel == null)
+            {
+                // nothing to draw
+                return;
+            }
+
+            int duration = 1;
+            int noteWidth = 1;
+            int startTime = 0;
+
+            DrawNotes2(g, ref startTime, ref duration, ref noteWidth, Channel.Commands, visibleAreaRectangle, visibleNoteList);
+
+        }
+
+        private void DrawNotes2(Graphics g, ref int startTime, ref int duration, ref int noteWidth, List<ChannelCommand> commands, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList, bool isLoop = false)
+        {
+            if (commands == null || commands.Count == 0)
+            {
+                return;
+            }
+
+            int fullNoteDuration = 0x60;
+            float pixelsPerDuration = (float)fullNoteWidth / (float)fullNoteDuration;
+
+            var unselectedBrush = Brushes.Purple;
+            var selectedBrush = Brushes.Orange;
+            if (isLoop)
+            {
+                unselectedBrush = Brushes.LightSlateGray;
+            }
+            var outlineBrush = Brushes.Black;
+
+            int loopStartX = (int)(startTime * pixelsPerDuration);
+            int loopStartTime = startTime;
+            int loopStartDuration = duration;
+            int loopNoteWidth = noteWidth;
+
+
+            int width = canvasWidth;
+            int horizontalOffset = visibleAreaRectangle.X;
+            foreach (var c in commands)
+            {
+                var cmd = (Track.Command)c.Command;
+
+                if (c is DurationCommand)
+                {
+                    loopStartDuration = -1;
+                }
+
+                if (c is CallLoopCommand)
+                {
+                    var loop = c as CallLoopCommand;
+                    if (loop != null)
+                    {
+                        for (int i = 0; i < loop.LoopCount; ++i)
+                        {
+                            DrawNotes2(g, ref startTime, ref duration, ref noteWidth, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, true);
+                            loopStartX = (int)(startTime * pixelsPerDuration);
+                        }
+                    }
+                }
+
+                if (c is NoteCommand)
+                {
+                    var noteCommand = c as NoteCommand;
+                    duration = noteCommand.Duration;
+                    if(duration == 0)
+                    {
+                        if (loopStartDuration > -1)
+                        {
+                            duration = loopStartDuration;
+                        }
+                        else
+                        {
+                            Debugger.Break(); // shouldn't hit this.
+                        }
+                    }
+                    noteWidth = (int)(duration * pixelsPerDuration);
+
+                    int x = (int)(startTime * pixelsPerDuration);
+
+                    if (cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
+                    {
+                        // skip these for now
+                        var mag = new SolidBrush(Color.FromArgb(40, 255, 0, 255));
+                        g.FillRectangle(mag, x - horizontalOffset, 0, noteWidth, this.Height);
+                    }
+                    else
+                    {
+                        if (visibleNoteList.ContainsKey(cmd))
+                        {
+                            var info = visibleNoteList[cmd];
+
+                            int startX = x - horizontalOffset;
+                            int offsetX = x - horizontalOffset + noteWidth;
+
+                            if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
+                            {
+                                //g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
+
+                                var noteRectangle = new Rectangle(startX, info.LineArea.Top, noteWidth, info.LineArea.Height);
+                                g.FillRectangle(unselectedBrush, noteRectangle);
+                                g.DrawRectangle(Pens.Black, noteRectangle);
+                            }
+                        }
+                    }
+
+                    startTime += duration;
+                    // x += noteWidth;
+                }
+            }
+
+            int loopEndX = (int)(startTime * pixelsPerDuration);
+
+            if (isLoop)
+            {
+                int startX = loopStartX - horizontalOffset;
+                int offsetX = loopEndX - horizontalOffset;
+
+                if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
+                {
+                    var loopRectangle = new Rectangle(startX, 0, loopEndX - loopStartX, this.Height);
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(40, 0, 0, 0)), loopRectangle);
+                    g.DrawRectangle(Pens.Magenta, loopRectangle);
+                }
+            }
+        }
+
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
@@ -372,6 +394,28 @@ namespace ZMusicMagicControls
             base.OnMouseWheel(e);
         }
 
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            var visibleArea = MakeVisibleNotesRectangle();
+            var visibleNotes = MakeVisibleNoteList(visibleArea);
+
+            using (var g = this.CreateGraphics())
+            {
+                foreach (var info in visibleNotes.Values)
+                {
+                    if (info.LineArea.Contains(e.Location))
+                    {
+                        g.DrawRectangle(Pens.LimeGreen, info.LineArea);
+                    }
+                }
+            }
+            base.OnMouseClick(e);
+        }
+        protected override void OnClick(EventArgs e)
+        {
+
+            base.OnClick(e);
+        }
         public void HorizontalScroll_ValueChanged(object sender, EventArgs e)
         {
             if (sender is ScrollBar)

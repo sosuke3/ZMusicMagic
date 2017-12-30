@@ -10,6 +10,9 @@ namespace ZMusicMagicLibrary
     public class ChannelCommand
     {
         public byte Command { get; set; }
+        public NSPC.Track.Command CommandType { get { return (NSPC.Track.Command)Command; } }
+        public int StartTime { get; set; }
+        public int Duration { get; set; }
         public List<byte> Parameters { get; set; } = new List<byte>();
 
         public static bool NoteIsSharp(NSPC.Track.Command command)
@@ -55,23 +58,27 @@ namespace ZMusicMagicLibrary
             var commands = new List<ChannelCommand>();
 
             var index = address;
+            var time = 0;
+            var currentDuration = 0;
             while (index < rawData.Length)
             {
                 if (rawData[index] == (byte)NSPC.Track.Command._00_Return)
                 {
                     // stop/return
-                    commands.Add(new ReturnCommand() { Command = rawData[index] });
+                    commands.Add(new ReturnCommand() { Command = rawData[index], StartTime = time });
                     break;
                 }
                 else if (rawData[index] >= (byte)NSPC.Track.Command._80_C1 && rawData[index] <= (byte)NSPC.Track.Command._C9_Rest)
                 {
                     // note
-                    commands.Add(new NoteCommand() { Command = rawData[index] });
+                    commands.Add(new NoteCommand() { Command = rawData[index], StartTime = time, Duration = currentDuration });
+                    time += currentDuration;
                 }
                 else if (rawData[index] >= (byte)NSPC.Track.Command._CA_Percussion0 && rawData[index] <= (byte)NSPC.Track.Command._DF_Percussion21)
                 {
                     // percussion
-                    commands.Add(new ChannelCommand() { Command = rawData[index] });
+                    commands.Add(new ChannelCommand() { Command = rawData[index], StartTime = time, Duration = currentDuration });
+                    time += currentDuration; //?
 
                     // in theory we should never hit this
                     Debugger.Break();
@@ -81,6 +88,7 @@ namespace ZMusicMagicLibrary
                     // command
                     ChannelCommand command = new CallLoopCommand();
                     command.Command = rawData[index];
+                    command.StartTime = time;
                     for (int i = 0; i < NSPC.Track.CommandParameterCount[(NSPC.Track.Command)rawData[index]]; i++)
                     {
                         command.Parameters.Add(rawData[index + i + 1]);
@@ -93,6 +101,7 @@ namespace ZMusicMagicLibrary
                     // command
                     ChannelCommand command = new SettingCommand();
                     command.Command = rawData[index];
+                    command.StartTime = time;
                     for (int i = 0; i < NSPC.Track.CommandParameterCount[(NSPC.Track.Command)rawData[index]]; i++)
                     {
                         command.Parameters.Add(rawData[index + i + 1]);
@@ -103,7 +112,8 @@ namespace ZMusicMagicLibrary
                 else
                 {
                     // note "parameter" - duration
-                    commands.Add(new DurationCommand() { Command = rawData[index] });
+                    commands.Add(new DurationCommand() { Command = rawData[index], StartTime = time });
+                    currentDuration = rawData[index];
 
                     if (index + 1 < rawData.Length)
                     {
@@ -111,7 +121,7 @@ namespace ZMusicMagicLibrary
                         {
                             // second "parameter" - staccato/velocity
                             index++;
-                            commands.Add(new VelocityCommand() { Command = rawData[index] });
+                            commands.Add(new VelocityCommand() { Command = rawData[index], StartTime = time });
                         }
                     }
                 }
