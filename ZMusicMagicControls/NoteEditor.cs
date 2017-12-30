@@ -67,6 +67,58 @@ namespace ZMusicMagicControls
             }
         }
 
+        Color beatLineColor = Color.Black;
+        int beatLineThickness = 1;
+        Pen beatLinePen = new Pen(Color.Black, 1);
+        public Color BeatLineColor
+        {
+            get { return beatLineColor; }
+            set
+            {
+                beatLineColor = value;
+                beatLinePen = new Pen(beatLineColor, beatLineThickness);
+
+                Invalidate();
+            }
+        }
+        public int BeatLineThickness
+        {
+            get { return beatLineThickness; }
+            set
+            {
+                beatLineThickness = value;
+                beatLinePen = new Pen(beatLineColor, beatLineThickness);
+
+                Invalidate();
+            }
+        }
+
+        Color subBeatLineColor = Color.DarkGray;
+        int subBeatLineThickness = 1;
+        Pen subBeatLinePen = new Pen(Color.DarkGray, 1);
+        public Color SubBeatLineColor
+        {
+            get { return subBeatLineColor; }
+            set
+            {
+                subBeatLineColor = value;
+                subBeatLinePen = new Pen(subBeatLineColor, subBeatLineThickness);
+
+                Invalidate();
+            }
+        }
+        public int SubBeatLineThickness
+        {
+            get { return subBeatLineThickness; }
+            set
+            {
+                subBeatLineThickness = value;
+                subBeatLinePen = new Pen(subBeatLineColor, subBeatLineThickness);
+
+                Invalidate();
+            }
+        }
+
         public NoteEditor()
         {
             //InitializeComponent();
@@ -232,12 +284,6 @@ namespace ZMusicMagicControls
             return new Rectangle(left, top, width, height);
         }
 
-        public struct CommandLineInfo
-        {
-            public Track.Command Command { get; set; }
-            public Rectangle LineArea { get; set; }
-        }
-
         Dictionary<Track.Command, CommandLineInfo> MakeVisibleNoteList(Rectangle visibleNoteArea)
         {
             int noteHeightWithLine = noteThickness + 1;
@@ -288,21 +334,34 @@ namespace ZMusicMagicControls
 
             // vertical lines
             int width = canvasWidth;
-            int canvasX = visibleArea.X;
             int horizontalOffset = (int)(scrollPosition.X / 100.0 * width);
             int x = 0;
             for (int i = 0; i < width; i+=fullNoteWidth)
             {
-                int startX = x - horizontalOffset - fullNoteWidth;
-                int offsetX = x - horizontalOffset;
+                int startX = x - horizontalOffset;
+                int offsetX = x - horizontalOffset + fullNoteWidth;
 
-                if (offsetX >= 0 && offsetX <= this.Width)
+                if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
                 {
-                    g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
+                    DrawBeatLines(g, startX, 0, fullNoteWidth, this.Height);
+                    //g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
                 }
 
                 x += fullNoteWidth;
             }
+        }
+
+        void DrawBeatLines(Graphics g, int x, int y, int width, int height)
+        {
+            g.DrawLine(beatLinePen, x, y, x, height);
+
+            int halfX = x + (width / 2);
+            g.DrawLine(subBeatLinePen, halfX, y, halfX, height);
+
+            int quarterX = x + (width / 4);
+            g.DrawLine(subBeatLinePen, quarterX, y, quarterX, height);
+            int threeQuarterX = x + 3 * (width / 4);
+            g.DrawLine(subBeatLinePen, threeQuarterX, y, threeQuarterX, height);
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)

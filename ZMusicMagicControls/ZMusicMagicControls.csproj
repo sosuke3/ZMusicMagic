@@ -42,6 +42,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLineInfo.cs" />
+    <Compile Include="BeatLegend.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="BeatLegend.Designer.cs">
+      <DependentUpon>BeatLegend.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CommandEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CommandEditor.Designer.cs">
+      <DependentUpon>CommandEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="NoteLegend.cs">
       <SubType>Component</SubType>
     </Compile>

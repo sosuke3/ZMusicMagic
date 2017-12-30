@@ -20,6 +20,8 @@ namespace ZMusicMagicControls
         ScrollBar m_notesVerticalScroll;
         NoteEditor m_noteEditor;
         NoteLegend m_noteLegend;
+        BeatLegend m_beatLegend;
+        CommandEditor m_commandEditor;
 
         public Channel Channel
         {
@@ -31,6 +33,14 @@ namespace ZMusicMagicControls
                 if (m_noteEditor != null)
                 {
                     m_noteEditor.Channel = m_channel;
+                }
+                if(m_commandEditor != null)
+                {
+                    m_commandEditor.Channel = m_channel;
+                }
+                if(m_noteLegend != null)
+                {
+                    m_noteLegend.Channel = m_channel;
                 }
 
                 // repaint
@@ -102,6 +112,23 @@ namespace ZMusicMagicControls
             this.m_noteLegend.TextAreaWidth = legendWidth;
             this.m_noteLegend.KeyAreaWidth = upperLeftWidth - legendWidth;
             this.Controls.Add(this.m_noteLegend);
+
+            this.m_beatLegend = new BeatLegend();
+            this.m_beatLegend.Location = new Point(upperLeftWidth + guiThickLineWidth, commandAreaHeight + guiThickLineWidth / 2);
+            this.m_beatLegend.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth,
+                upperLeftHeight - commandAreaHeight - guiThickLineWidth / 2);
+            this.m_beatLegend.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            this.m_horizontalScroll.ValueChanged += this.m_beatLegend.HorizontalScroll_ValueChanged;
+            this.Controls.Add(this.m_beatLegend);
+
+            this.m_commandEditor = new CommandEditor();
+            this.m_commandEditor.Location = new Point(upperLeftWidth + guiThickLineWidth, 0);
+            this.m_commandEditor.Size = new Size(this.Width - upperLeftWidth - guiThickLineWidth - scrollBarFrameWidth, commandAreaHeight);
+            this.m_commandEditor.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            this.m_commandVerticalScroll.ValueChanged += this.m_commandEditor.VerticalScroll_ValueChanged;
+            this.m_horizontalScroll.ValueChanged += this.m_commandEditor.HorizontalScroll_ValueChanged;
+            this.m_commandEditor.MouseScroll += this.m_commandVerticalScroll.MouseWheelHandler;
+            this.Controls.Add(this.m_commandEditor);
 
             this.ResumeLayout(false);
         }
