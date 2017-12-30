@@ -74,6 +74,8 @@ namespace ZMusicMagicControls
         {
             this.SuspendLayout();
 
+            //this.BackColor = Color.Gray;
+
             this.m_horizontalScroll = new ScrollBar();
             this.m_horizontalScroll.Location = new Point(upperLeftWidth + guiThickLineWidth, this.ClientRectangle.Bottom - scrollBarFrameWidth);
             this.m_horizontalScroll.Size = new Size(this.ClientRectangle.Right - scrollBarFrameWidth - upperLeftWidth - guiThickLineWidth, scrollBarFrameWidth);
