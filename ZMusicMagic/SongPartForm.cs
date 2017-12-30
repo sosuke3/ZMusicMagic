@@ -41,8 +41,14 @@ namespace ZMusicMagic
             {
                 this.pianoRolls[i++].Channel = channel;
             }
+            for(i = 0; i < this.pianoRolls.Length; i++)
+            {
+                this.pianoRolls[i].channelNumber = i + 1;
+            }
 
             this.AutoScrollMinSize = new Size(1, 1);
+
+            this.splitContainer1.Width = this.ClientRectangle.Width;
         }
 
 
@@ -73,6 +79,10 @@ namespace ZMusicMagic
             }
         }
 
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            //base.OnMouseWheel(e);
+        }
         protected override string GetPersistString()
         {
             // Add extra information into the persist string for this document

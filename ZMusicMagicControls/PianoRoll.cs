@@ -23,6 +23,17 @@ namespace ZMusicMagicControls
         BeatLegend m_beatLegend;
         CommandEditor m_commandEditor;
 
+        public int channelNumber;
+        public int ChannelNumber
+        {
+            get { return channelNumber; }
+            set
+            {
+                channelNumber = value;
+
+                Invalidate();
+            }
+        }
         public Channel Channel
         {
             get { return m_channel; }
@@ -91,6 +102,7 @@ namespace ZMusicMagicControls
             this.m_notesVerticalScroll.ScrollBarColor = scrollBarColor;
             this.m_notesVerticalScroll.ScrollFrameThickness = scrollBarFrameWidth;
             this.m_notesVerticalScroll.Orientation = ScrollBar.ScrollBarDirection.Vertical;
+            this.m_notesVerticalScroll.Value = 40;
             this.Controls.Add(this.m_notesVerticalScroll);
 
             this.m_commandEditor = new CommandEditor();
@@ -121,6 +133,7 @@ namespace ZMusicMagicControls
             this.m_noteLegend.MouseScroll += this.m_notesVerticalScroll.MouseWheelHandler;
             this.m_noteLegend.TextAreaWidth = legendWidth;
             this.m_noteLegend.KeyAreaWidth = upperLeftWidth - legendWidth;
+            this.m_noteLegend.ScrollPosition = new PointF(m_horizontalScroll.Value, m_notesVerticalScroll.Value);
             this.Controls.Add(this.m_noteLegend);
 
             this.m_noteEditor = new NoteEditor();
@@ -135,6 +148,7 @@ namespace ZMusicMagicControls
             this.m_noteEditor.BeatLineThickness = barLineThickness;
             this.m_noteEditor.SubBeatLineColor = subBarLineColor;
             this.m_noteEditor.SubBeatLineThickness = subBarLineThickness;
+            this.m_noteEditor.ScrollPosition = new PointF(m_horizontalScroll.Value, m_notesVerticalScroll.Value);
             this.Controls.Add(this.m_noteEditor);
 
             this.ResumeLayout(false);
@@ -276,6 +290,11 @@ namespace ZMusicMagicControls
             // left line
             g.DrawLine(thickLinePenBlack, minX + upperLeftWidth + halfThickLineWidth, minY, minX + upperLeftWidth + halfThickLineWidth, maxY);
 
+            // channel number
+            g.TranslateTransform(0, upperLeftHeight);
+            g.RotateTransform(270);
+            g.DrawString($"Channel {channelNumber}", this.Font, Brushes.Black, 4, 2);
+            g.ResetTransform();
         }
 
         private static void DrawHorizontalScrollBar(Graphics g, Brush scrollBarFrameBrush, Brush scrollBarHandleBrush, int x, int y, int length)
