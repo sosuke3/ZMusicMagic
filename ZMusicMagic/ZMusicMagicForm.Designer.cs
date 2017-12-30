@@ -31,36 +31,36 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ZMusicMagicForm));
             this.mainMenu = new System.Windows.Forms.MenuStrip();
-            this.toolBar = new System.Windows.Forms.ToolStrip();
-            this.statusBar = new System.Windows.Forms.StatusStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutZMusicMagicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeAllDocumentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolbarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.outputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.projectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeAllDocumentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutZMusicMagicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolBar = new System.Windows.Forms.ToolStrip();
             this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.saveToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.printToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.cutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.copyToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.pasteToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.projectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusBar = new System.Windows.Forms.StatusStrip();
+            this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.mainMenu.SuspendLayout();
             this.toolBar.SuspendLayout();
             this.SuspendLayout();
@@ -80,34 +80,6 @@
             this.mainMenu.TabIndex = 1;
             this.mainMenu.Text = "menuStrip1";
             // 
-            // toolBar
-            // 
-            this.toolBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripButton,
-            this.openToolStripButton,
-            this.saveToolStripButton,
-            this.printToolStripButton,
-            this.toolStripSeparator,
-            this.cutToolStripButton,
-            this.copyToolStripButton,
-            this.pasteToolStripButton,
-            this.toolStripSeparator1,
-            this.helpToolStripButton});
-            this.toolBar.Location = new System.Drawing.Point(0, 24);
-            this.toolBar.Name = "toolBar";
-            this.toolBar.Size = new System.Drawing.Size(607, 25);
-            this.toolBar.TabIndex = 2;
-            this.toolBar.Text = "toolStrip1";
-            this.toolBar.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolBar_ItemClicked);
-            // 
-            // statusBar
-            // 
-            this.statusBar.Location = new System.Drawing.Point(0, 457);
-            this.statusBar.Name = "statusBar";
-            this.statusBar.Size = new System.Drawing.Size(607, 22);
-            this.statusBar.TabIndex = 3;
-            this.statusBar.Text = "statusStrip1";
-            // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -120,43 +92,6 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             this.fileToolStripMenuItem.DropDownOpening += new System.EventHandler(this.fileToolStripMenuItem_DropDownOpening);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.exitToolStripMenuItem.Text = "E&xit";
-            // 
-            // toolStripSeparator
-            // 
-            this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // imageList
-            // 
-            this.imageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            this.imageList.ImageSize = new System.Drawing.Size(16, 16);
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutZMusicMagicToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "&Help";
-            // 
-            // aboutZMusicMagicToolStripMenuItem
-            // 
-            this.aboutZMusicMagicToolStripMenuItem.Name = "aboutZMusicMagicToolStripMenuItem";
-            this.aboutZMusicMagicToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-            this.aboutZMusicMagicToolStripMenuItem.Text = "&About Z Music Magic";
-            this.aboutZMusicMagicToolStripMenuItem.Click += new System.EventHandler(this.aboutZMusicMagicToolStripMenuItem_Click);
             // 
             // newToolStripMenuItem
             // 
@@ -184,6 +119,12 @@
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(100, 6);
             // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Text = "E&xit";
+            // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
@@ -202,6 +143,43 @@
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "&View";
             // 
+            // toolbarToolStripMenuItem
+            // 
+            this.toolbarToolStripMenuItem.Checked = true;
+            this.toolbarToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.toolbarToolStripMenuItem.Name = "toolbarToolStripMenuItem";
+            this.toolbarToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.toolbarToolStripMenuItem.Text = "Toolbar";
+            this.toolbarToolStripMenuItem.Click += new System.EventHandler(this.toolbarToolStripMenuItem_Click);
+            // 
+            // statusBarToolStripMenuItem
+            // 
+            this.statusBarToolStripMenuItem.Checked = true;
+            this.statusBarToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.statusBarToolStripMenuItem.Name = "statusBarToolStripMenuItem";
+            this.statusBarToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.statusBarToolStripMenuItem.Text = "Status bar";
+            this.statusBarToolStripMenuItem.Click += new System.EventHandler(this.statusBarToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(123, 6);
+            // 
+            // outputToolStripMenuItem
+            // 
+            this.outputToolStripMenuItem.Name = "outputToolStripMenuItem";
+            this.outputToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.outputToolStripMenuItem.Text = "Output";
+            this.outputToolStripMenuItem.Click += new System.EventHandler(this.outputToolStripMenuItem_Click);
+            // 
+            // projectToolStripMenuItem
+            // 
+            this.projectToolStripMenuItem.Name = "projectToolStripMenuItem";
+            this.projectToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.projectToolStripMenuItem.Text = "Project";
+            this.projectToolStripMenuItem.Click += new System.EventHandler(this.projectToolStripMenuItem_Click);
+            // 
             // windowToolStripMenuItem
             // 
             this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -216,35 +194,40 @@
             this.closeAllDocumentsToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.closeAllDocumentsToolStripMenuItem.Text = "Close All Documents";
             // 
-            // toolbarToolStripMenuItem
+            // helpToolStripMenuItem
             // 
-            this.toolbarToolStripMenuItem.Checked = true;
-            this.toolbarToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.toolbarToolStripMenuItem.Name = "toolbarToolStripMenuItem";
-            this.toolbarToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.toolbarToolStripMenuItem.Text = "Toolbar";
-            this.toolbarToolStripMenuItem.Click += new System.EventHandler(this.toolbarToolStripMenuItem_Click);
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutZMusicMagicToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
             // 
-            // statusBarToolStripMenuItem
+            // aboutZMusicMagicToolStripMenuItem
             // 
-            this.statusBarToolStripMenuItem.Checked = true;
-            this.statusBarToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.statusBarToolStripMenuItem.Name = "statusBarToolStripMenuItem";
-            this.statusBarToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.statusBarToolStripMenuItem.Text = "Status bar";
-            this.statusBarToolStripMenuItem.Click += new System.EventHandler(this.statusBarToolStripMenuItem_Click);
+            this.aboutZMusicMagicToolStripMenuItem.Name = "aboutZMusicMagicToolStripMenuItem";
+            this.aboutZMusicMagicToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.aboutZMusicMagicToolStripMenuItem.Text = "&About Z Music Magic";
+            this.aboutZMusicMagicToolStripMenuItem.Click += new System.EventHandler(this.aboutZMusicMagicToolStripMenuItem_Click);
             // 
-            // outputToolStripMenuItem
+            // toolBar
             // 
-            this.outputToolStripMenuItem.Name = "outputToolStripMenuItem";
-            this.outputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.outputToolStripMenuItem.Text = "Output";
-            this.outputToolStripMenuItem.Click += new System.EventHandler(this.outputToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripButton,
+            this.openToolStripButton,
+            this.saveToolStripButton,
+            this.printToolStripButton,
+            this.toolStripSeparator,
+            this.cutToolStripButton,
+            this.copyToolStripButton,
+            this.pasteToolStripButton,
+            this.toolStripSeparator1,
+            this.helpToolStripButton});
+            this.toolBar.Location = new System.Drawing.Point(0, 24);
+            this.toolBar.Name = "toolBar";
+            this.toolBar.Size = new System.Drawing.Size(607, 25);
+            this.toolBar.TabIndex = 2;
+            this.toolBar.Text = "toolStrip1";
+            this.toolBar.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolBar_ItemClicked);
             // 
             // newToolStripButton
             // 
@@ -282,6 +265,11 @@
             this.printToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.printToolStripButton.Text = "&Print";
             // 
+            // toolStripSeparator
+            // 
+            this.toolStripSeparator.Name = "toolStripSeparator";
+            this.toolStripSeparator.Size = new System.Drawing.Size(6, 25);
+            // 
             // cutToolStripButton
             // 
             this.cutToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -309,6 +297,11 @@
             this.pasteToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.pasteToolStripButton.Text = "&Paste";
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
             // helpToolStripButton
             // 
             this.helpToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -318,12 +311,19 @@
             this.helpToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.helpToolStripButton.Text = "He&lp";
             // 
-            // projectToolStripMenuItem
+            // statusBar
             // 
-            this.projectToolStripMenuItem.Name = "projectToolStripMenuItem";
-            this.projectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.projectToolStripMenuItem.Text = "Project";
-            this.projectToolStripMenuItem.Click += new System.EventHandler(this.projectToolStripMenuItem_Click);
+            this.statusBar.Location = new System.Drawing.Point(0, 457);
+            this.statusBar.Name = "statusBar";
+            this.statusBar.Size = new System.Drawing.Size(607, 22);
+            this.statusBar.TabIndex = 3;
+            this.statusBar.Text = "statusStrip1";
+            // 
+            // imageList
+            // 
+            this.imageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imageList.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // ZMusicMagicForm
             // 
@@ -334,6 +334,7 @@
             this.Controls.Add(this.statusBar);
             this.Controls.Add(this.toolBar);
             this.Controls.Add(this.mainMenu);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.mainMenu;
             this.Name = "ZMusicMagicForm";

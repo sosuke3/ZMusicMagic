@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectForm));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.projectTreeView = new System.Windows.Forms.TreeView();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
@@ -72,6 +73,7 @@
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)));
             this.HideOnClose = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ProjectForm";
             this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockRight;
             this.TabText = "Project";

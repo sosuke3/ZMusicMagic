@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ToolWindowBaseForm));
             this.SuspendLayout();
             // 
             // ToolWindowBaseForm
@@ -39,6 +40,7 @@
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ToolWindowBaseForm";
             this.TabText = "ToolWindow";
             this.Text = "ToolWindow";

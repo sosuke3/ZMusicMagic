@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OutputForm));
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
@@ -61,6 +62,7 @@
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.comboBox1);
             this.HideOnClose = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "OutputForm";
             this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockBottom;
             this.TabText = "Output";

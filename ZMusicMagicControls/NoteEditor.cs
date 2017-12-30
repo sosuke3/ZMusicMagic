@@ -366,9 +366,9 @@ namespace ZMusicMagicControls
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            base.OnMouseWheel(e);
-
             this.MouseScroll?.Invoke(this, e);
+
+            base.OnMouseWheel(e);
         }
 
         public void HorizontalScroll_ValueChanged(object sender, EventArgs e)

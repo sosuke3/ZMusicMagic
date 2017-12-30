@@ -175,9 +175,9 @@ namespace ZMusicMagicControls
         //}
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            base.OnMouseWheel(e);
-
             this.MouseWheelHandler(this, e);
+
+            base.OnMouseWheel(e);
         }
 
         public void MouseWheelHandler(object source, MouseEventArgs e)

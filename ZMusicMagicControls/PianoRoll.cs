@@ -176,7 +176,6 @@ namespace ZMusicMagicControls
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            base.OnMouseWheel(e);
 
             //var totalNumberOfNotes = (int)ZMusicMagicLibrary.NSPC.Track.Command._C7_B6 - (int)ZMusicMagicLibrary.NSPC.Track.Command._80_C1;
             //var totalHeight = totalNumberOfNotes * noteHeight;
@@ -187,51 +186,53 @@ namespace ZMusicMagicControls
             //yScroll = Utilities.Clamp(yScroll, 0, totalHeight - maxPosition);
 
             this.Invalidate();
+
+            base.OnMouseWheel(e);
         }
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
-            base.OnMouseDoubleClick(e);
-
             //m_horizontalScroll.OnMouseDoubleClick(e);
             //m_commandVerticalScroll.OnMouseDoubleClick(e);
             //m_notesVerticalScroll.OnMouseDoubleClick(e);
+
+            base.OnMouseDoubleClick(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            base.OnMouseClick(e);
-
             //m_horizontalScroll.OnMouseClick(e);
             //m_commandVerticalScroll.OnMouseClick(e);
             //m_notesVerticalScroll.OnMouseClick(e);
+
+            base.OnMouseClick(e);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
-
             //m_horizontalScroll.OnMouseDown(e);
             //m_commandVerticalScroll.OnMouseDown(e);
             //m_notesVerticalScroll.OnMouseDown(e);
+
+            base.OnMouseDown(e);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-
             //m_horizontalScroll.OnMouseMove(e);
             //m_commandVerticalScroll.OnMouseMove(e);
             //m_notesVerticalScroll.OnMouseMove(e);
+
+            base.OnMouseMove(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            base.OnMouseUp(e);
-
             //m_horizontalScroll.OnMouseUp(e);
             //m_commandVerticalScroll.OnMouseUp(e);
             //m_notesVerticalScroll.OnMouseUp(e);
+
+            base.OnMouseUp(e);
         }
 
         protected override void OnPaint(PaintEventArgs e)
