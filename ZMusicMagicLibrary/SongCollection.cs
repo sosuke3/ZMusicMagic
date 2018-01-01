@@ -106,7 +106,7 @@ namespace ZMusicMagicLibrary
         }
 
         static readonly string[] defaultBaseSongNames = { "Title", "World Map", "Beginning", "Rabbit", "Forest", "Intro", "Town", "Warp", "Dark World", "Master Sword", "File Select", "Soldier", "Mountain", "Shop", "Fanfare", "Song 16", "Song 17", "Song 18", "Song 19", "Song 20", "Song 21", "Song 22", "Song 23", "Song 24", "Song 25", "Song 26", "Song 27" };
-        static readonly string[] defaultIndoorSongNames = { "Song 1", "Song 2", "Song 3", "Song 4", "Song 5", "Song 6", "Song 7", "Song 8", "Song 9", "Song 10", "Song 11", "Song 12", "Song 13", "Song 14", "Song 15", "Castle", "Palace", "Cave", "Clear", "Church", "Boss", "Dungeon", "Psychic", "Secret Way", "Rescue", "Crystal", "Fountain", "Pyramid", "Kill Agahnim", "Ganon Room", "Last Boss", "Song 32", "Song 33", "Song 34", "Song 35" };
+        static readonly string[] defaultIndoorSongNames = { "Song 1", "Song 2", "Song 3", "Song 4", "Song 5", "Song 6", "Song 7", "Song 8", "Song 9", "Song 10", "File Select", "Song 12", "Song 13", "Song 14", "Song 15", "Castle", "Palace", "Cave", "Clear", "Church", "Boss", "Dungeon", "Psychic", "Secret Way", "Rescue", "Crystal", "Fountain", "Pyramid", "Kill Agahnim", "Ganon Room", "Last Boss", "Song 32", "Song 33", "Song 34", "Song 35" };
         static readonly string[] defaultEndingSongNames = { "Song 1", "Song 2", "Song 3", "Song 4", "Song 5", "Song 6", "Song 7", "Song 8", "Song 9", "Song 10", "Song 11", "Song 12", "Song 13", "Song 14", "Song 15", "Song 16", "Song 17", "Song 18", "Song 19", "Song 20", "Song 21", "Song 22", "Song 23", "Song 24", "Song 25", "Song 26", "Song 27", "Song 28", "Song 29", "Song 30", "Song 31", "Triforce", "Ending", "Staff", "Song 35" };
         public void LoadDefaultSongNames()
         {

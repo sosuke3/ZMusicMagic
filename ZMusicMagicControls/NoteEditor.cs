@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -146,7 +147,7 @@ namespace ZMusicMagicControls
             //Debug.WriteLine(String.Join(",", visibleNoteList));
 
             DrawLines(g, visibleAreaRectangle);
-            DrawNotes2(g, visibleAreaRectangle, visibleNoteList);
+            DrawNotes(g, visibleAreaRectangle, visibleNoteList);
 
             //g.DrawString($"{visibleAreaRectangle}", this.Font, new SolidBrush(this.ForeColor), 0, 0);
             //g.DrawString($"{String.Join(",", visibleNoteList)}", this.Font, new SolidBrush(this.ForeColor), 0, 20);
@@ -259,19 +260,23 @@ namespace ZMusicMagicControls
             g.DrawLine(subBeatLinePen, threeQuarterX, y, threeQuarterX, height);
         }
 
-        private void DrawNotes2(Graphics g, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList)
+        private void DrawNotes(Graphics g, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList)
         {
-            if (Channel == null)
+            if (Channel == null || Channel.Commands.Count == 0)
             {
-                // nothing to draw
+                // nothing to draw, let's just fill it with a color or pattern
+                using (var brush = new HatchBrush(HatchStyle.BackwardDiagonal, Color.FromArgb(50, Color.Fuchsia), Color.FromArgb(50, Color.DarkGray)))
+                {
+                    g.FillRectangle(brush, this.ClientRectangle);
+                }
                 return;
             }
 
-            DrawNotes2(g, Channel.Commands, visibleAreaRectangle, visibleNoteList);
+            DrawNotes(g, Channel.Commands, visibleAreaRectangle, visibleNoteList);
 
         }
 
-        private void DrawNotes2(Graphics g,
+        private void DrawNotes(Graphics g,
             List<ChannelCommand> commands,
             Rectangle visibleAreaRectangle,
             Dictionary<Track.Command, CommandLineInfo> visibleNoteList,
@@ -315,7 +320,7 @@ namespace ZMusicMagicControls
                     {
                         for (int i = 0; i < loop.LoopCount; ++i)
                         {
-                            DrawNotes2(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, true);
+                            DrawNotes(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, true);
                         }
                     }
                 }
@@ -365,6 +370,11 @@ namespace ZMusicMagicControls
                                 }
                                 g.FillRectangle(brush, noteRectangle);
                                 g.DrawRectangle(Pens.Black, noteRectangle);
+
+                                g.SetClip(noteRectangle);
+                                var noteText = noteCommand.CommandType.GetDescription();
+                                g.DrawString(noteText, this.Font, Brushes.Black, noteRectangle.X + 1, noteRectangle.Y + noteRectangle.Height / 2 - g.MeasureString(noteText, this.Font).Height / 2);
+                                g.ResetClip();
                             }
                         }
                     }
@@ -386,6 +396,15 @@ namespace ZMusicMagicControls
                     g.FillRectangle(new SolidBrush(Color.FromArgb(40, 0, 0, 0)), loopRectangle);
                     g.DrawRectangle(Pens.Magenta, loopRectangle);
                 }
+            }
+            else
+            {
+                // draw a nice big line at the end until I fix the canvas size and zoom
+                var endPen = new Pen(Color.DarkGreen);
+                endPen.Width = 4;
+
+                var x = Channel.EndTime * pixelsPerDuration - horizontalOffset + endPen.Width / 2;
+                g.DrawLine(endPen, x, 0, x, this.Height);
             }
         }
 

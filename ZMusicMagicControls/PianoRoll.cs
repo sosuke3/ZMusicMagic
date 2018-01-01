@@ -22,6 +22,7 @@ namespace ZMusicMagicControls
         NoteLegend m_noteLegend;
         BeatLegend m_beatLegend;
         CommandEditor m_commandEditor;
+        //DisabledControlOverlay m_disabledControlOverlay;
 
         public int channelNumber;
         public int ChannelNumber
@@ -152,6 +153,14 @@ namespace ZMusicMagicControls
             this.m_noteEditor.SubBeatLineThickness = subBarLineThickness;
             this.m_noteEditor.ScrollPosition = new PointF(m_horizontalScroll.Value, m_notesVerticalScroll.Value);
             this.Controls.Add(this.m_noteEditor);
+
+            //this.m_disabledControlOverlay = new DisabledControlOverlay();
+            //this.m_disabledControlOverlay.Location = new Point(0, 0);
+            //this.m_disabledControlOverlay.Size = this.Size;
+            //this.m_disabledControlOverlay.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+            //this.m_disabledControlOverlay.DrawDisabledOverlay = true;
+            //this.Controls.Add(this.m_disabledControlOverlay);
+            //this.Controls.SetChildIndex(this.m_disabledControlOverlay, 0);
 
             this.ResumeLayout(false);
         }

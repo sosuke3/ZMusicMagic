@@ -12,6 +12,7 @@ namespace ZMusicMagicLibrary
         internal byte[] RawData { get; set; }
 
         public List<ChannelCommand> Commands { get; set; }
+        public int EndTime { get; set; }
 
         public void LoadFromNSPCTrack(NSPC.Track track)
         {
@@ -50,6 +51,8 @@ namespace ZMusicMagicLibrary
                     currentTime += loopDuration * loop.LoopCount;
                 }
             }
+
+            EndTime = currentTime;
         }
     }
 }

@@ -55,6 +55,9 @@
     <Compile Include="CommandEditor.Designer.cs">
       <DependentUpon>CommandEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="DisabledControlOverlay.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="NoteLegend.cs">
       <SubType>Component</SubType>
     </Compile>
