@@ -19,6 +19,8 @@ namespace ZMusicMagicLibrary.NSPC
         public void LoadRom(Rom romData, int startingAddress = NSPCBaseAddress)
         {
             this.romData = romData;
+            aramBuffer = new byte[0xFFFF]; // fake NSPC audio ram
+            LoadChunks(NSPCBaseAddress); // load the base driver and pieces
 
             LoadChunks(startingAddress);
             ProcessChunks();
@@ -26,8 +28,6 @@ namespace ZMusicMagicLibrary.NSPC
 
         void LoadChunks(int startingAddress)
         {
-            aramBuffer = new byte[0xFFFF]; // fake NSPC audio ram
-
             int lastChunkLength = 0xffff;
             int nextAddress = startingAddress;
             this.baseAddress = startingAddress;

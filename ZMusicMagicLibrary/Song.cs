@@ -9,5 +9,14 @@ namespace ZMusicMagicLibrary
     public class Song
     {
         public List<Part> Parts { get; set; } = new List<Part>();
+        public string DisplayName { get; set; }
+
+        public void FixDurations()
+        {
+            foreach(var p in Parts)
+            {
+                p.FixDurations();
+            }
+        }
     }
 }

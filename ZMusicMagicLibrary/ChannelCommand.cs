@@ -184,6 +184,31 @@ namespace ZMusicMagicLibrary
                 return Parameters[2];
             }
         }
+
+        public int CalculateDuration(int previousCommandDuration)
+        {
+            int totalDuration = 0;
+
+            int duration = previousCommandDuration;
+            int startTime = 0;
+            foreach(var c in this.LoopPart.Commands)
+            {
+                if(c is DurationCommand)
+                {
+                    duration = c.Command;
+                }
+                if(c is NoteCommand)
+                {
+                    // this is rediculous. I hope that loops that are reused all have the same duration going into them if they start with notes...
+                    c.StartTime = startTime;
+                    c.Duration = duration;
+                    startTime += duration;
+                    totalDuration += duration;
+                }
+            }
+
+            return totalDuration;
+        }
     }
 
     public class ReturnCommand : ChannelCommand

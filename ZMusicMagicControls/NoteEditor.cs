@@ -264,15 +264,18 @@ namespace ZMusicMagicControls
                 return;
             }
 
-            int duration = 1;
-            int noteWidth = 1;
-            int startTime = 0;
-
-            DrawNotes2(g, ref startTime, ref duration, ref noteWidth, Channel.Commands, visibleAreaRectangle, visibleNoteList);
+            DrawNotes2(g, Channel.Commands, visibleAreaRectangle, visibleNoteList);
 
         }
 
-        private void DrawNotes2(Graphics g, ref int startTime, ref int duration, ref int noteWidth, List<ChannelCommand> commands, Rectangle visibleAreaRectangle, Dictionary<Track.Command, CommandLineInfo> visibleNoteList, bool isLoop = false)
+        private void DrawNotes2(Graphics g,
+            List<ChannelCommand> commands,
+            Rectangle visibleAreaRectangle,
+            Dictionary<Track.Command, CommandLineInfo> visibleNoteList,
+            int loopStartTime = 0,
+            int loopTotalDuration = 0,
+            int loopStartDuration = 0,
+            bool isLoop = false)
         {
             if (commands == null || commands.Count == 0)
             {
@@ -290,11 +293,8 @@ namespace ZMusicMagicControls
             }
             var outlineBrush = Brushes.Black;
 
-            int loopStartX = (int)(startTime * pixelsPerDuration);
-            int loopStartTime = startTime;
-            int loopStartDuration = duration;
-            int loopNoteWidth = noteWidth;
-
+            int startDuration = loopStartDuration;
+            int lastDuration = 0;
 
             int width = canvasWidth;
             int horizontalOffset = visibleAreaRectangle.X;
@@ -304,7 +304,8 @@ namespace ZMusicMagicControls
 
                 if (c is DurationCommand)
                 {
-                    loopStartDuration = -1;
+                    lastDuration = c.Command;
+                    startDuration = -1;
                 }
 
                 if (c is CallLoopCommand)
@@ -314,8 +315,7 @@ namespace ZMusicMagicControls
                     {
                         for (int i = 0; i < loop.LoopCount; ++i)
                         {
-                            DrawNotes2(g, ref startTime, ref duration, ref noteWidth, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, true);
-                            loopStartX = (int)(startTime * pixelsPerDuration);
+                            DrawNotes2(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, true);
                         }
                     }
                 }
@@ -323,7 +323,7 @@ namespace ZMusicMagicControls
                 if (c is NoteCommand)
                 {
                     var noteCommand = c as NoteCommand;
-                    duration = noteCommand.Duration;
+                    var duration = noteCommand.Duration;
                     if(duration == 0)
                     {
                         if (loopStartDuration > -1)
@@ -335,9 +335,8 @@ namespace ZMusicMagicControls
                             Debugger.Break(); // shouldn't hit this.
                         }
                     }
-                    noteWidth = (int)(duration * pixelsPerDuration);
-
-                    int x = (int)(startTime * pixelsPerDuration);
+                    var noteWidth = (int)(duration * pixelsPerDuration);
+                    int x = (int)((noteCommand.StartTime + loopStartTime) * pixelsPerDuration);
 
                     if (cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
                     {
@@ -364,16 +363,15 @@ namespace ZMusicMagicControls
                             }
                         }
                     }
-
-                    startTime += duration;
-                    // x += noteWidth;
                 }
             }
 
-            int loopEndX = (int)(startTime * pixelsPerDuration);
 
             if (isLoop)
             {
+                int loopStartX = (int)(loopStartTime * pixelsPerDuration);
+                int loopEndX = loopStartX + (int)(loopTotalDuration * pixelsPerDuration);
+
                 int startX = loopStartX - horizontalOffset;
                 int offsetX = loopEndX - horizontalOffset;
 
@@ -405,17 +403,14 @@ namespace ZMusicMagicControls
                 {
                     if (info.LineArea.Contains(e.Location))
                     {
+
                         g.DrawRectangle(Pens.LimeGreen, info.LineArea);
                     }
                 }
             }
             base.OnMouseClick(e);
         }
-        protected override void OnClick(EventArgs e)
-        {
 
-            base.OnClick(e);
-        }
         public void HorizontalScroll_ValueChanged(object sender, EventArgs e)
         {
             if (sender is ScrollBar)

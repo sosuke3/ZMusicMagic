@@ -81,6 +81,11 @@ namespace ZMusicMagicLibraryTests
             SongCollection endingCollection = new SongCollection();
             endingCollection.LoadFromNspc(rom.EndingNSPC);
 
+            songCollection.FixDurations();
+            outdoorCollection.FixDurations();
+            indoorCollection.FixDurations();
+            endingCollection.FixDurations();
+
             int songNumber = 0;
             foreach(var s in songCollection.Songs)
             {

@@ -9,5 +9,13 @@ namespace ZMusicMagicLibrary
     public class Part
     {
         public List<Channel> Channels { get; set; } = new List<Channel>(8);
+
+        public void FixDurations()
+        {
+            foreach(var c in Channels)
+            {
+                c.FixDurations();
+            }
+        }
     }
 }

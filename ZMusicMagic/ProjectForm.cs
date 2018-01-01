@@ -31,8 +31,10 @@ namespace ZMusicMagic
         {
             m_currentRom = currentRom;
 
-            m_primarySongCollection = new SongCollection();
-            m_primarySongCollection.LoadFromNspc(m_currentRom.BaseNSPC);
+            m_primarySongCollection = currentRom.OverworldSongs; // new SongCollection();
+            //m_primarySongCollection.LoadFromNspc(m_currentRom.BaseNSPC);
+            //m_primarySongCollection.FixDurations();
+            //m_primarySongCollection.DisplayName = "Startup";
 
             LoadProjectTree();
         }

@@ -10,6 +10,7 @@ namespace ZMusicMagicLibrary
     {
         public List<Song> Songs { get; set; } = new List<Song>();
         public Dictionary<int, CallLoopPart> LoopParts { get; set; } = new Dictionary<int, CallLoopPart>();
+        public string DisplayName { get; set; }
 
         public void LoadFromNspc(NSPC.NSPC nspc)
         {
@@ -69,6 +70,14 @@ namespace ZMusicMagicLibrary
                         }
                     }
                 }
+            }
+        }
+
+        public void FixDurations()
+        {
+            foreach(var s in Songs)
+            {
+                s.FixDurations();
             }
         }
     }

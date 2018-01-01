@@ -10,6 +10,7 @@ namespace ZMusicMagicLibrary
 {
     public class Rom
     {
+        public SongCollection BaseSongs { get; set; }
         public SongCollection OverworldSongs { get; set; }
         public SongCollection IndoorSongs { get; set; }
         public SongCollection EndingSongs { get; set; }
@@ -31,6 +32,9 @@ namespace ZMusicMagicLibrary
                 throw new Exception("Invalid rom file");
             }
 
+            BaseSongs = new SongCollection();
+            LoadSongCollection(BaseSongs, 0x90A, 0x906, 0x902); // vanilla should be $198000 -> $C8000
+
             OverworldSongs = new SongCollection();
             LoadSongCollection(OverworldSongs, 0x91C, 0x918, 0x914); // vanilla should be $1A9EF5 -> 0xD1EF5
 
@@ -44,21 +48,33 @@ namespace ZMusicMagicLibrary
             int baseNspcAddress = LoadNspcAddress(0x90A, 0x906, 0x902); // vanilla should be $198000 -> $C8000
             baseNspc.LoadRom(this, baseNspcAddress);
             this.BaseNSPC = baseNspc;
+            this.BaseSongs.LoadFromNspc(baseNspc);
+            this.BaseSongs.FixDurations();
+            this.BaseSongs.DisplayName = "Startup Songs";
 
             var overworldNspc = new NSPC.NSPC();
             int overworldNspcAddress = LoadNspcAddress(0x91C, 0x918, 0x914); // vanilla should be $1A9EF5 -> 0xD1EF5
             overworldNspc.LoadRom(this, overworldNspcAddress);
             this.OverworldNSPC = overworldNspc;
+            this.OverworldSongs.LoadFromNspc(overworldNspc);
+            this.OverworldSongs.FixDurations();
+            this.OverworldSongs.DisplayName = "Overworld Songs";
 
             var indoorNspc = new NSPC.NSPC();
             int indoorNspcAddress = LoadNspcAddress(0x92E, 0x92A, 0x926); // vanilla should be $1B8000 -> 0xD8000
             indoorNspc.LoadRom(this, indoorNspcAddress);
             this.IndoorNSPC = indoorNspc;
+            this.IndoorSongs.LoadFromNspc(indoorNspc);
+            this.IndoorSongs.FixDurations();
+            this.IndoorSongs.DisplayName = "Indoor Songs";
 
             var endingNspc = new NSPC.NSPC();
             int endingNspcAddress = LoadNspcAddress(0x93A, 0x936, 0x932); // vanilla should be $1AD380 -> 0xD5380
             endingNspc.LoadRom(this, endingNspcAddress);
             this.EndingNSPC = endingNspc;
+            this.EndingSongs.LoadFromNspc(endingNspc);
+            this.EndingSongs.FixDurations();
+            this.EndingSongs.DisplayName = "Ending Songs";
         }
 
         private void LoadSongCollection(SongCollection songCollection, int bankByteAddress, int highByteAddress, int lowByteAddress)
