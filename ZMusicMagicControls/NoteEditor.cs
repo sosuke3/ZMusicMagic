@@ -130,8 +130,8 @@ namespace ZMusicMagicControls
             //InitializeComponent();
 
             this.DoubleBuffered = true;
-
-            SetStyle(ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer, true);
+            
+            SetStyle(ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.Selectable, true);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -369,6 +369,12 @@ namespace ZMusicMagicControls
                                     brush = selectedBrush;
                                 }
                                 g.FillRectangle(brush, noteRectangle);
+                                int endX = noteRectangle.Right - 2;
+                                if(endX < noteRectangle.Left)
+                                {
+                                    endX = noteRectangle.Left;
+                                }
+                                g.FillRectangle(brush, endX, info.LineArea.Y, 2, info.LineArea.Height);
                             }
                         }
                     }
@@ -448,6 +454,8 @@ namespace ZMusicMagicControls
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
+            this.Focus();
+
             var visibleArea = MakeVisibleNotesRectangle();
             var visibleNotes = MakeVisibleNoteList(visibleArea);
             var selectedBrush = Brushes.Orange;
@@ -491,6 +499,84 @@ namespace ZMusicMagicControls
             }
 
             base.OnMouseClick(e);
+        }
+
+        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+        {
+            switch(e.KeyCode)
+            {
+                // hack because someone at MS really didn't think through OnKeyDown, etc.
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.Left:
+                case Keys.Right:
+                    e.IsInputKey = true;
+                    break;
+            }
+            base.OnPreviewKeyDown(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            Track.Command minNote = Track.Command._C7_B6;
+            Track.Command maxNote = Track.Command._80_C1;
+            bool changed = false;
+
+            foreach(var c in selectedNotes)
+            {
+                if(c.Command < (int)minNote)
+                {
+                    minNote = c.CommandType;
+                }
+                if(c.Command > (int)maxNote)
+                {
+                    maxNote = c.CommandType;
+                }
+            }
+
+            if(e.KeyCode == Keys.Up)
+            {
+                if(maxNote != Track.Command._C7_B6)
+                {
+                    foreach (var c in selectedNotes)
+                    {
+                        if (c.CommandType == Track.Command._C7_B6)
+                        {
+
+                        }
+                        else
+                        {
+                            c.Command++;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                if (minNote != Track.Command._80_C1)
+                {
+                    foreach (var c in selectedNotes)
+                    {
+                        if (c.CommandType == Track.Command._80_C1)
+                        {
+
+                        }
+                        else
+                        {
+                            c.Command--;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            base.OnKeyDown(e);
+
+            if(changed)
+            {
+                Invalidate();
+            }
         }
 
         public void HorizontalScroll_ValueChanged(object sender, EventArgs e)
