@@ -276,7 +276,7 @@ namespace ZMusicMagicControls
 
         }
 
-        private void DrawNotes(Graphics g,
+        private Track.Command DrawNotes(Graphics g,
             List<ChannelCommand> commands,
             Rectangle visibleAreaRectangle,
             Dictionary<Track.Command, CommandLineInfo> visibleNoteList,
@@ -288,7 +288,7 @@ namespace ZMusicMagicControls
         {
             if (commands == null || commands.Count == 0)
             {
-                return;
+                return lastNote;
             }
 
             Brush unselectedBrush = new SolidBrush(Color.FromArgb(190, 76, 233));
@@ -321,7 +321,7 @@ namespace ZMusicMagicControls
                     {
                         for (int i = 0; i < loop.LoopCount; ++i)
                         {
-                            DrawNotes(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, lastNote, true);
+                            lastNote = DrawNotes(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, lastNote, true);
                         }
                     }
                 }
@@ -442,6 +442,8 @@ namespace ZMusicMagicControls
                 var x = Channel.EndTime * pixelsPerDuration - horizontalOffset + endPen.Width / 2;
                 g.DrawLine(endPen, x, 0, x, this.Height);
             }
+
+            return lastNote;
         }
 
 
