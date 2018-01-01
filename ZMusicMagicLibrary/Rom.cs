@@ -32,16 +32,16 @@ namespace ZMusicMagicLibrary
                 throw new Exception("Invalid rom file");
             }
 
-            BaseSongs = new SongCollection();
+            BaseSongs = new SongCollection(SongCollectionType.Base);
             LoadSongCollection(BaseSongs, 0x90A, 0x906, 0x902); // vanilla should be $198000 -> $C8000
 
-            OverworldSongs = new SongCollection();
+            OverworldSongs = new SongCollection(SongCollectionType.Overworld);
             LoadSongCollection(OverworldSongs, 0x91C, 0x918, 0x914); // vanilla should be $1A9EF5 -> 0xD1EF5
 
-            IndoorSongs = new SongCollection();
+            IndoorSongs = new SongCollection(SongCollectionType.Indoor);
             LoadSongCollection(IndoorSongs, 0x92E, 0x92A, 0x926); // vanilla should be $1B8000 -> 0xD8000
 
-            EndingSongs = new SongCollection();
+            EndingSongs = new SongCollection(SongCollectionType.Ending);
             LoadSongCollection(EndingSongs, 0x93A, 0x936, 0x932); // vanilla should be $1AD380 -> 0xD5380
 
             var baseNspc = new NSPC.NSPC();
@@ -50,7 +50,7 @@ namespace ZMusicMagicLibrary
             this.BaseNSPC = baseNspc;
             this.BaseSongs.LoadFromNspc(baseNspc);
             this.BaseSongs.FixDurations();
-            this.BaseSongs.DisplayName = "Startup Songs";
+            this.BaseSongs.LoadDefaultSongNames();
 
             var overworldNspc = new NSPC.NSPC();
             int overworldNspcAddress = LoadNspcAddress(0x91C, 0x918, 0x914); // vanilla should be $1A9EF5 -> 0xD1EF5
@@ -58,7 +58,7 @@ namespace ZMusicMagicLibrary
             this.OverworldNSPC = overworldNspc;
             this.OverworldSongs.LoadFromNspc(overworldNspc);
             this.OverworldSongs.FixDurations();
-            this.OverworldSongs.DisplayName = "Overworld Songs";
+            this.OverworldSongs.LoadDefaultSongNames();
 
             var indoorNspc = new NSPC.NSPC();
             int indoorNspcAddress = LoadNspcAddress(0x92E, 0x92A, 0x926); // vanilla should be $1B8000 -> 0xD8000
@@ -66,7 +66,7 @@ namespace ZMusicMagicLibrary
             this.IndoorNSPC = indoorNspc;
             this.IndoorSongs.LoadFromNspc(indoorNspc);
             this.IndoorSongs.FixDurations();
-            this.IndoorSongs.DisplayName = "Indoor Songs";
+            this.IndoorSongs.LoadDefaultSongNames();
 
             var endingNspc = new NSPC.NSPC();
             int endingNspcAddress = LoadNspcAddress(0x93A, 0x936, 0x932); // vanilla should be $1AD380 -> 0xD5380
@@ -74,7 +74,7 @@ namespace ZMusicMagicLibrary
             this.EndingNSPC = endingNspc;
             this.EndingSongs.LoadFromNspc(endingNspc);
             this.EndingSongs.FixDurations();
-            this.EndingSongs.DisplayName = "Ending Songs";
+            this.EndingSongs.LoadDefaultSongNames();
         }
 
         private void LoadSongCollection(SongCollection songCollection, int bankByteAddress, int highByteAddress, int lowByteAddress)

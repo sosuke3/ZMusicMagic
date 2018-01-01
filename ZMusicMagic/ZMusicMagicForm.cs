@@ -54,6 +54,7 @@ namespace ZMusicMagic
             this.Controls.SetChildIndex(this.dockpanel, 0);
 
             m_deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
+
         }
 
         private IDockContent GetContentFromPersistString(string persistString)
@@ -188,7 +189,7 @@ namespace ZMusicMagic
 
         private void ProjectWindows_SelectedPartChanged(object sender, SongPartChangedEventArgs e)
         {
-            var docTitle = $"{e.SongTitle} - {e.PartTitle}";
+            var docTitle = $"{e.SongCollectionName} - {e.SongTitle} - {e.PartTitle}";
             var doc = FindDocument(docTitle);
             if(doc != null)
             {
@@ -277,6 +278,10 @@ namespace ZMusicMagic
                     // invalid config, might as well delete it
                     File.Delete(configFile);
                 }
+            }
+            else
+            {
+                m_projectWindow.Show(dockpanel);
             }
         }
 

@@ -69,16 +69,16 @@ namespace ZMusicMagicLibraryTests
             //    }
             //}
 
-            SongCollection songCollection = new SongCollection();
+            SongCollection songCollection = new SongCollection(SongCollectionType.Base);
             songCollection.LoadFromNspc(rom.BaseNSPC);
 
-            SongCollection outdoorCollection = new SongCollection();
+            SongCollection outdoorCollection = new SongCollection(SongCollectionType.Overworld);
             outdoorCollection.LoadFromNspc(rom.OverworldNSPC);
 
-            SongCollection indoorCollection = new SongCollection();
+            SongCollection indoorCollection = new SongCollection(SongCollectionType.Indoor);
             indoorCollection.LoadFromNspc(rom.IndoorNSPC);
 
-            SongCollection endingCollection = new SongCollection();
+            SongCollection endingCollection = new SongCollection(SongCollectionType.Ending);
             endingCollection.LoadFromNspc(rom.EndingNSPC);
 
             songCollection.FixDurations();

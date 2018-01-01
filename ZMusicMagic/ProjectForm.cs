@@ -43,11 +43,21 @@ namespace ZMusicMagic
         {
             this.projectTreeView.Nodes.Clear();
 
-            int songNumber = 0;
-            foreach (var s in m_primarySongCollection.Songs)
+            this.projectTreeView.Nodes.Add(SongCollectionToTreeNodes(this.m_currentRom.BaseSongs));
+            this.projectTreeView.Nodes.Add(SongCollectionToTreeNodes(this.m_currentRom.OverworldSongs));
+            this.projectTreeView.Nodes.Add(SongCollectionToTreeNodes(this.m_currentRom.IndoorSongs));
+            this.projectTreeView.Nodes.Add(SongCollectionToTreeNodes(this.m_currentRom.EndingSongs));
+        }
+
+        TreeNode SongCollectionToTreeNodes(SongCollection songCollection)
+        {
+            var baseNode = new TreeNode();
+            baseNode.Text = songCollection.DisplayName;
+            baseNode.Tag = songCollection;
+            foreach (var s in songCollection.Songs)
             {
                 var node = new TreeNode();
-                node.Text = $"Song {songNumber}";
+                node.Text = s.DisplayName;
                 node.Tag = s;
 
                 int partNumber = 0;
@@ -55,18 +65,15 @@ namespace ZMusicMagic
                 {
                     var partNode = new TreeNode();
                     partNode.Text = $"Part {partNumber}";
-
                     partNode.Tag = p;
-
                     node.Nodes.Add(partNode);
 
                     partNumber++;
                 }
 
-                this.projectTreeView.Nodes.Add(node);
-
-                songNumber++;
+                baseNode.Nodes.Add(node);
             }
+            return baseNode;
         }
 
         private void projectTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -81,7 +88,13 @@ namespace ZMusicMagic
             Part selectedPart = selected.Tag as Part;
             if (selectedPart != null && OnSongPartSelectionChanged != null)
             {
-                OnSongPartSelectionChanged(this, new SongPartChangedEventArgs() { Part = selectedPart, SongTitle = selected.Parent.Text, PartTitle = selected.Text });
+                OnSongPartSelectionChanged(this, new SongPartChangedEventArgs()
+                {
+                    Part = selectedPart,
+                    SongCollectionName = selected.Parent.Parent.Text,
+                    SongTitle = selected.Parent.Text,
+                    PartTitle = selected.Text
+                });
             }
         }
 
@@ -94,6 +107,7 @@ namespace ZMusicMagic
     public class SongPartChangedEventArgs : EventArgs
     {
         public Part Part { get; set; }
+        public string SongCollectionName { get; set; }
         public string SongTitle { get; set; }
         public string PartTitle { get; set; }
     }
