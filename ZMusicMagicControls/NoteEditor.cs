@@ -283,6 +283,7 @@ namespace ZMusicMagicControls
             int loopStartTime = 0,
             int loopTotalDuration = 0,
             int loopStartDuration = 0,
+            Track.Command lastNote = 0,
             bool isLoop = false)
         {
             if (commands == null || commands.Count == 0)
@@ -290,11 +291,11 @@ namespace ZMusicMagicControls
                 return;
             }
 
-            var unselectedBrush = Brushes.Purple;
-            var selectedBrush = Brushes.Orange;
+            Brush unselectedBrush = new SolidBrush(Color.FromArgb(190, 76, 233));
+            Brush selectedBrush = new SolidBrush(Color.FromArgb(255, 192, 0));
             if (isLoop)
             {
-                unselectedBrush = Brushes.LightSlateGray;
+                unselectedBrush = Brushes.Silver;
             }
             var outlineBrush = Brushes.Black;
 
@@ -320,7 +321,7 @@ namespace ZMusicMagicControls
                     {
                         for (int i = 0; i < loop.LoopCount; ++i)
                         {
-                            DrawNotes(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, true);
+                            DrawNotes(g, loop.LoopPart.Commands, visibleAreaRectangle, visibleNoteList, c.StartTime + (c.Duration * i), c.Duration, lastDuration, lastNote, true);
                         }
                     }
                 }
@@ -343,14 +344,43 @@ namespace ZMusicMagicControls
                     var noteWidth = (int)(duration * pixelsPerDuration);
                     int x = (int)((noteCommand.StartTime + loopStartTime) * pixelsPerDuration);
 
-                    if (cmd == Track.Command._C8_Tie || cmd == Track.Command._C9_Rest)
+                    if (cmd == Track.Command._C8_Tie)
                     {
-                        // skip these for now
+                        if (visibleNoteList.ContainsKey(lastNote))
+                        {
+                            var info = visibleNoteList[lastNote];
+
+                            var mag = new SolidBrush(Color.FromArgb(200, 255, 0, 255));
+                            int startX = x - horizontalOffset;
+                            int offsetX = x - horizontalOffset + noteWidth;
+
+                            if ((startX >= 0 && startX <= this.Width) || (offsetX >= 0 && offsetX <= this.Width))
+                            {
+                                int thickness = 4;
+                                if(thickness > info.LineArea.Height)
+                                {
+                                    thickness = info.LineArea.Height;
+                                }
+                                int y = info.LineArea.Top + info.LineArea.Height / 2 - thickness / 2;
+                                var noteRectangle = new Rectangle(startX, y, noteWidth, thickness);
+                                var brush = unselectedBrush;
+                                if (selectedNotes.Contains(c))
+                                {
+                                    brush = selectedBrush;
+                                }
+                                g.FillRectangle(brush, noteRectangle);
+                            }
+                        }
+                    }
+                    else if(cmd == Track.Command._C9_Rest)
+                    {
                         var mag = new SolidBrush(Color.FromArgb(40, 255, 0, 255));
                         g.FillRectangle(mag, x - horizontalOffset, 0, noteWidth, this.Height);
                     }
                     else
                     {
+                        lastNote = noteCommand.CommandType;
+
                         if (visibleNoteList.ContainsKey(cmd))
                         {
                             var info = visibleNoteList[cmd];
@@ -422,6 +452,8 @@ namespace ZMusicMagicControls
             var visibleNotes = MakeVisibleNoteList(visibleArea);
             var selectedBrush = Brushes.Orange;
 
+            int previousCount = selectedNotes.Count;
+
             // check for ctrl?
             if (Control.ModifierKeys == Keys.Control)
             {
@@ -453,10 +485,11 @@ namespace ZMusicMagicControls
                 }
             }
 
-            if(selectedNotes.Count > 0)
+            if (selectedNotes.Count > 0 || previousCount != 0)
             {
                 Invalidate();
             }
+
             base.OnMouseClick(e);
         }
 

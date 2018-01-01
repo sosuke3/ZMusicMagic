@@ -50,6 +50,7 @@ namespace ZMusicMagic
 
             this.AutoScrollMinSize = new Size(1, 1);
 
+            this.splitContainer1.Location = new Point(0, this.trackControl1.Height);
             this.splitContainer1.Width = this.ClientRectangle.Width;
             this.splitContainer1.BorderStyle = BorderStyle.Fixed3D;
             this.splitContainer2.BorderStyle = BorderStyle.Fixed3D;
