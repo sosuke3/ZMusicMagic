@@ -37,7 +37,9 @@ namespace ZMusicMagic
             InitializeComponent();
             AutoScaleMode = AutoScaleMode.Dpi;
 
-            //SetSplashScreen();
+#if !DEBUG
+            SetSplashScreen();
+#endif
             CreateStandardControls();
 
             this.vsToolStripExtender1 = new VisualStudioToolStripExtender(this.components);
@@ -138,7 +140,7 @@ namespace ZMusicMagic
             }
         }
 
-        #region Splash Screen
+#region Splash Screen
         private void SetSplashScreen()
         {
 
@@ -175,7 +177,7 @@ namespace ZMusicMagic
                 _splashScreen.Location = new Point((int)Math.Round(LocationXSplash), (int)Math.Round(LocationYSplash));
             }
         }
-        #endregion
+#endregion
 
         private void CreateStandardControls()
         {
@@ -257,7 +259,7 @@ namespace ZMusicMagic
             vsToolStripExtender1.SetStyle(statusBar, version, theme);
         }
 
-        #region event handlers
+#region event handlers
         private void loadRomButton_Click(object sender, EventArgs e)
         {
             LoadRom();
@@ -281,8 +283,8 @@ namespace ZMusicMagic
             }
             else
             {
-                m_projectWindow.Show(dockpanel);
             }
+            m_projectWindow.Show(dockpanel);
         }
 
         private void ZMusicMagicForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -334,9 +336,13 @@ namespace ZMusicMagic
         private void toolBar_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             if (e.ClickedItem == newToolStripButton)
+            {
                 newToolStripMenuItem_Click(null, null);
+            }
             else if (e.ClickedItem == openToolStripButton)
+            {
                 openToolStripMenuItem_Click(null, null);
+            }
             //else if (e.ClickedItem == toolBarButtonSolutionExplorer)
             //    menuItemSolutionExplorer_Click(null, null);
             //else if (e.ClickedItem == toolBarButtonPropertyWindow)
@@ -358,8 +364,9 @@ namespace ZMusicMagic
             //var part = new SongPartForm();
             //part.Text = "something";
             //part.Show(this.dockpanel);
-            SongPartForm dummyDoc = CreateNewDocument();
-            dummyDoc.Show(dockpanel);
+
+            //SongPartForm dummyDoc = CreateNewDocument();
+            //dummyDoc.Show(dockpanel);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -376,6 +383,6 @@ namespace ZMusicMagic
         {
             m_projectWindow.Show(dockpanel);
         }
-        #endregion
+#endregion
     }
 }

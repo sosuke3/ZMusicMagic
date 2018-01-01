@@ -19,6 +19,7 @@ namespace ZMusicMagicControls
 
         #region Properties and Fields
         public Channel Channel { get; set; }
+        List<ChannelCommand> selectedNotes = new List<ChannelCommand>();
 
         PointF scrollPosition;
         public PointF ScrollPosition
@@ -55,6 +56,8 @@ namespace ZMusicMagicControls
                 Invalidate();
             }
         }
+        int fullNoteDuration = 0x60;
+        float pixelsPerDuration { get { return (float)fullNoteWidth / (float)fullNoteDuration; } }
 
         int noteThickness = 20;
         public int NoteThickness
@@ -282,9 +285,6 @@ namespace ZMusicMagicControls
                 return;
             }
 
-            int fullNoteDuration = 0x60;
-            float pixelsPerDuration = (float)fullNoteWidth / (float)fullNoteDuration;
-
             var unselectedBrush = Brushes.Purple;
             var selectedBrush = Brushes.Orange;
             if (isLoop)
@@ -358,7 +358,12 @@ namespace ZMusicMagicControls
                                 //g.DrawLine(Pens.Black, x - horizontalOffset, 0, x - horizontalOffset, this.Height);
 
                                 var noteRectangle = new Rectangle(startX, info.LineArea.Top, noteWidth, info.LineArea.Height);
-                                g.FillRectangle(unselectedBrush, noteRectangle);
+                                var brush = unselectedBrush;
+                                if(selectedNotes.Contains(c))
+                                {
+                                    brush = selectedBrush;
+                                }
+                                g.FillRectangle(brush, noteRectangle);
                                 g.DrawRectangle(Pens.Black, noteRectangle);
                             }
                         }
@@ -396,6 +401,10 @@ namespace ZMusicMagicControls
         {
             var visibleArea = MakeVisibleNotesRectangle();
             var visibleNotes = MakeVisibleNoteList(visibleArea);
+            var selectedBrush = Brushes.Orange;
+
+            // check for ctrl?
+            selectedNotes.Clear();
 
             using (var g = this.CreateGraphics())
             {
@@ -403,10 +412,25 @@ namespace ZMusicMagicControls
                 {
                     if (info.LineArea.Contains(e.Location))
                     {
+                        var xOffset = this.scrollPosition.X;
+                        var notes = this.Channel.Commands
+                            .Where(x => x.CommandType == info.Command)
+                            .Where(x => x.StartTime * pixelsPerDuration - xOffset <= e.Location.X)
+                            .Where(x => x.StartTime * pixelsPerDuration - xOffset + x.Duration * pixelsPerDuration >= e.Location.X)
+                            .FirstOrDefault();
+                        if (notes != null)
+                        {
+                            selectedNotes.Add(notes);
+                            //g.FillRectangle(selectedBrush, notes.StartTime * pixelsPerDuration - xOffset, info.LineArea.Y, notes.Duration * pixelsPerDuration, info.LineArea.Height);
 
-                        g.DrawRectangle(Pens.LimeGreen, info.LineArea);
+                        }
                     }
                 }
+            }
+
+            if(selectedNotes.Count > 0)
+            {
+                Invalidate();
             }
             base.OnMouseClick(e);
         }
