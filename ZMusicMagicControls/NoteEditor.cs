@@ -404,7 +404,13 @@ namespace ZMusicMagicControls
             var selectedBrush = Brushes.Orange;
 
             // check for ctrl?
-            selectedNotes.Clear();
+            if (Control.ModifierKeys == Keys.Control)
+            {
+            }
+            else
+            {
+                selectedNotes.Clear();
+            }
 
             using (var g = this.CreateGraphics())
             {
