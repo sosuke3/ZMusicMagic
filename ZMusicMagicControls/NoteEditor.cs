@@ -538,7 +538,13 @@ namespace ZMusicMagicControls
 
             if(e.KeyCode == Keys.Up)
             {
-                if(maxNote != Track.Command._C7_B6)
+                byte increase = 1;
+                if(e.Shift)
+                {
+                    // 1 octave
+                    increase = Track.Command._8C_C2 - Track.Command._80_C1;
+                }
+                if(maxNote + increase <= Track.Command._C7_B6)
                 {
                     foreach (var c in selectedNotes)
                     {
@@ -548,7 +554,7 @@ namespace ZMusicMagicControls
                         }
                         else
                         {
-                            c.Command++;
+                            c.Command += increase;
                             changed = true;
                         }
                     }
@@ -556,7 +562,13 @@ namespace ZMusicMagicControls
             }
             if (e.KeyCode == Keys.Down)
             {
-                if (minNote != Track.Command._80_C1)
+                byte decrease = 1;
+                if(e.Shift)
+                {
+                    // 1 octave
+                    decrease = Track.Command._8C_C2 - Track.Command._80_C1;
+                }
+                if (minNote - decrease >= Track.Command._80_C1)
                 {
                     foreach (var c in selectedNotes)
                     {
@@ -566,11 +578,43 @@ namespace ZMusicMagicControls
                         }
                         else
                         {
-                            c.Command--;
+                            c.Command -= decrease;
                             changed = true;
                         }
                     }
                 }
+            }
+            if(e.KeyCode == Keys.OemOpenBrackets)
+            {
+                foreach(var c in selectedNotes)
+                {
+                    // make it shorter
+
+                    // this is going to require some real fuckery
+                }
+            }
+            if (e.KeyCode == Keys.OemCloseBrackets)
+            {
+                foreach (var c in selectedNotes)
+                {
+                    // make it longer
+                }
+            }
+            if (e.KeyCode == Keys.D && e.Control)
+            {
+                // duplicate
+            }
+            if (e.KeyCode == Keys.C && e.Control)
+            {
+                // copy
+            }
+            if (e.KeyCode == Keys.X && e.Control)
+            {
+                // cut
+            }
+            if (e.KeyCode == Keys.V && e.Control)
+            {
+                // paste
             }
 
             base.OnKeyDown(e);
