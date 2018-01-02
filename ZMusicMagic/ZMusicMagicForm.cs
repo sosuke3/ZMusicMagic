@@ -31,6 +31,8 @@ namespace ZMusicMagic
         private SplashScreen _splashScreen;
 
         private ZMusicMagicLibrary.Rom m_currentRom;
+        private string _currentFile;
+        const string formName = "ZMusicMagic";
 
         public ZMusicMagicForm()
         {
@@ -57,6 +59,7 @@ namespace ZMusicMagic
 
             m_deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
+            this.Text = formName;
         }
 
         private IDockContent GetContentFromPersistString(string persistString)
@@ -106,41 +109,34 @@ namespace ZMusicMagic
 
             if(ofd.ShowDialog() == DialogResult.OK)
             {
+                this.CloseAllDocuments();
+                this.CloseProject();
+
                 var fullPath = ofd.FileName;
                 var filename = Path.GetFileName(ofd.FileName);
 
-
+                this.Text = $"{formName} - {filename}";
                 m_currentRom = new Rom();
-                m_currentRom.LoadRom(fullPath);
+                try
+                {
+                    m_currentRom.LoadRom(fullPath);
+                }
+                catch(Exception ex)
+                {
+                    this.Text = formName;
+                    MessageBox.Show(ex.Message, "ZMusicMagic Error");
+                    return;
+                }
                 m_projectWindow.SetRom(m_currentRom);
-
-
-                //if (FindDocument(filename) != null)
-                //{
-                //    MessageBox.Show($"The document: {filename} has already opened!");
-                //    return;
-                //}
-
-                //SongPartForm songpart = new SongPartForm();
-                //songpart.Text = filename;
-                //songpart.Show(dockpanel);
-
-                //try
-                //{
-                //    songpart.FileName = fullPath;
-                //}
-                //catch (Exception exception)
-                //{
-                //    songpart.Close();
-                //    MessageBox.Show(exception.Message);
-                //}
-
-                //Rom rom = new Rom();
-                //rom.LoadRom(ofd.FileName);
             }
         }
 
-#region Splash Screen
+        private void CloseProject()
+        {
+            m_projectWindow.CloseProject();
+        }
+
+        #region Splash Screen
         private void SetSplashScreen()
         {
 

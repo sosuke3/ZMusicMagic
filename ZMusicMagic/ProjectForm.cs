@@ -102,6 +102,13 @@ namespace ZMusicMagic
         {
             OpenSongPart(e);
         }
+
+        public void CloseProject()
+        {
+            m_currentRom = null;
+            m_primarySongCollection = null;
+            this.projectTreeView.Nodes.Clear();
+        }
     }
 
     public class SongPartChangedEventArgs : EventArgs
