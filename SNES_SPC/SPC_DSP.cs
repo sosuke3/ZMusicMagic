@@ -551,9 +551,9 @@ namespace SNES_SPC
         void ClearState()
         {
             //	memset( &m.regs [register_count], 0, offsetof (state_t,ram) - register_count );
-            for(int i=0; i<m.echo_hist.Rank; ++i)
+            for(int i=0; i<m.echo_hist.GetLength(0); ++i)
             {
-                for(int j=0; j<m.echo_hist.GetLength(i); ++j)
+                for(int j=0; j<m.echo_hist.GetLength(1); ++j)
                 {
                     m.echo_hist[i, j] = 0;
                 }
@@ -854,7 +854,7 @@ namespace SNES_SPC
             public int out_begin;//sample_t* out_begin;
             public short[] extra = new short[extra_size];
         }
-        state_t m;
+        state_t m = new state_t();
 
         //// Counters
 

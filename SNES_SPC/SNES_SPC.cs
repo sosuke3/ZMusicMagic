@@ -164,7 +164,8 @@ namespace SNES_SPC
                 throw new ArgumentOutOfRangeException(nameof(port), "read_port port is greater than port_count");
             }
 
-            return run_until_(t)[port]; // todo: this need to get fixed
+            int address = run_until_(t);
+            return m.smp_regs[0, address + port]; //run_until_(t)[port]; // todo: this need to get fixed
         }
         public void write_port(int t, int port, byte data)
         {
@@ -173,7 +174,9 @@ namespace SNES_SPC
                 throw new ArgumentOutOfRangeException(nameof(port), "read_port port is greater than port_count");
             }
 
-            run_until_(t)[0x10 + port] = data;
+            int address = run_until_(t);
+            //run_until_(t)[0x10 + port] = data;
+            m.smp_regs[0, address + 0x10 + port] = data;
         }
 
         const int cpu_lag_max = 12 - 1; // DIV YA,X takes 12 clocks
@@ -230,14 +233,14 @@ namespace SNES_SPC
 
         // If true, prevents channels and global volumes from being phase-negated.
         // Only supported by fast DSP.
-        void disable_surround(bool disable = true)
+        public void disable_surround(bool disable = true)
         {
             dsp.disable_surround(disable);
         }
 
         // Sets tempo, where tempo_unit = normal, tempo_unit / 2 = half speed, etc.
         public const int tempo_unit = 0x100;
-        void set_tempo(int t)
+        public void set_tempo(int t)
         {
             m.tempo = t;
             const int timer2_shift = 4; // 64 kHz
@@ -337,7 +340,7 @@ namespace SNES_SPC
         }
 
         // Clears echo region. Useful after loading an SPC as many have garbage in echo.
-        void clear_echo()
+        public void clear_echo()
         {
             if ((dsp.read((int)SPC_DSP.GlobalRegisters.r_flg) & 0x20) == 0)
             {
@@ -357,7 +360,7 @@ namespace SNES_SPC
 
         // Plays for count samples and write samples to out. Discards samples if out
         // is NULL. Count must be a multiple of 2 since output is stereo.
-        string play(int count, short[] output)
+        public string play(int count, short[] output)
         {
             //require((count & 1) == 0); // must be even
             if ((count % 2) != 0)
@@ -376,7 +379,7 @@ namespace SNES_SPC
         }
 
         // Skips count samples. Several times faster than play() when using fast DSP.
-        string skip(int count)
+        public string skip(int count)
         {
             return play(count, null);
         }
@@ -526,7 +529,7 @@ namespace SNES_SPC
 
         public const int signature_size = 35;
 
-        SPC_DSP dsp;
+        SPC_DSP dsp = new SPC_DSP();
 
         public class state_t
         {
@@ -858,7 +861,7 @@ namespace SNES_SPC
 			    }\
 		    }
         */
-        public void RUN_DSP(int time) //, int offset)
+        internal void RUN_DSP(int time) //, int offset)
         {
             {
                 int count = (time) - m.dsp_time;
@@ -1514,7 +1517,7 @@ namespace SNES_SPC
         }
 
         // TODO: wtf....
-        private byte[] run_until_(int end_time)
+        private int run_until_(int end_time)
         {
             //// Run
 
@@ -2165,740 +2168,991 @@ namespace SNES_SPC
 
                     // 4. 8-BIT ARITHMETIC OPERATION COMMANDS
                     case 0x68 - 0x02:
-                        data = x + dp;
-                        pc--;
+                        data = (uint)(x + _dp);
+                        _pc--;
                         goto end_0x68;
                     case 0x68 + 0x0F:
-                        data = get_le16(ram + (data + dp)) + y; goto end_0x68;
-                    case 0x68 - 0x01: data = get_le16(ram + (((uint8_t)(data + x)) + dp)); goto end_0x68;
-                    case 0x68 + 0x0E: data += y; goto abs_0x68;
-                    case 0x68 + 0x0D: data += x;
-                    case 0x68 - 0x03: abs_0x68: data += 0x100 * (*(++pc)); goto end_0x68;
-                    case 0x68 + 0x0C: data = (uint8_t)(data + x);
+                        data = (uint)(Util.get_le16(ram, ((int)data + _dp)) + y);
+                        goto end_0x68;
+                    case 0x68 - 0x01:
+                        data = (uint)Util.get_le16(ram, (((byte)(data + x)) + _dp));
+                        goto end_0x68;
+                    case 0x68 + 0x0E:
+                        data += (uint)y;
+                        goto abs_0x68;
+                    case 0x68 + 0x0D:
+                    case 0x68 - 0x03:
+                        if (opcode == 0x68 + 0x0D)
+                        {
+                            data += (uint)x;
+                        }
+                    //case 0x68 - 0x03:
+                    abs_0x68:
+                        data += (uint)(0x100 * ram[++_pc]); // (*(++pc));
+                        goto end_0x68;
+                    case 0x68 + 0x0C:
                     case 0x68 - 0x04:
-                        data += dp; end_0x68:
-                        data = cpu_read((data), rel_time + (0));
-                }
-            }
-        // Main loop
+                    case 0x68: // CMP imm
+                        if (opcode == 0x68 + 0x0C)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    //case 0x68 - 0x04:
+                        if (opcode == 0x68 + 0x0C || opcode == 0x68 - 0x04)
+                        {
+                            data += (uint)_dp;
+                        }
+                    end_0x68:
+                        if (opcode != 0x68)
+                        {
+                            data = (uint)cpu_read(((int)data), rel_time + (0));
+                        }
+                    //case 0x68: // CMP imm
+                        _nz = a - (int)data;
+                        _c = ~_nz;
+                        _nz &= 0xFF;
+                        goto inc_pc_loop;
 
-        /*
-                        case 0x68: // CMP imm
-                            nz = a - data;
-                                c = ~nz;
-                                nz &= 0xFF;
-                                goto inc_pc_loop;
+                    case 0x79: // CMP (X),(Y)
+                        data = (uint)READ_DP(rel_time, _dp, -2, y);
+                        nz = (uint)(READ_DP(rel_time, _dp, -1, x) - data);
+                        _c = ~_nz;
+                        _nz &= 0xFF;
+                        goto loop;
 
-                        case 0x79: // CMP (X),(Y)
-                            data = READ_DP(-2, y);
-                                nz = READ_DP(-1, x) - data;
-                                c = ~nz;
-                                nz &= 0xFF;
-                                goto loop;
+                    case 0x69: // CMP dp,dp
+                    case 0x78: // CMP dp,imm
+                        if (opcode == 0x69)
+                        {
+                            data = (uint)READ_DP(rel_time, _dp, -3, (int)data);
+                        }
+                    //case 0x78: // CMP dp,imm
+                        _nz = (int)(READ_DP(rel_time, _dp, -1, READ_PC(++_pc)) - data);
+                        _c = ~_nz;
+                        _nz &= 0xFF;
+                        goto inc_pc_loop;
 
-                        case 0x69: // CMP dp,dp
-                            data = READ_DP(-3, data);
-                        case 0x78: // CMP dp,imm
-                            nz = READ_DP(-1, READ_PC(++pc)) - data;
-                                c = ~nz;
-                                nz &= 0xFF;
-                                goto inc_pc_loop;
+                    case 0x3E: // CMP X,dp
+                        data += (uint)_dp;
+                        goto cmp_x_addr;
+                    case 0x1E: // CMP X,abs
+                    case 0xC8: // CMP X,imm
+                        if (opcode == 0x1E)
+                        {
+                            data = (uint)READ_PC16(_pc);
+                            _pc++;
+                        }
+                    cmp_x_addr:
+                        if (opcode != 0xC8)
+                        {
+                            data = (uint)READ(rel_time, 0, (int)data);
+                        }
+                    //case 0xC8: // CMP X,imm
+                        _nz = (int)(x - data);
+                        _c = ~_nz;
+                        _nz &= 0xFF;
+                        goto inc_pc_loop;
 
-                        case 0x3E: // CMP X,dp
-                            data += dp;
-                                goto cmp_x_addr;
-                        case 0x1E: // CMP X,abs
-                            data = READ_PC16(pc);
-                                pc++;
-                                cmp_x_addr:
-                                data = READ(0, data);
-                        case 0xC8: // CMP X,imm
-                            nz = x - data;
-                                c = ~nz;
-                                nz &= 0xFF;
-                                goto inc_pc_loop;
+                    case 0x7E: // CMP Y,dp
+                        data += (uint)_dp;
+                        goto cmp_y_addr;
+                    case 0x5E: // CMP Y,abs
+                    case 0xAD: // CMP Y,imm
+                        if (opcode == 0x5E)
+                        {
+                            data = (uint)READ_PC16(_pc);
+                            _pc++;
+                        }
+                    cmp_y_addr:
+                        if (opcode != 0xAD)
+                        {
+                            data = (uint)READ(rel_time, 0, (int)data);
+                        }
+                    //case 0xAD: // CMP Y,imm
+                        _nz = (int)(y - data);
+                        _c = ~_nz;
+                        _nz &= 0xFF;
+                        goto inc_pc_loop;
 
-                        case 0x7E: // CMP Y,dp
-                            data += dp;
-                                goto cmp_y_addr;
-                        case 0x5E: // CMP Y,abs
-                            data = READ_PC16(pc);
-                                pc++;
-                                cmp_y_addr:
-                                data = READ(0, data);
-                        case 0xAD: // CMP Y,imm
-                            nz = y - data;
-                                c = ~nz;
-                                nz &= 0xFF;
-                                goto inc_pc_loop;
-
-                                {
-                                    int addr;
-                        case 0xB9: // SBC (x),(y)
-                        case 0x99: // ADC (x),(y)
-                            pc--; // compensate for inc later
-                                    data = READ_DP(-2, y);
-                                    addr = x + dp;
-                                    goto adc_addr;
-                        case 0xA9: // SBC dp,dp
-                        case 0x89: // ADC dp,dp
-                            data = READ_DP(-3, data);
-                        case 0xB8: // SBC dp,imm
-                        case 0x98: // ADC dp,imm
-                            addr = READ_PC(++pc) + dp;
-                                    adc_addr:
-                                    nz = READ(-1, addr);
-                                    goto adc_data;
-
-                                    // catch ADC and SBC together, then decode later based on operand
+                    case 0xB9: // SBC (x),(y)
+                    case 0x99: // ADC (x),(y)
+                        _pc--; // compensate for inc later
+                        data = (uint)READ_DP(rel_time, _dp, -2, y);
+                        addr = x + _dp;
+                        goto adc_addr;
+                    case 0xA9: // SBC dp,dp
+                    case 0x89: // ADC dp,dp
+                    case 0xB8: // SBC dp,imm
+                    case 0x98: // ADC dp,imm
+                        if (opcode == 0xA9 || opcode == 0x89)
+                        {
+                            data = (uint)READ_DP(rel_time, _dp, -3, (int)data);
+                        }
+                    //case 0xB8: // SBC dp,imm
+                    //case 0x98: // ADC dp,imm
+                        addr = READ_PC(++_pc) + _dp;
+                    adc_addr:
+                        _nz = READ(rel_time, -1, addr);
+                        goto adc_data;
+                    /*
+                    // catch ADC and SBC together, then decode later based on operand
                     #undef CASE
                     #define CASE( n ) case n: case (n) + 0x20:
-                                    ADDR_MODES(0x88) // ADC/SBC addr
 
-                            data = READ(0, data);
-                        case 0xA8: // SBC imm
-                        case 0x88: // ADC imm
-                            addr = -1; // A
-                                    nz = a;
-                                    adc_data:
-                                    {
-                                        int flags;
-                                        if (opcode >= 0xA0) // SBC
-                                            data ^= 0xFF;
+                    ADDR_MODES(0x88) // ADC/SBC addr
+                        data = READ(0, data);
+                    */
+                    case 0x88 - 0x02:
+                    case (0x88 - 0x02) + 0x20:
+                        data = (uint)(x + _dp);
+                        _pc--;
+                        goto end_0x88;
+                    case 0x88 + 0x0F:
+                    case (0x88 + 0x0F) + 0x20:
+                        data = (uint)(Util.get_le16(ram, ((int)data + _dp)) + y);
+                        goto end_0x88;
+                    case 0x88 - 0x01:
+                    case (0x88 - 0x01) + 0x20:
+                        data = (uint)(Util.get_le16(ram, (((byte)(data + x)) + _dp)));
+                        goto end_0x88;
+                    case 0x88 + 0x0E:
+                    case (0x88 + 0x0E) + 0x20:
+                        data += (uint)y;
+                        goto abs_0x88;
+                    case 0x88 + 0x0D:
+                    case (0x88 + 0x0D) + 0x20:
+                    case 0x88 - 0x03:
+                    case (0x88 - 0x03) + 0x20:
+                        if (opcode == 0x88 + 0x0D || opcode == (0x88 + 0x0D) + 0x20)
+                        {
+                            data += (uint)x;
+                        }
+                    //case 0x88 - 0x03:
+                    //case (0x88 - 0x03) + 0x20:
+                    abs_0x88:
+                        data += (uint)(0x100 * ram[++_pc]); // (*(++pc));
+                        goto end_0x88;
+                    case 0x88 + 0x0C:
+                    case (0x88 + 0x0C) + 0x20:
+                    case 0x88 - 0x04:
+                    case (0x88 - 0x04) + 0x20:
+                    case 0xA8: // SBC imm
+                    case 0x88: // ADC imm
+                        if (opcode == 0x88 + 0x0C || opcode == (0x88 + 0x0C) + 0x20)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    //case 0x88 - 0x04:
+                    //case (0x88 - 0x04) + 0x20:
+                        if (opcode != 0xA8 && opcode != 0x88)
+                        {
+                            data += (uint)_dp;
+                        }
+                    end_0x88:
+                        if (opcode != 0xA8 && opcode != 0x88)
+                        {
+                            data = (uint)cpu_read(((int)data), rel_time + (0));
+                        }
+                    //case 0xA8: // SBC imm
+                    //case 0x88: // ADC imm
+                        addr = -1; // A
+                        _nz = a;
+                    adc_data:
+                    {
+                        int flags;
+                        if (opcode >= 0xA0) // SBC
+                        {
+                            data ^= 0xFF;
+                        }
 
-                                        flags = data ^ nz;
-                                        nz += data + (c >> 8 & 1);
-                                        flags ^= nz;
+                        flags = (int)(data ^ _nz);
+                        _nz += (int)data + (_c >> 8 & 1);
+                        flags ^= _nz;
 
-                                        psw = (psw & ~(v40 | h08)) |
-                                                (flags >> 1 & h08) |
-                                                ((flags + 0x80) >> 2 & v40);
-                                        c = nz;
-                                        if (addr < 0)
-                                        {
-                                            a = (uint8_t)nz;
-                                            goto inc_pc_loop;
-                                        }
-                                        WRITE(0, addr, nz);
-                                        goto inc_pc_loop;
-                                    }
+                        _psw = (_psw & ~(v40 | h08)) | (flags >> 1 & h08) | ((flags + 0x80) >> 2 & v40);
+                        _c = _nz;
+                        if (addr < 0)
+                        {
+                            a = (byte)_nz;
+                            goto inc_pc_loop;
+                        }
+                        WRITE(rel_time, 0, addr, _nz);
+                        goto inc_pc_loop;
 
-                                }
+                    }
 
-                                // 6. ADDITION & SUBTRACTION COMMANDS
-
+                    // 6. ADDITION & SUBTRACTION COMMANDS
+                    /*
                     #define INC_DEC_REG( reg, op )\
                                 nz = reg op;\
                             reg = (uint8_t)nz;\
                             goto loop;
+                    
+                    */
+                    // case 0xBC: INC_DEC_REG(a, +1) // INC A
+                    case 0xBC:
+                        _nz = a + 1;
+                        a = (byte)_nz;
+                        goto loop;
+                    // case 0x3D: INC_DEC_REG(x, +1) // INC X
+                    case 0x3D:
+                        _nz = x + 1;
+                        x = (byte)_nz;
+                        goto loop;
+                    // case 0xFC: INC_DEC_REG(y, +1) // INC Y
+                    case 0xFC:
+                        _nz = y + 1;
+                        y = (byte)_nz;
+                        goto loop;
 
-                        case 0xBC: INC_DEC_REG(a, +1) // INC A
-                        case 0x3D: INC_DEC_REG(x, +1) // INC X
-                        case 0xFC: INC_DEC_REG(y, +1) // INC Y
+                    // case 0x9C: INC_DEC_REG(a, -1) // DEC A
+                    case 0x9C:
+                        _nz = a - 1;
+                        a = (byte)_nz;
+                        goto loop;
+                    // case 0x1D: INC_DEC_REG(x, -1) // DEC X
+                    case 0x1D:
+                        _nz = x - 1;
+                        x = (byte)_nz;
+                        goto loop;
+                    // case 0xDC: INC_DEC_REG(y, -1) // DEC Y
+                    case 0xDC:
+                        _nz = y - 1;
+                        y = (byte)_nz;
+                        goto loop;
 
-                        case 0x9C: INC_DEC_REG(a, -1) // DEC A
-                        case 0x1D: INC_DEC_REG(x, -1) // DEC X
-                        case 0xDC: INC_DEC_REG(y, -1) // DEC Y
+                    case 0x9B: // DEC dp+X
+                    case 0xBB: // INC dp+X
+                    case 0x8B: // DEC dp
+                    case 0xAB: // INC dp
+                        if (opcode == 0x9B || opcode == 0xBB)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    //case 0x8B: // DEC dp
+                    //case 0xAB: // INC dp
+                        data += (uint)_dp;
+                        goto inc_abs;
 
-                        case 0x9B: // DEC dp+X
-                        case 0xBB: // INC dp+X
-                            data = (uint8_t)(data + x);
-                        case 0x8B: // DEC dp
-                        case 0xAB: // INC dp
-                            data += dp;
-                                goto inc_abs;
-                        case 0x8C: // DEC abs
-                        case 0xAC: // INC abs
-                            data = READ_PC16(pc);
-                                pc++;
-                                inc_abs:
-                                nz = (opcode >> 4 & 2) - 1;
-                                nz += READ(-1, data);
-                                WRITE(0, data, nz);
-                                goto inc_pc_loop;
+                    case 0x8C: // DEC abs
+                    case 0xAC: // INC abs
+                        data = (uint)READ_PC16(_pc);
+                        _pc++;
+                    inc_abs:
+                        _nz = (int)((opcode >> 4 & 2) - 1);
+                        _nz += READ(rel_time, -1, (int)data);
+                        WRITE(rel_time, 0, (int)data, _nz);
+                        goto inc_pc_loop;
 
                     // 7. SHIFT, ROTATION COMMANDS
+                    case 0x5C: // LSR A
+                    case 0x7C:
+                        if (opcode == 0x5C)
+                        {
+                            _c = 0;
+                        }
+                    //case 0x7C:
+                        {// ROR A
+                            _nz = (_c >> 1 & 0x80) | (a >> 1);
+                            _c = a << 8;
+                            a = _nz;
+                            goto loop;
+                        }
 
-                        case 0x5C: // LSR A
-                            c = 0;
-                        case 0x7C:{// ROR A
-                                    nz = (c >> 1 & 0x80) | (a >> 1);
-                                    c = a << 8;
-                                    a = nz;
-                                    goto loop;
-                                }
+                    case 0x1C: // ASL A
+                    case 0x3C:
+                        if (opcode == 0x1C)
+                        {
+                            _c = 0;
+                        }
+                    //case 0x3C:
+                        {// ROL A
+                            temp = _c >> 8 & 1;
+                            _c = a << 1;
+                            _nz = _c | temp;
+                            a = (byte)_nz;
+                            goto loop;
+                        }
 
-                        case 0x1C: // ASL A
-                            c = 0;
-                        case 0x3C:{// ROL A
-                                    int temp = c >> 8 & 1;
-                                    c = a << 1;
-                                    nz = c | temp;
-                                    a = (uint8_t)nz;
-                                    goto loop;
-                                }
+                    case 0x0B: // ASL dp
+                        _c = 0;
+                        data += (uint)_dp;
+                        goto rol_mem;
 
-                        case 0x0B: // ASL dp
-                            c = 0;
-                                data += dp;
-                                goto rol_mem;
-                        case 0x1B: // ASL dp+X
-                            c = 0;
-                        case 0x3B: // ROL dp+X
-                            data = (uint8_t)(data + x);
-                        case 0x2B: // ROL dp
-                            data += dp;
-                                goto rol_mem;
-                        case 0x0C: // ASL abs
-                            c = 0;
-                        case 0x2C: // ROL abs
-                            data = READ_PC16(pc);
-                                pc++;
-                                rol_mem:
-                                nz = c >> 8 & 1;
-                                nz |= (c = READ(-1, data) << 1);
-                                WRITE(0, data, nz);
-                                goto inc_pc_loop;
+                    case 0x1B: // ASL dp+X
+                    case 0x3B: // ROL dp+X
+                    case 0x2B: // ROL dp
+                        if (opcode == 0x1B)
+                        {
+                            _c = 0;
+                        }
+                        //case 0x3B: // ROL dp+X
+                        if (opcode == 0x1B || opcode == 0x3B)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    //case 0x2B: // ROL dp
+                        data += (uint)_dp;
+                        goto rol_mem;
 
-                        case 0x4B: // LSR dp
-                            c = 0;
-                                data += dp;
-                                goto ror_mem;
-                        case 0x5B: // LSR dp+X
-                            c = 0;
-                        case 0x7B: // ROR dp+X
-                            data = (uint8_t)(data + x);
-                        case 0x6B: // ROR dp
-                            data += dp;
-                                goto ror_mem;
-                        case 0x4C: // LSR abs
-                            c = 0;
-                        case 0x6C: // ROR abs
-                            data = READ_PC16(pc);
-                                pc++;
-                                ror_mem:
-                                {
-                                    int temp = READ(-1, data);
-                                    nz = (c >> 1 & 0x80) | (temp >> 1);
-                                    c = temp << 8;
-                                    WRITE(0, data, nz);
-                                    goto inc_pc_loop;
-                                }
+                    case 0x0C: // ASL abs
+                    case 0x2C: // ROL abs
+                        if (opcode == 0x0C)
+                        {
+                            _c = 0;
+                        }
+                    //case 0x2C: // ROL abs
+                        data = (uint)READ_PC16(_pc);
+                        _pc++;
+                    rol_mem:
+                        _nz = _c >> 8 & 1;
+                        _nz |= (_c = READ(rel_time, -1, (int)data) << 1);
+                        WRITE(rel_time, 0, (int)data, _nz);
+                        goto inc_pc_loop;
 
-                        case 0x9F: // XCN
-                            nz = a = (a >> 4) | (uint8_t)(a << 4);
-                                goto loop;
+                    case 0x4B: // LSR dp
+                        _c = 0;
+                        data += (uint)_dp;
+                        goto ror_mem;
+                    case 0x5B: // LSR dp+X
+                    case 0x7B: // ROR dp+X
+                    case 0x6B: // ROR dp
+                        if (opcode == 0x5B)
+                        {
+                            _c = 0;
+                        }
+                    //case 0x7B: // ROR dp+X
+                        if (opcode == 0x5B || opcode == 0x7B)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    //case 0x6B: // ROR dp
+                        data += (uint)_dp;
+                        goto ror_mem;
+                    case 0x4C: // LSR abs
+                    case 0x6C: // ROR abs
+                        if (opcode == 0x4C)
+                        {
+                            _c = 0;
+                        }
+                    //case 0x6C: // ROR abs
+                        data = (uint)READ_PC16(_pc);
+                        _pc++;
+                    ror_mem:
+                        {
+                            temp = READ(rel_time, -1, (int)data);
+                            _nz = (_c >> 1 & 0x80) | (temp >> 1);
+                            _c = temp << 8;
+                            WRITE(rel_time, 0, (int)data, _nz);
+                            goto inc_pc_loop;
+                        }
+
+                    case 0x9F: // XCN
+                        _nz = a = (a >> 4) | (byte)(a << 4);
+                        goto loop;
 
                     // 8. 16-BIT TRANSMISION COMMANDS
+                    case 0xBA: // MOVW YA,dp
+                        a = READ_DP(rel_time, _dp, -2, (int)data);
+                        _nz = (a & 0x7F) | (a >> 1);
+                        y = READ_DP(rel_time, _dp, 0, (byte)(data + 1));
+                        _nz |= y;
+                        goto inc_pc_loop;
 
-                        case 0xBA: // MOVW YA,dp
-                            a = READ_DP(-2, data);
-                                nz = (a & 0x7F) | (a >> 1);
-                                y = READ_DP(0, (uint8_t)(data + 1));
-                                nz |= y;
-                                goto inc_pc_loop;
-
-                        case 0xDA: // MOVW dp,YA
-                            WRITE_DP(-1, data, a);
-                                WRITE_DP(0, (uint8_t)(data + 1), y + no_read_before_write);
-                                goto inc_pc_loop;
+                    case 0xDA: // MOVW dp,YA
+                        WRITE_DP(rel_time, _dp, -1, (int)data, a);
+                        WRITE_DP(rel_time, _dp, 0, (byte)(data + 1), y + no_read_before_write);
+                        goto inc_pc_loop;
 
                     // 9. 16-BIT OPERATION COMMANDS
 
-                        case 0x3A: // INCW dp
-                        case 0x1A:{// DECW dp
-                                    int temp;
-                                    // low byte
-                                    data += dp;
-                                    temp = READ(-3, data);
-                                    temp += (opcode >> 4 & 2) - 1; // +1 for INCW, -1 for DECW
-                                    nz = ((temp >> 1) | temp) & 0x7F;
-                                    WRITE(-2, data, temp);
+                    case 0x3A: // INCW dp
+                    case 0x1A:
+                        {// DECW dp
+                            //int temp;
+                            // low byte
+                            data += (uint)_dp;
+                            temp = READ(rel_time, -3, (int)data);
+                            temp += ((int)opcode >> 4 & 2) - 1; // +1 for INCW, -1 for DECW
+                            _nz = ((temp >> 1) | temp) & 0x7F;
+                            WRITE(rel_time, -2, (int)data, temp);
 
-                                    // high byte
-                                    data = (uint8_t)(data + 1) + dp;
-                                    temp = (uint8_t)((temp >> 8) + READ(-1, data));
-                                    nz |= temp;
-                                    WRITE(0, data, temp);
+                            // high byte
+                            data = (uint)((byte)(data + 1) + _dp);
+                            temp = (byte)((temp >> 8) + READ(rel_time, -1, (int)data));
+                            _nz |= temp;
+                            WRITE(rel_time, 0, (int)data, temp);
 
-                                    goto inc_pc_loop;
-                                }
+                            goto inc_pc_loop;
+                        }
 
-                        case 0x7A: // ADDW YA,dp
-                        case 0x9A:{// SUBW YA,dp
-                                    int lo = READ_DP(-2, data);
-                                    int hi = READ_DP(0, (uint8_t)(data + 1));
-                                    int result;
-                                    int flags;
+                    case 0x7A: // ADDW YA,dp
+                    case 0x9A:
+                        {// SUBW YA,dp
+                            int lo = READ_DP(rel_time, _dp, -2, (int)data);
+                            int hi = READ_DP(rel_time, _dp, 0, (byte)(data + 1));
+                            int result;
+                            int flags;
 
-                                    if (opcode == 0x9A) // SUBW
-                                    {
-                                        lo = (lo ^ 0xFF) + 1;
-                                        hi ^= 0xFF;
-                                    }
+                            if (opcode == 0x9A) // SUBW
+                            {
+                                lo = (lo ^ 0xFF) + 1;
+                                hi ^= 0xFF;
+                            }
 
-                                    lo += a;
-                                    result = y + hi + (lo >> 8);
-                                    flags = hi ^ y ^ result;
+                            lo += a;
+                            result = y + hi + (lo >> 8);
+                            flags = hi ^ y ^ result;
 
-                                    psw = (psw & ~(v40 | h08)) |
-                                            (flags >> 1 & h08) |
-                                            ((flags + 0x80) >> 2 & v40);
-                                    c = result;
-                                    a = (uint8_t)lo;
-                                    result = (uint8_t)result;
-                                    y = result;
-                                    nz = (((lo >> 1) | lo) & 0x7F) | result;
+                            _psw = (_psw & ~(v40 | h08)) | (flags >> 1 & h08) | ((flags + 0x80) >> 2 & v40);
+                            _c = result;
+                            a = (byte)lo;
+                            result = (byte)result;
+                            y = result;
+                            _nz = (((lo >> 1) | lo) & 0x7F) | result;
 
-                                    goto inc_pc_loop;
-                                }
+                            goto inc_pc_loop;
+                        }
 
-                        case 0x5A: { // CMPW YA,dp
-                                    int temp = a - READ_DP(-1, data);
-                                    nz = ((temp >> 1) | temp) & 0x7F;
-                                    temp = y + (temp >> 8);
-                                    temp -= READ_DP(0, (uint8_t)(data + 1));
-                                    nz |= temp;
-                                    c = ~temp;
-                                    nz &= 0xFF;
-                                    goto inc_pc_loop;
-                                }
+                    case 0x5A:
+                        { // CMPW YA,dp
+                            temp = a - READ_DP(rel_time, _dp, -1, (int)data);
+                            _nz = ((temp >> 1) | temp) & 0x7F;
+                            temp = y + (temp >> 8);
+                            temp -= READ_DP(rel_time, _dp, 0, (byte)(data + 1));
+                            _nz |= temp;
+                            _c = ~temp;
+                            _nz &= 0xFF;
+                            goto inc_pc_loop;
+                        }
 
                     // 10. MULTIPLICATION & DIVISON COMMANDS
 
-                        case 0xCF: { // MUL YA
-                                    unsigned temp = y * a;
-                                    a = (uint8_t)temp;
-                                    nz = ((temp >> 1) | temp) & 0x7F;
-                                    y = temp >> 8;
-                                    nz |= y;
-                                    goto loop;
-                                }
+                    case 0xCF:
+                        { // MUL YA
+                            temp = y * a;
+                            a = (byte)temp;
+                            _nz = ((temp >> 1) | temp) & 0x7F;
+                            y = temp >> 8;
+                            _nz |= y;
+                            goto loop;
+                        }
 
-                        case 0x9E: // DIV YA,X
+                    case 0x9E: // DIV YA,X
                         {
-                                    unsigned ya = y * 0x100 + a;
+                            int ya = y * 0x100 + a;
 
-                                    psw &= ~(h08 | v40);
+                            _psw &= ~(h08 | v40);
 
-                                    if (y >= x)
-                                        psw |= v40;
+                            if (y >= x)
+                                _psw |= v40;
 
-                                    if ((y & 15) >= (x & 15))
-                                        psw |= h08;
+                            if ((y & 15) >= (x & 15))
+                                _psw |= h08;
 
-                                    if (y < x * 2)
-                                    {
-                                        a = ya / x;
-                                        y = ya - a * x;
-                                    }
-                                    else
-                                    {
-                                        a = 255 - (ya - x * 0x200) / (256 - x);
-                                        y = x + (ya - x * 0x200) % (256 - x);
-                                    }
+                            if (y < x * 2)
+                            {
+                                a = ya / x;
+                                y = ya - a * x;
+                            }
+                            else
+                            {
+                                a = 255 - (ya - x * 0x200) / (256 - x);
+                                y = x + (ya - x * 0x200) % (256 - x);
+                            }
 
-                                    nz = (uint8_t)a;
-                                    a = (uint8_t)a;
+                            _nz = (byte)a;
+                            a = (byte)a;
 
-                                    goto loop;
-                                }
+                            goto loop;
+                        }
 
                     // 11. DECIMAL COMPENSATION COMMANDS
 
-                        case 0xDF: // DAA
-                            SUSPICIOUS_OPCODE("DAA");
-                                if (a > 0x99 || c & 0x100)
-                                {
-                                    a += 0x60;
-                                    c = 0x100;
-                                }
+                    case 0xDF: // DAA
+                        SUSPICIOUS_OPCODE("DAA");
+                        if (a > 0x99 || (_c & 0x100) != 0)
+                        {
+                            a += 0x60;
+                            _c = 0x100;
+                        }
 
-                                if ((a & 0x0F) > 9 || psw & h08)
-                                    a += 0x06;
+                        if ((a & 0x0F) > 9 || (_psw & h08) != 0)
+                        {
+                            a += 0x06;
+                        }
 
-                                nz = a;
-                                a = (uint8_t)a;
-                                goto loop;
+                        _nz = a;
+                        a = (byte)a;
+                        goto loop;
 
-                        case 0xBE: // DAS
-                            SUSPICIOUS_OPCODE("DAS");
-                                if (a > 0x99 || !(c & 0x100))
-                                {
-                                    a -= 0x60;
-                                    c = 0;
-                                }
+                    case 0xBE: // DAS
+                        SUSPICIOUS_OPCODE("DAS");
+                        if (a > 0x99 || (_c & 0x100) == 0)
+                        {
+                            a -= 0x60;
+                            _c = 0;
+                        }
 
-                                if ((a & 0x0F) > 9 || !(psw & h08))
-                                    a -= 0x06;
+                        if ((a & 0x0F) > 9 || (_psw & h08) == 0)
+                        {
+                            a -= 0x06;
+                        }
 
-                                nz = a;
-                                a = (uint8_t)a;
-                                goto loop;
+                        _nz = a;
+                        a = (byte)a;
+                        goto loop;
 
                     // 12. BRANCHING COMMANDS
 
-                        case 0x2F: // BRA rel
-                            pc += (BOOST::int8_t)data;
+                    case 0x2F: // BRA rel
+                        _pc += (char)data;
+                        goto inc_pc_loop;
+
+                    /*
+                    BRANCH_TOP(data);
+                    if(cond) goto loop;
+                    BRANCH_BOTTOM(ref rel_time, data);
+                    goto loop;
+                    */
+                    case 0x30: // BMI
+                        //BRANCH((nz & nz_neg_mask))
+                        BRANCH_TOP(data);
+                        if ((_nz & nz_neg_mask) != 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+
+                    case 0x10: // BPL
+                        //BRANCH(!(nz & nz_neg_mask))
+                        BRANCH_TOP(data);
+                        if ((_nz & nz_neg_mask) == 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+                    case 0xB0: // BCS
+                        //BRANCH(c & 0x100)
+                        BRANCH_TOP(data);
+                        if ((_c & 0x100) != 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+                    case 0x90: // BCC
+                        //BRANCH(!(c & 0x100))
+                        BRANCH_TOP(data);
+                        if ((_c & 0x100) == 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+                    case 0x70: // BVS
+                        //BRANCH(psw & v40)
+                        BRANCH_TOP(data);
+                        if ((_psw & v40) != 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+                    case 0x50: // BVC
+                        //BRANCH(!(psw & v40))
+                        BRANCH_TOP(data);
+                        if ((_psw & v40) == 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
+
+                    /*
+                    #define CBRANCH( cond )\
+                            {\
+                        pc++;\
+                        if (cond)\
+                            goto cbranch_taken_loop;\
+                        rel_time -= 2;\
+                        goto inc_pc_loop;\
+                    }
+                    */
+                    case 0x03: // BBS dp.bit,rel
+                    case 0x23:
+                    case 0x43:
+                    case 0x63:
+                    case 0x83:
+                    case 0xA3:
+                    case 0xC3:
+                    case 0xE3:
+                        //CBRANCH(READ_DP(-4, data) >> (opcode >> 5) & 1)
+                        {
+                            _pc++;
+                            if((READ_DP(rel_time, _dp, -4, (int)data) >> (int)(opcode >> 5) & 1) != 0) { goto cbranch_taken_loop; }
+                            rel_time -= 2;
+                            goto inc_pc_loop;
+                        }
+
+                    case 0x13: // BBC dp.bit,rel
+                    case 0x33:
+                    case 0x53:
+                    case 0x73:
+                    case 0x93:
+                    case 0xB3:
+                    case 0xD3:
+                    case 0xF3:
+                        //CBRANCH(!(READ_DP(-4, data) >> (opcode >> 5) & 1))
+                        {
+                            _pc++;
+                            if ((READ_DP(rel_time, _dp, -4, (int)data) >> (int)(opcode >> 5) & 1) == 0) { goto cbranch_taken_loop; }
+                            rel_time -= 2;
+                            goto inc_pc_loop;
+                        }
+
+                    case 0xDE: // CBNE dp+X,rel
+                    case 0x2E:
+                        if (opcode == 0xDE)
+                        {
+                            data = (byte)(data + x);
+                        }
+                    // fall through
+                    //case 0x2E:
+                        {// CBNE dp,rel
+                            //int temp;
+                            // 61% from timer
+                            READ_DP_TIMER(rel_time, _dp, -4, data, ref temp);
+                            //CBRANCH(temp != a)
+                            {
+                                _pc++;
+                                if (temp != a) { goto cbranch_taken_loop; }
+                                rel_time -= 2;
                                 goto inc_pc_loop;
-
-                        case 0x30: // BMI
-                            BRANCH((nz & nz_neg_mask))
-
-                        case 0x10: // BPL
-                            BRANCH(!(nz & nz_neg_mask))
-
-                        case 0xB0: // BCS
-                            BRANCH(c & 0x100)
-
-                        case 0x90: // BCC
-                            BRANCH(!(c & 0x100))
-
-                        case 0x70: // BVS
-                            BRANCH(psw & v40)
-
-                        case 0x50: // BVC
-                            BRANCH(!(psw & v40))
-
-                        #define CBRANCH( cond )\
-                                {\
-                            pc++;\
-                            if (cond)\
-                                goto cbranch_taken_loop;\
-                            rel_time -= 2;\
-                            goto inc_pc_loop;\
-                        }
-
-                        case 0x03: // BBS dp.bit,rel
-                        case 0x23:
-                        case 0x43:
-                        case 0x63:
-                        case 0x83:
-                        case 0xA3:
-                        case 0xC3:
-                        case 0xE3:
-                            CBRANCH(READ_DP(-4, data) >> (opcode >> 5) & 1)
-
-                        case 0x13: // BBC dp.bit,rel
-                        case 0x33:
-                        case 0x53:
-                        case 0x73:
-                        case 0x93:
-                        case 0xB3:
-                        case 0xD3:
-                        case 0xF3:
-                            CBRANCH(!(READ_DP(-4, data) >> (opcode >> 5) & 1))
-
-                        case 0xDE: // CBNE dp+X,rel
-                            data = (uint8_t)(data + x);
-                            // fall through
-                        case 0x2E:{// CBNE dp,rel
-                                    int temp;
-                                    // 61% from timer
-                                    READ_DP_TIMER(-4, data, temp);
-                                    CBRANCH(temp != a)
+                            }
 
                         }
 
-                        case 0x6E: { // DBNZ dp,rel
-                                    unsigned temp = READ_DP(-4, data) - 1;
-                                    WRITE_DP(-3, (uint8_t)data, temp + no_read_before_write);
-                                    CBRANCH(temp)
-
+                    case 0x6E:
+                        { // DBNZ dp,rel
+                            temp = READ_DP(rel_time, _dp, -4, (int)data) - 1;
+                            WRITE_DP(rel_time, _dp, -3, (byte)data, temp + no_read_before_write);
+                            //CBRANCH(temp)
+                            {
+                                _pc++;
+                                if (temp != 0) { goto cbranch_taken_loop; }
+                                rel_time -= 2;
+                                goto inc_pc_loop;
+                            }
                         }
 
-                        case 0xFE: // DBNZ Y,rel
-                            y = (uint8_t)(y - 1);
-                                BRANCH(y)
+                    case 0xFE: // DBNZ Y,rel
+                        y = (byte)(y - 1);
+                        //BRANCH(y)
+                        BRANCH_TOP(data);
+                        if (y != 0) goto loop;
+                        BRANCH_BOTTOM(ref rel_time, data);
+                        goto loop;
 
-                        case 0x1F: // JMP [abs+X]
-                            SET_PC(READ_PC16(pc) + x);
-                            // fall through
-                        case 0x5F: // JMP abs
-                            SET_PC(READ_PC16(pc));
-                                goto loop;
+                    case 0x1F: // JMP [abs+X]
+                    case 0x5F: // JMP abs
+                        if (opcode == 0x1F)
+                        {
+                            SET_PC(READ_PC16(_pc) + x);
+                        }
+                    // fall through
+                    //case 0x5F: // JMP abs
+                        SET_PC(READ_PC16(_pc));
+                        goto loop;
 
                     // 13. SUB-ROUTINE CALL RETURN COMMANDS
 
-                        case 0x0F:{// BRK
-                                    int temp;
-                                    int ret_addr = GET_PC();
-                                    SUSPICIOUS_OPCODE("BRK");
-                                    SET_PC(READ_PROG16(0xFFDE)); // vector address verified
-                                    PUSH16(ret_addr);
-                                    GET_PSW(temp);
-                                    psw = (psw | b10) & ~i04;
-                                    PUSH(temp);
-                                    goto loop;
-                                }
+                    case 0x0F:
+                        {// BRK
+                            //int temp;
+                            int ret_addr = GET_PC();
+                            SUSPICIOUS_OPCODE("BRK");
+                            SET_PC(READ_PROG16(0xFFDE)); // vector address verified
+                            PUSH16(ret_addr);
+                            GET_PSW(ref temp);
+                            _psw = (_psw | b10) & ~i04;
+                            PUSH(temp);
+                            goto loop;
+                        }
 
-                        case 0x4F:{// PCALL offset
-                                    int ret_addr = GET_PC() + 1;
-                                    SET_PC(0xFF00 | data);
-                                    PUSH16(ret_addr);
-                                    goto loop;
-                                }
+                    case 0x4F:
+                        {// PCALL offset
+                            int ret_addr = GET_PC() + 1;
+                            SET_PC(0xFF00 | (int)data);
+                            PUSH16(ret_addr);
+                            goto loop;
+                        }
 
-                        case 0x01: // TCALL n
-                        case 0x11:
-                        case 0x21:
-                        case 0x31:
-                        case 0x41:
-                        case 0x51:
-                        case 0x61:
-                        case 0x71:
-                        case 0x81:
-                        case 0x91:
-                        case 0xA1:
-                        case 0xB1:
-                        case 0xC1:
-                        case 0xD1:
-                        case 0xE1:
-                        case 0xF1: {
-                                    int ret_addr = GET_PC();
-                                    SET_PC(READ_PROG16(0xFFDE - (opcode >> 3)));
-                                    PUSH16(ret_addr);
-                                    goto loop;
-                                }
+                    case 0x01: // TCALL n
+                    case 0x11:
+                    case 0x21:
+                    case 0x31:
+                    case 0x41:
+                    case 0x51:
+                    case 0x61:
+                    case 0x71:
+                    case 0x81:
+                    case 0x91:
+                    case 0xA1:
+                    case 0xB1:
+                    case 0xC1:
+                    case 0xD1:
+                    case 0xE1:
+                    case 0xF1:
+                        {
+                            int ret_addr = GET_PC();
+                            SET_PC(READ_PROG16(0xFFDE - ((int)opcode >> 3)));
+                            PUSH16(ret_addr);
+                            goto loop;
+                        }
 
-                                // 14. STACK OPERATION COMMANDS
+                    // 14. STACK OPERATION COMMANDS
 
-                                {
-                                    int temp;
-                        case 0x7F: // RET1
-                            temp = *sp;
-                                    SET_PC(GET_LE16(sp + 1));
-                                    sp += 3;
-                                    goto set_psw;
-                        case 0x8E: // POP PSW
-                            POP(temp);
-                                    set_psw:
-                                    SET_PSW(temp);
-                                    goto loop;
-                                }
+                    case 0x7F: // RET1
+                        temp = ram[_sp]; // *sp;
+                        SET_PC(Util.GET_LE16(ram, _sp + 1));
+                        _sp += 3;
+                        goto set_psw;
+                    case 0x8E: // POP PSW
+                        POP(ref temp);
+                    set_psw:
+                        SET_PSW(temp);
+                        goto loop;
 
-                        case 0x0D: { // PUSH PSW
-                                    int temp;
-                                    GET_PSW(temp);
-                                    PUSH(temp);
-                                    goto loop;
-                                }
+                    case 0x0D:
+                        { // PUSH PSW
+                            //int temp;
+                            GET_PSW(ref temp);
+                            PUSH(temp);
+                            goto loop;
+                        }
 
-                        case 0x2D: // PUSH A
-                            PUSH(a);
-                                goto loop;
+                    case 0x2D: // PUSH A
+                        PUSH(a);
+                        goto loop;
 
-                        case 0x4D: // PUSH X
-                            PUSH(x);
-                                goto loop;
+                    case 0x4D: // PUSH X
+                        PUSH(x);
+                        goto loop;
 
-                        case 0x6D: // PUSH Y
-                            PUSH(y);
-                                goto loop;
+                    case 0x6D: // PUSH Y
+                        PUSH(y);
+                        goto loop;
 
-                        case 0xAE: // POP A
-                            POP(a);
-                                goto loop;
+                    case 0xAE: // POP A
+                        POP(ref a);
+                        goto loop;
 
-                        case 0xCE: // POP X
-                            POP(x);
-                                goto loop;
+                    case 0xCE: // POP X
+                        POP(ref x);
+                        goto loop;
 
-                        case 0xEE: // POP Y
-                            POP(y);
-                                goto loop;
+                    case 0xEE: // POP Y
+                        POP(ref y);
+                        goto loop;
 
                     // 15. BIT OPERATION COMMANDS
 
-                        case 0x02: // SET1
-                        case 0x22:
-                        case 0x42:
-                        case 0x62:
-                        case 0x82:
-                        case 0xA2:
-                        case 0xC2:
-                        case 0xE2:
-                        case 0x12: // CLR1
-                        case 0x32:
-                        case 0x52:
-                        case 0x72:
-                        case 0x92:
-                        case 0xB2:
-                        case 0xD2:
-                        case 0xF2: {
-                                    int bit = 1 << (opcode >> 5);
-                                    int mask = ~bit;
-                                    if (opcode & 0x10)
-                                        bit = 0;
-                                    data += dp;
-                                    WRITE(0, data, (READ(-1, data) & mask) | bit);
-                                    goto inc_pc_loop;
-                                }
+                    case 0x02: // SET1
+                    case 0x22:
+                    case 0x42:
+                    case 0x62:
+                    case 0x82:
+                    case 0xA2:
+                    case 0xC2:
+                    case 0xE2:
+                    case 0x12: // CLR1
+                    case 0x32:
+                    case 0x52:
+                    case 0x72:
+                    case 0x92:
+                    case 0xB2:
+                    case 0xD2:
+                    case 0xF2:
+                        {
+                            int bit = 1 << ((int)opcode >> 5);
+                            int mask = ~bit;
+                            if ((opcode & 0x10) != 0)
+                                bit = 0;
+                            data += (uint)_dp;
+                            WRITE(rel_time, 0, (int)data, (READ(rel_time, -1, (int)data) & mask) | bit);
+                            goto inc_pc_loop;
+                        }
 
-                        case 0x0E: // TSET1 abs
-                        case 0x4E: // TCLR1 abs
-                            data = READ_PC16(pc);
-                                pc += 2;
-                                {
-                                    unsigned temp = READ(-2, data);
-                                    nz = (uint8_t)(a - temp);
-                                    temp &= ~a;
-                                    if (opcode == 0x0E)
-                                        temp |= a;
-                                    WRITE(0, data, temp);
-                                }
-                                goto loop;
+                    case 0x0E: // TSET1 abs
+                    case 0x4E: // TCLR1 abs
+                        data = (uint)READ_PC16(_pc);
+                        _pc += 2;
+                        {
+                            temp = READ(rel_time, -2, (int)data);
+                            nz = (byte)(a - temp);
+                            temp &= ~a;
+                            if (opcode == 0x0E)
+                            {
+                                temp |= a;
+                            }
+                            WRITE(rel_time, 0, (int)data, temp);
+                        }
+                        goto loop;
 
-                        case 0x4A: // AND1 C,mem.bit
-                            c &= MEM_BIT(0);
-                                pc += 2;
-                                goto loop;
+                    case 0x4A: // AND1 C,mem.bit
+                        _c &= (int)MEM_BIT(rel_time, 0);
+                        _pc += 2;
+                        goto loop;
 
-                        case 0x6A: // AND1 C,/mem.bit
-                            c &= ~MEM_BIT(0);
-                                pc += 2;
-                                goto loop;
+                    case 0x6A: // AND1 C,/mem.bit
+                        _c &= (int)~MEM_BIT(rel_time, 0);
+                        _pc += 2;
+                        goto loop;
 
-                        case 0x0A: // OR1 C,mem.bit
-                            c |= MEM_BIT(-1);
-                                pc += 2;
-                                goto loop;
+                    case 0x0A: // OR1 C,mem.bit
+                        _c |= (int)MEM_BIT(rel_time, -1);
+                        _pc += 2;
+                        goto loop;
 
-                        case 0x2A: // OR1 C,/mem.bit
-                            c |= ~MEM_BIT(-1);
-                                pc += 2;
-                                goto loop;
+                    case 0x2A: // OR1 C,/mem.bit
+                        _c |= (int)~MEM_BIT(rel_time, -1);
+                        _pc += 2;
+                        goto loop;
 
-                        case 0x8A: // EOR1 C,mem.bit
-                            c ^= MEM_BIT(-1);
-                                pc += 2;
-                                goto loop;
+                    case 0x8A: // EOR1 C,mem.bit
+                        _c ^= (int)MEM_BIT(rel_time, -1);
+                        _pc += 2;
+                        goto loop;
 
-                        case 0xEA: // NOT1 mem.bit
-                            data = READ_PC16(pc);
-                                pc += 2;
-                                {
-                                    unsigned temp = READ(-1, data & 0x1FFF);
-                                    temp ^= 1 << (data >> 13);
-                                    WRITE(0, data & 0x1FFF, temp);
-                                }
-                                goto loop;
+                    case 0xEA: // NOT1 mem.bit
+                        data = (uint)READ_PC16(_pc);
+                        _pc += 2;
+                        {
+                            temp = READ(rel_time, -1, (int)data & 0x1FFF);
+                            temp ^= 1 << ((int)data >> 13);
+                            WRITE(rel_time, 0, (int)data & 0x1FFF, temp);
+                        }
+                        goto loop;
 
-                        case 0xCA: // MOV1 mem.bit,C
-                            data = READ_PC16(pc);
-                                pc += 2;
-                                {
-                                    unsigned temp = READ(-2, data & 0x1FFF);
-                                    unsigned bit = data >> 13;
-                                    temp = (temp & ~(1 << bit)) | ((c >> 8 & 1) << bit);
-                                    WRITE(0, data & 0x1FFF, temp + no_read_before_write);
-                                }
-                                goto loop;
+                    case 0xCA: // MOV1 mem.bit,C
+                        data = (uint)READ_PC16(_pc);
+                        _pc += 2;
+                        {
+                            temp = READ(rel_time, -2, (int)data & 0x1FFF);
+                            int bit = (int)data >> 13;
+                            temp = (temp & ~(1 << bit)) | ((_c >> 8 & 1) << bit);
+                            WRITE(rel_time, 0, (int)data & 0x1FFF, temp + no_read_before_write);
+                        }
+                        goto loop;
 
-                        case 0xAA: // MOV1 C,mem.bit
-                            c = MEM_BIT(0);
-                                pc += 2;
-                                goto loop;
+                    case 0xAA: // MOV1 C,mem.bit
+                        _c = (int)MEM_BIT(rel_time, 0);
+                        _pc += 2;
+                        goto loop;
 
                     // 16. PROGRAM PSW FLAG OPERATION COMMANDS
 
-                        case 0x60: // CLRC
-                            c = 0;
-                                goto loop;
+                    case 0x60: // CLRC
+                        _c = 0;
+                        goto loop;
 
-                        case 0x80: // SETC
-                            c = ~0;
-                                goto loop;
+                    case 0x80: // SETC
+                        _c = ~0;
+                        goto loop;
 
-                        case 0xED: // NOTC
-                            c ^= 0x100;
-                                goto loop;
+                    case 0xED: // NOTC
+                        _c ^= 0x100;
+                        goto loop;
 
-                        case 0xE0: // CLRV
-                            psw &= ~(v40 | h08);
-                                goto loop;
+                    case 0xE0: // CLRV
+                        _psw &= ~(v40 | h08);
+                        goto loop;
 
-                        case 0x20: // CLRP
-                            dp = 0;
-                                goto loop;
+                    case 0x20: // CLRP
+                        _dp = 0;
+                        goto loop;
 
-                        case 0x40: // SETP
-                            dp = 0x100;
-                                goto loop;
+                    case 0x40: // SETP
+                        _dp = 0x100;
+                        goto loop;
 
-                        case 0xA0: // EI
-                            SUSPICIOUS_OPCODE("EI");
-                                psw |= i04;
-                                goto loop;
+                    case 0xA0: // EI
+                        SUSPICIOUS_OPCODE("EI");
+                        _psw |= i04;
+                        goto loop;
 
-                        case 0xC0: // DI
-                            SUSPICIOUS_OPCODE("DI");
-                                psw &= ~i04;
-                                goto loop;
+                    case 0xC0: // DI
+                        SUSPICIOUS_OPCODE("DI");
+                        _psw &= ~i04;
+                        goto loop;
 
                     // 17. OTHER COMMANDS
 
-                        case 0x00: // NOP
-                            goto loop;
+                    case 0x00: // NOP
+                        goto loop;
 
-                        case 0xFF:{// STOP
-                                   // handle PC wrap-around
-                                    unsigned addr = GET_PC() - 1;
-                                    if (addr >= 0x10000)
-                                    {
-                                        addr &= 0xFFFF;
-                                        SET_PC(addr);
-                                        dprintf("SPC: PC wrapped around\n");
-                                        goto loop;
+                    case 0xFF:
+                    case 0xEF: // SLEEP
+                        if(opcode == 0xFF)
+                        {// STOP
+                         // handle PC wrap-around
+                            addr = GET_PC() - 1;
+                            if (addr >= 0x10000)
+                            {
+                                addr &= 0xFFFF;
+                                SET_PC(addr);
+                                //dprintf("SPC: PC wrapped around\n");
+                                Debug.WriteLine("SPC: PC wrapped around");
+                                goto loop;
+                            }
+                        }
+                    // fall through
+                    //case 0xEF: // SLEEP
+                        SUSPICIOUS_OPCODE("STOP/SLEEP");
+                            --_pc;
+                            rel_time = 0;
+                            m.cpu_error = "SPC emulation error";
+                            goto stop;
+                } // switch
+
+                throw new Exception("Unhandled opcode");
+            }
+
+            // Main loop
+        out_of_time:
+            rel_time -= m.cycle_table[ram[_pc]]; //*pc]; // undo partial execution of opcode
+        stop:
+
+            // Uncache registers
+            if ( GET_PC() >= 0x10000 )
+            {
+                //dprintf( "SPC: PC wrapped around\n" );
+                Debug.WriteLine("SPC: PC wrapped around");
+            }
+            m.cpu_regs.pc = (ushort) GET_PC();
+            m.cpu_regs.sp = (byte) GET_SP();
+            m.cpu_regs.a  = (byte) a;
+            m.cpu_regs.x  = (byte) x;
+            m.cpu_regs.y  = (byte) y;
+            {
+                //int temp;
+                GET_PSW(ref temp);
+                m.cpu_regs.psw = (byte) temp;
+            }
+
+            /*
+                        #define SPC_CPU_RUN_FUNC_END \
+                                        m.spc_time += rel_time;\
+                                        m.dsp_time -= rel_time;\
+                                        m.timers [0].next_time -= rel_time;\
+                                        m.timers [1].next_time -= rel_time;\
+                                        m.timers [2].next_time -= rel_time;\
+                                        assert( m.spc_time <= end_time );\
+                                        return &REGS [r_cpuio0];\
                                     }
-                                }
-                        // fall through
-                        case 0xEF: // SLEEP
-                            SUSPICIOUS_OPCODE("STOP/SLEEP");
-                                --pc;
-                                rel_time = 0;
-                                m.cpu_error = "SPC emulation error";
-                                goto stop;
-                            } // switch
+                                    */
+            m.spc_time += rel_time;
+            m.dsp_time -= rel_time;
+            m.timers[0].next_time -= rel_time;
+            m.timers[1].next_time -= rel_time;
+            m.timers[2].next_time -= rel_time;
+            //assert(m.spc_time <= end_time);
+            if(m.spc_time > end_time)
+            {
+                throw new Exception("assert(m.spc_time <= end_time);");
+            }
 
-
-                        assert( 0 ); // catch any unhandled instructions
-                        }
-                        out_of_time:
-                        rel_time -= m.cycle_table[*pc]; // undo partial execution of opcode
-                    stop:
-
-                        // Uncache registers
-                        if ( GET_PC() >= 0x10000 )
-
-                            dprintf( "SPC: PC wrapped around\n" );
-                        m.cpu_regs.pc = (uint16_t) GET_PC();
-                        m.cpu_regs.sp = ( uint8_t) GET_SP();
-                        m.cpu_regs.a  = ( uint8_t) a;
-                        m.cpu_regs.x  = ( uint8_t) x;
-                        m.cpu_regs.y  = ( uint8_t) y;
-                        {
-                            int temp;
-
-                            GET_PSW(temp );
-                        m.cpu_regs.psw = (uint8_t) temp;
-                        }
-                    }
-                    SPC_CPU_RUN_FUNC_END
-
-
-                    #define SPC_CPU_RUN_FUNC_END \
-                                    m.spc_time += rel_time;\
-                                    m.dsp_time -= rel_time;\
-                                    m.timers [0].next_time -= rel_time;\
-                                    m.timers [1].next_time -= rel_time;\
-                                    m.timers [2].next_time -= rel_time;\
-                                    assert( m.spc_time <= end_time );\
-                                    return &REGS [r_cpuio0];\
-                                }
-                                */
+            return (int)registers.r_cpuio0; // m.smp_regs[0, (int)registers.r_cpuio0]; // &REGS[r_cpuio0];
+        }
     }
-
-
-}
 }

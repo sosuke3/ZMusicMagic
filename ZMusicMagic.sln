@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMusicMagicControls", "ZMus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SNES_SPC", "SNES_SPC\SNES_SPC.csproj", "{3D642DC1-0565-4AEB-B54D-6A18E8B9B411}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPCPlay", "SPCPlay\SPCPlay.csproj", "{AEDEF761-11C0-4EDD-BD4B-570BB8A7D1BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{3D642DC1-0565-4AEB-B54D-6A18E8B9B411}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D642DC1-0565-4AEB-B54D-6A18E8B9B411}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D642DC1-0565-4AEB-B54D-6A18E8B9B411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEDEF761-11C0-4EDD-BD4B-570BB8A7D1BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEDEF761-11C0-4EDD-BD4B-570BB8A7D1BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEDEF761-11C0-4EDD-BD4B-570BB8A7D1BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEDEF761-11C0-4EDD-BD4B-570BB8A7D1BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
