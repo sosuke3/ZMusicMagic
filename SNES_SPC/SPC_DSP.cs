@@ -107,6 +107,8 @@ namespace SNES_SPC
             }
 
             m.output = output;
+            m.out_pointer = 0;
+            m.out_end = out_size;
         }
 
         // Volume registers and efb are signed! Easy to forget int8_t cast.
@@ -155,7 +157,7 @@ namespace SNES_SPC
         // output buffer could hold.
         public int sample_count()
         {
-            return 0; //todo:  m.output - m.out_begin;
+            return m.out_pointer; // 0; //todo:  m.output - m.out_begin;
         }
 
         /***Emulation***/
@@ -664,7 +666,7 @@ namespace SNES_SPC
                     m.echo_hist[i, j] = s; // write back at offset 0
                 }
             }
-            m.echo_hist_pos = 0;
+            m.echo_hist_pos = 0; // m.echo_hist;
             //memcpy( &m.echo_hist [echo_hist_size], m.echo_hist, echo_hist_size * sizeof m.echo_hist [0] );
             Array.Copy(m.echo_hist, 0, m.echo_hist, echo_hist_size, echo_hist_size);
 
@@ -1492,10 +1494,11 @@ if ( out >= m.out_end )\
          */
         short[] WRITE_SAMPLES(short l, short r, short[] output)
         {
-            int index = 0;
+            int index = m.out_pointer;
             output[index] = l;
             output[index+1] = r;
             index += 2;
+            m.out_pointer += 2;
             if(index >= m.out_end)
             {
                 //check(out == m.out_end);\
@@ -1504,6 +1507,7 @@ if ( out >= m.out_end )\
                 //    (m.extra <= m.out_begin && m.extra < &m.extra[extra_size]));\
                 if (m.out_end != extra_size || (m.extra != m.output)) { } // kinda hard to do this pointer checking
                 output = m.extra;
+                m.out_pointer = 0;
                 m.out_end = extra_size;
             }
             return output;

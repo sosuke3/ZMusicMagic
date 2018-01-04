@@ -686,7 +686,7 @@ namespace SNES_SPC
             int inputPointer = m.buf_begin_pointer + sample_count();
             for (; inputPointer < main_end; inputPointer++)
             {
-                output[outputPointer++] = m.buf_begin[inputPointer];
+                output[outputPointer++] = m.buf_begin[m.buf_begin_pointer + inputPointer];
             }
             var inputBuffer = dsp.extra();
             inputPointer = 0;
