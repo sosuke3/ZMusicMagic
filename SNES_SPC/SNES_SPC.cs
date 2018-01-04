@@ -455,7 +455,7 @@ namespace SNES_SPC
             spc.has_id666 = 26; // has none
             spc.version = 30;
             spc.signature = signature; //memcpy(spc, signature, sizeof spc->signature);
-            spc.text = new char[spc_text_size]; //memset(spc->text, 0, sizeof spc->text);
+            spc.text = new byte[spc_text_size]; //memset(spc->text, 0, sizeof spc->text);
         }
 
         // Saves emulator state as SPC file data. Writes spc_file_size bytes to spc_out.
@@ -1174,7 +1174,7 @@ namespace SNES_SPC
             public byte y;
             public byte psw;
             public byte sp;
-            public char[] text = new char[spc_text_size];
+            public byte[] text = new byte[spc_text_size];
             public byte[] ram = new byte[spc_ram_size];
             public byte[] dsp = new byte[spc_dsp_size];
             public byte[] unused = new byte[spc_unused_size];
@@ -1507,12 +1507,12 @@ namespace SNES_SPC
         void BRANCH_TOP(uint data)
         {
             _pc++;
-            _pc += (char)data;
+            _pc += (sbyte)data;
         }
 
         void BRANCH_BOTTOM(ref int rel_time, uint data)
         {
-            _pc -= (char)data;
+            _pc -= (sbyte)data;
             rel_time -= 2;
         }
 
@@ -2706,7 +2706,7 @@ namespace SNES_SPC
                     // 12. BRANCHING COMMANDS
 
                     case 0x2F: // BRA rel
-                        _pc += (char)data;
+                        _pc += (sbyte)data;
                         goto inc_pc_loop;
 
                     /*

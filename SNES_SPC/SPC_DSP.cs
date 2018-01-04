@@ -1130,7 +1130,7 @@ namespace SNES_SPC
         void voice_output(voice_t v, int ch)
         {
             // Apply left/right volume
-            int amp = (m.t_output * (char)v.regs[(int)VoiceRegisters.v_voll + ch]) >> 7;
+            int amp = (m.t_output * (sbyte)v.regs[(int)VoiceRegisters.v_voll + ch]) >> 7;
 
             // Add to output total
             m.t_main_out[ch] += amp;
@@ -1380,8 +1380,8 @@ namespace SNES_SPC
         }
         int echo_output(int ch)
         {
-            int output = (short)((m.t_main_out[ch] * (char)m.regs[(int)GlobalRegisters.r_mvoll + ch * 0x10]) >> 7) +
-                    (short)((m.t_echo_in[ch] * (char)m.regs[(int)GlobalRegisters.r_evoll + ch * 0x10]) >> 7);
+            int output = (short)((m.t_main_out[ch] * (sbyte)m.regs[(int)GlobalRegisters.r_mvoll + ch * 0x10]) >> 7) +
+                    (short)((m.t_echo_in[ch] * (sbyte)m.regs[(int)GlobalRegisters.r_evoll + ch * 0x10]) >> 7);
             output = CLAMP16(output);
             return output;
         }
@@ -1402,7 +1402,7 @@ namespace SNES_SPC
         {
             //#define ECHO_FIR( i )       (m.echo_hist_pos [i])
             //#define CALC_FIR( i, ch )   ((ECHO_FIR( i + 1 ) [ch] * (int8_t) REG(fir + i * 0x10)) >> 6)
-            return ((m.echo_hist[m.echo_hist_pos + i + 1, ch] * (char)m.regs[(int)GlobalRegisters.r_fir + i * 0x10]) >> 6);
+            return ((m.echo_hist[m.echo_hist_pos + i + 1, ch] * (sbyte)m.regs[(int)GlobalRegisters.r_fir + i * 0x10]) >> 6);
         }
         void echo_22()
         {
@@ -1464,8 +1464,8 @@ namespace SNES_SPC
             m.t_main_out[0] = echo_output(0);
 
             // Echo feedback
-            int l = m.t_echo_out[0] + (short)((m.t_echo_in[0] * (char)m.regs[(int)GlobalRegisters.r_efb]) >> 7);
-            int r = m.t_echo_out[1] + (short)((m.t_echo_in[1] * (char)m.regs[(int)GlobalRegisters.r_efb]) >> 7);
+            int l = m.t_echo_out[0] + (short)((m.t_echo_in[0] * (sbyte)m.regs[(int)GlobalRegisters.r_efb]) >> 7);
+            int r = m.t_echo_out[1] + (short)((m.t_echo_in[1] * (sbyte)m.regs[(int)GlobalRegisters.r_efb]) >> 7);
 
             l = CLAMP16(l);
             r = CLAMP16(r);
