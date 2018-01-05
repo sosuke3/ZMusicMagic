@@ -19,7 +19,7 @@ namespace SNES_SPC
         public int copy_int(int state, int size)
         {
             byte[] s = new byte[2];
-            Util.SET_LE16(s, 0, state);
+            Util.SET_LE16(s, 0, (uint)state);
             func(buf, s, size);
             return Util.GET_LE16(s, 0);
         }

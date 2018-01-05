@@ -25,32 +25,32 @@ inline unsigned get_le16( void const* p )
 #endif
          */
 
-        public static short get_le16(byte[] buffer, int index)
+        public static ushort get_le16(byte[] buffer, int index)
         {
             if (buffer.Length < index+1)
             {
                 throw new IndexOutOfRangeException("get_le16 index is outside the bounds of buffer");
             }
-            return (short)((buffer[index + 1] << 8) | (buffer[index]));
+            return (ushort)((buffer[index + 1] << 8) | (buffer[index]));
         }
-        public static short GET_LE16A(byte[] buffer, int index)
+        public static ushort GET_LE16A(byte[] buffer, int index)
         {
             return get_le16(buffer, index);
         }
-        public static short GET_LE16(byte[] buffer, int index)
+        public static ushort GET_LE16(byte[] buffer, int index)
         {
             return get_le16(buffer, index);
         }
-        public static short GET_LE16SA(byte[] buffer, int index)
+        public static ushort GET_LE16SA(byte[] buffer, int index)
         {
             return get_le16(buffer, index);
         }
-        public static short READ_PC16(byte[] buffer, int index)
+        public static ushort READ_PC16(byte[] buffer, int index)
         {
             return get_le16(buffer, index);
         }
 
-        public static void set_le16(byte[] buffer, int index, int value)
+        public static void set_le16(byte[] buffer, int index, uint value)
         {
             if (buffer.Length < index + 1)
             {
@@ -59,7 +59,7 @@ inline unsigned get_le16( void const* p )
             buffer[index + 1] = (byte)(value >> 8);
             buffer[index] = (byte)(value);
         }
-        public static void SET_LE16(byte[] buffer, int index, int value)
+        public static void SET_LE16(byte[] buffer, int index, uint value)
         {
             set_le16(buffer, index, value);
         }

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SNES_SPC
 {
@@ -14,7 +10,7 @@ namespace SNES_SPC
         public void init()
         {
             //memset(&m, 0, sizeof m);
-            m = new state_t();
+            m = new spc_state_t();
             dsp.init(m.ram.ram);
 
             m.tempo = tempo_unit;
@@ -314,7 +310,7 @@ namespace SNES_SPC
             spc_file_t spc = new spc_file_t();
             int pointer = 0;
 
-            spc.signature = System.Text.ASCIIEncoding.ASCII.GetString(data, pointer, signature_size);
+            spc.signature = System.Text.Encoding.ASCII.GetString(data, pointer, signature_size);
             pointer += signature_size;
 
             spc.has_id666 = data[pointer++];
@@ -508,21 +504,6 @@ namespace SNES_SPC
             return dsp.check_kon();
         }
 
-        // Time relative to m_spc_time. Speeds up code a bit by eliminating need to
-        // constantly add m_spc_time to time from CPU. CPU uses time that ends at
-        // 0 to eliminate reloading end time every instruction. It pays off.
-        //typedef int rel_time_t;
-
-        public struct Timer
-        {
-            public int next_time; // time of next event
-            public int prescaler;
-            public int period;
-            public int divider;
-            public int enabled;
-            public int counter;
-        };
-
         public const int reg_count = 0x10;
         public const int timer_count = 3;
         public const int extra_size = 16;
@@ -530,61 +511,7 @@ namespace SNES_SPC
         public const int signature_size = 35;
 
         SPC_DSP dsp = new SPC_DSP();
-
-        public class state_t
-        {
-            public Timer[] timers = new Timer[timer_count] { new Timer(), new Timer(), new Timer() };
-
-            public byte[,] smp_regs = new byte[2, reg_count];
-
-            public cpu_regs cpu_regs = new cpu_regs();
-
-            public int dsp_time;
-            public int spc_time;
-            public bool echo_accessed;
-
-            public int tempo;
-            public int skipped_kon;
-            public int skipped_koff;
-            public string cpu_error; // byte[]?
-
-            public int extra_clocks;
-            public short[] buf_begin; // sample_t*   buf_begin; really just the buffer because we don't have pointers in c#
-            public int buf_begin_pointer;
-            // sample_t const* buf_end;
-            public int buf_end;
-            // sample_t*   extra_pos;
-            public int extra_pos;
-            public short[] extra_buf = new short[extra_size];
-
-            public int rom_enabled;
-            public byte[] rom = new byte[rom_size];
-            public byte[] hi_ram = new byte[rom_size];
-
-            public byte[] cycle_table = new byte[256];
-
-            public Ram ram = new Ram();
-        }
-        state_t m;
-
-        public struct cpu_regs
-        {
-
-            public int pc;
-            public int a;
-            public int x;
-            public int y;
-            public int psw;
-            public int sp;
-        }
-
-        public class Ram
-        {
-            // padding to neutralize address overflow
-            public byte[] padding1 = new byte[0x100];
-            public byte[] ram = new byte[0x10000];
-            public byte[] padding2 = new byte[0x100];
-        }
+        spc_state_t m;
 
         public const int rom_addr = 0xFFC0;
 
@@ -778,7 +705,7 @@ namespace SNES_SPC
 
             // Run IPL ROM
             //memset(&m.cpu_regs, 0, sizeof m.cpu_regs);
-            ClearCPURegisters(m.cpu_regs);
+            ClearCPURegisters();
             m.cpu_regs.pc = rom_addr;
 
             m.smp_regs[0, (int)registers.r_test] = 0x0A;
@@ -791,14 +718,14 @@ namespace SNES_SPC
             reset_time_regs();
         }
 
-        private void ClearCPURegisters(cpu_regs cpu_regs)
+        private void ClearCPURegisters()
         {
-            cpu_regs.pc = 0;
-            cpu_regs.a = 0;
-            cpu_regs.x = 0;
-            cpu_regs.y = 0;
-            cpu_regs.psw = 0;
-            cpu_regs.sp = 0;
+            m.cpu_regs.pc = 0;
+            m.cpu_regs.a = 0;
+            m.cpu_regs.x = 0;
+            m.cpu_regs.y = 0;
+            m.cpu_regs.psw = 0;
+            m.cpu_regs.sp = 0;
         }
 
         //#define TIMER_DIV( t, n ) ((n) / t->prescaler)
@@ -1314,7 +1241,7 @@ namespace SNES_SPC
         }
 
         //#define READ_PROG16( addr )                 GET_LE16( ram + (addr) )
-        short READ_PROG16(int addr)
+        ushort READ_PROG16(int addr)
         {
             return Util.GET_LE16(m.ram.ram, addr);
         }
@@ -1339,7 +1266,7 @@ namespace SNES_SPC
         }
 
         //#define READ_PC16( pc ) GET_LE16( pc )
-        short READ_PC16(int pc)
+        ushort READ_PC16(int pc)
         {
             return Util.GET_LE16(m.ram.ram, pc);
         }
@@ -1373,7 +1300,7 @@ namespace SNES_SPC
             }\
         }
         */
-        void PUSH16(int data)
+        void PUSH16(uint data)
         {
             int addr = (_sp -= 2);
             if(addr > 0x100)
@@ -1574,7 +1501,15 @@ namespace SNES_SPC
                 }
 
                 // TODO: if PC is at end of memory, this will get wrong operand (very obscure)
-                data = ram[++_pc];
+                if(++_pc >= 0x10000)
+                {
+                    Debug.WriteLine("uh oh. gonna wrap the _pc");
+                    data = 0;
+                }
+                else
+                {
+                    data = ram[_pc];
+                }
 
                 switch(opcode)
                 {
@@ -1612,7 +1547,7 @@ namespace SNES_SPC
 
                     case 0x3F:
                         {// CALL
-                            int old_addr = GET_PC() + 2;
+                            uint old_addr = (uint)GET_PC() + 2;
                             SET_PC(READ_PC16(_pc));
                             PUSH16(old_addr);
                             goto loop;
@@ -2859,7 +2794,7 @@ namespace SNES_SPC
                     case 0x0F:
                         {// BRK
                             //int temp;
-                            int ret_addr = GET_PC();
+                            uint ret_addr = (uint)GET_PC();
                             SUSPICIOUS_OPCODE("BRK");
                             SET_PC(READ_PROG16(0xFFDE)); // vector address verified
                             PUSH16(ret_addr);
@@ -2871,7 +2806,7 @@ namespace SNES_SPC
 
                     case 0x4F:
                         {// PCALL offset
-                            int ret_addr = GET_PC() + 1;
+                            uint ret_addr = (uint)GET_PC() + 1;
                             SET_PC(0xFF00 | (int)data);
                             PUSH16(ret_addr);
                             goto loop;
@@ -2894,7 +2829,7 @@ namespace SNES_SPC
                     case 0xE1:
                     case 0xF1:
                         {
-                            int ret_addr = GET_PC();
+                            uint ret_addr = (uint)GET_PC();
                             SET_PC(READ_PROG16(0xFFDE - ((int)opcode >> 3)));
                             PUSH16(ret_addr);
                             goto loop;

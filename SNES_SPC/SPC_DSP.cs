@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SNES_SPC
 {
     public class SPC_DSP
     {
         public delegate byte[] copy_func_t(byte[] io, byte[] state, int size);
-        /*
-#define GET_LE16SA( addr )      ((BOOST::int16_t) GET_LE16( addr ))
-#define GET_LE16A( addr )       GET_LE16( addr )
-#define SET_LE16A( addr, data ) SET_LE16( addr, data )
-         */
 
         static readonly byte[] initial_regs = new byte[SPC_DSP.register_count]
         {
@@ -39,31 +30,6 @@ namespace SNES_SPC
             return io;
         }
 
-        // Access global DSP register
-        //#define REG(n)      m.regs [r_##n]
-        // GlobalRegisters.r_xxxx
-
-        // Access voice DSP register
-        //#define VREG(r,n)   r [v_##n]
-        // r[VoiceRegisters.v_xxx]
-
-        /*
-        #define WRITE_SAMPLES( l, r, out ) \
-        {\
-            out [0] = l;\
-            out [1] = r;\
-            out += 2;\
-            if ( out >= m.out_end )\
-            {\
-                check( out == m.out_end );\
-                check( m.out_end != &m.extra [extra_size] || \
-                    (m.extra <= m.out_begin && m.extra < &m.extra [extra_size]) );\
-                out       = m.extra;\
-                m.out_end = &m.extra [extra_size];\
-            }\
-        }\
-         */
-
         /***Setup***/
 
         // Initializes DSP and has it use the 64K RAM provided
@@ -74,21 +40,6 @@ namespace SNES_SPC
             disable_surround(false);
             set_output(null, 0);
             reset();
-
-            //#ifndef NDEBUG
-            //            // be sure this sign-extends
-            //            assert((int16_t)0x8000 == -0x8000);
-
-            //            // be sure right shift preserves sign
-            //            assert((-1 >> 1) == -1);
-
-            //            // check clamp macro
-            //            int i;
-            //            i = +0x8000; CLAMP16(i); assert(i == +0x7FFF);
-            //            i = -0x8001; CLAMP16(i); assert(i == -0x8000);
-
-            //            blargg_verify_byte_order();
-            //#endif
         }
 
         // Sets destination for output samples. If out is NULL or out_size is 0,
@@ -157,7 +108,7 @@ namespace SNES_SPC
         // output buffer could hold.
         public int sample_count()
         {
-            return m.out_pointer; // 0; //todo:  m.output - m.out_begin;
+            return m.out_pointer; // m.output - m.out_begin;
         }
 
         /***Emulation***/
@@ -238,283 +189,185 @@ namespace SNES_SPC
                 // thanks c# for not having fall-through case statements!
                 if (phase <= 0)
                 {
-                    phase0(); if (--clocks_remain == 0) break;
+                    voice_V5(m.voices[0]);
+                    voice_V2(m.voices[1]);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 1)
                 {
-                    phase1(); if (--clocks_remain == 0) break;
+                    voice_V6(m.voices[0]);
+                    voice_V3(m.voices[1]);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 2)
                 {
-                    phase2(); if (--clocks_remain == 0) break;
+                    voice_V7_V4_V1(m.voices, 0);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 3)
                 {
-                    phase3(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 0);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 4)
                 {
-                    phase4(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 0);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 5)
                 {
-                    phase5(); if (--clocks_remain == 0) break;
+                    voice_V7_V4_V1(m.voices, 1);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 6)
                 {
-                    phase6(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 1);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 7)
                 {
-                    phase7(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 1);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 8)
                 {
-                    phase8(); if (--clocks_remain == 0) break;
+                    voice_V7_V4_V1(m.voices, 2);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 9)
                 {
-                    phase9(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 2);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 10)
                 {
-                    phase10(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 2);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 11)
                 {
-                    phase11(); if (--clocks_remain == 0) break;
+                    voice_V7_V4_V1(m.voices, 3);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 12)
                 {
-                    phase12(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 3);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 13)
                 {
-                    phase13(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 3);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 14)
                 {
-                    phase14(); if (--clocks_remain == 0) break;
+                    voice_V7_V4_V1(m.voices, 4);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 15)
                 {
-                    phase15(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 4);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 16)
                 {
-                    phase16(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 4);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 17)
                 {
-                    phase17(); if (--clocks_remain == 0) break;
+                    voice_V1(m.voices[0]);
+                    voice_V7(m.voices[5]);
+                    voice_V4(m.voices[6]);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 18)
                 {
-                    phase18(); if (--clocks_remain == 0) break;
+                    voice_V8_V5_V2(m.voices, 5);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 19)
                 {
-                    phase19(); if (--clocks_remain == 0) break;
+                    voice_V9_V6_V3(m.voices, 5);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 20)
                 {
-                    phase20(); if (--clocks_remain == 0) break;
+                    voice_V1(m.voices[1]);
+                    voice_V7(m.voices[6]);
+                    voice_V4(m.voices[7]);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 21)
                 {
-                    phase21(); if (--clocks_remain == 0) break;
+                    voice_V8(m.voices[6]);
+                    voice_V5(m.voices[7]);
+                    voice_V2(m.voices[0]);
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 22)
                 {
-                    phase22(); if (--clocks_remain == 0) break;
+                    voice_V3a(m.voices[0]);
+                    voice_V9(m.voices[6]);
+                    voice_V6(m.voices[7]);
+                    echo_22();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 23)
                 {
-                    phase23(); if (--clocks_remain == 0) break;
+                    voice_V7(m.voices[7]);
+                    echo_23();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 24)
                 {
-                    phase24(); if (--clocks_remain == 0) break;
+                    voice_V8(m.voices[7]);
+                    echo_24();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 25)
                 {
-                    phase25(); if (--clocks_remain == 0) break;
+                    voice_V3b(m.voices[0]);
+                    voice_V9(m.voices[7]);
+                    echo_25();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 26)
                 {
-                    phase26(); if (--clocks_remain == 0) break;
+                    echo_26();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 27)
                 {
-                    phase27(); if (--clocks_remain == 0) break;
+                    misc_27();
+                    echo_27();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 28)
                 {
-                    phase28(); if (--clocks_remain == 0) break;
+                    misc_28();
+                    echo_28();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 29)
                 {
-                    phase29(); if (--clocks_remain == 0) break;
+                    misc_29();
+                    echo_29();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 30)
                 {
-                    phase30(); if (--clocks_remain == 0) break;
+                    misc_30();
+                    voice_V3c(m.voices[0]);
+                    echo_30();
+                    if (--clocks_remain == 0) break;
                 }
                 if (phase <= 31)
                 {
-                    phase31();
+                    voice_V4(m.voices[0]);
+                    voice_V1(m.voices[2]);
                 }
             } while (--clocks_remain > 0);
-        }
-
-        void phase0()
-        {
-            voice_V5(m.voices[0]);
-            voice_V2(m.voices[1]);
-        }
-        void phase1()
-        {
-            voice_V6(m.voices[0]);
-            voice_V3(m.voices[1]);
-        }
-        void phase2()
-        {
-            voice_V7_V4_V1(m.voices, 0);
-        }
-        void phase3()
-        {
-            voice_V8_V5_V2(m.voices, 0);
-        }
-        void phase4()
-        {
-            voice_V9_V6_V3(m.voices, 0);
-        }
-        void phase5()
-        {
-            voice_V7_V4_V1(m.voices, 1);
-        }
-        void phase6()
-        {
-            voice_V8_V5_V2(m.voices, 1);
-        }
-        void phase7()
-        {
-            voice_V9_V6_V3(m.voices, 1);
-        }
-        void phase8()
-        {
-            voice_V7_V4_V1(m.voices, 2);
-        }
-        void phase9()
-        {
-            voice_V8_V5_V2(m.voices, 2);
-        }
-        void phase10()
-        {
-            voice_V9_V6_V3(m.voices, 2);
-        }
-        void phase11()
-        {
-            voice_V7_V4_V1(m.voices, 3);
-        }
-        void phase12()
-        {
-            voice_V8_V5_V2(m.voices, 3);
-        }
-        void phase13()
-        {
-            voice_V9_V6_V3(m.voices, 3);
-        }
-        void phase14()
-        {
-            voice_V7_V4_V1(m.voices, 4);
-        }
-        void phase15()
-        {
-            voice_V8_V5_V2(m.voices, 4);
-        }
-        void phase16()
-        {
-            voice_V9_V6_V3(m.voices, 4);
-        }
-        void phase17()
-        {
-            voice_V1(m.voices[0]);
-            voice_V7(m.voices[5]);
-            voice_V4(m.voices[6]);
-        }
-        void phase18()
-        {
-            voice_V8_V5_V2(m.voices, 5);
-        }
-        void phase19()
-        {
-            voice_V9_V6_V3(m.voices, 5);
-        }
-        void phase20()
-        {
-            voice_V1(m.voices[1]);
-            voice_V7(m.voices[6]);
-            voice_V4(m.voices[7]);
-        }
-        void phase21()
-        {
-            voice_V8(m.voices[6]);
-            voice_V5(m.voices[7]);
-            voice_V2(m.voices[0]);
-        }
-        void phase22()
-        {
-            voice_V3a(m.voices[0]);
-            voice_V9(m.voices[6]);
-            voice_V6(m.voices[7]);
-            echo_22();
-        }
-        void phase23()
-        {
-            voice_V7(m.voices[7]);
-            echo_23();
-        }
-        void phase24()
-        {
-            voice_V8(m.voices[7]);
-            echo_24();
-        }
-        void phase25()
-        {
-            voice_V3b(m.voices[0]);
-            voice_V9(m.voices[7]);
-            echo_25();
-        }
-        void phase26()
-        {
-            echo_26();
-        }
-        void phase27()
-        {
-            misc_27();
-            echo_27();
-        }
-        void phase28()
-        {
-            misc_28();
-            echo_28();
-        }
-        void phase29()
-        {
-            misc_29();
-            echo_29();
-        }
-        void phase30()
-        {
-            misc_30();
-            voice_V3c(m.voices[0]);
-            echo_30();
-        }
-        void phase31()
-        {
-            voice_V4(m.voices[0]);
-            voice_V1(m.voices[2]);
         }
 
         /***Sound control***/
@@ -768,95 +621,11 @@ namespace SNES_SPC
         public void disable_surround(bool disable) { } // not supported
 
         internal const int echo_hist_size = 8;
-
-        public enum env_mode_t { env_release, env_attack, env_decay, env_sustain };
         internal const int brr_buf_size = 12;
-        public class voice_t
-        {
-            public int[] buf = new int[brr_buf_size * 2];// decoded samples (twice the size to simplify wrap handling)
-            public int buf_pos;            // place in buffer where next samples will be decoded
-            public int interp_pos;         // relative fractional position in sample (0x1000 = 1.0)
-            public int brr_addr;           // address of current BRR block
-            public int brr_offset;         // current decoding offset in BRR block
-            public byte[] regs;            // pointer to voice's DSP registers
-            public int regs_offset;        // fake the C pointer that would be at regs
-            public int vbit;               // bitmask for voice: 0x01 for voice 0, 0x02 for voice 1, etc.
-            public int kon_delay;          // KON delay/current setup phase
-            public env_mode_t env_mode;
-            public int env;                // current envelope level
-            public int hidden_env;         // used by GAIN mode 7, very obscure quirk
-            public byte t_envx_out;
-        }
 
         const int brr_block_size = 9;
 
-
-
-        internal class state_t
-        {
-            public byte[] regs = new byte[register_count];
-
-            // Echo history keeps most recent 8 samples (twice the size to simplify wrap handling)
-            public int[,] echo_hist = new int[echo_hist_size * 2, 2];
-            public int echo_hist_pos; //int (*echo_hist_pos) [2]; // &echo_hist [0 to 7]
-
-            public int every_other_sample; // toggles every sample
-            public int kon;                // KON value when last checked
-            public int noise;
-            public int counter;
-            public int echo_offset;        // offset from ESA in echo buffer
-            public int echo_length;        // number of bytes that echo_offset will stop at
-            public int phase;              // next clock cycle to run (0-31)
-            public bool kon_check;         // set when a new KON occurs
-
-            // Hidden registers also written to when main register is written to
-            public int new_kon;
-            public byte endx_buf;
-            public byte envx_buf;
-            public byte outx_buf;
-
-            // Temporary state between clocks
-
-            // read once per sample
-            public int t_pmon;
-            public int t_non;
-            public int t_eon;
-            public int t_dir;
-            public int t_koff;
-
-            // read a few clocks ahead then used
-            public int t_brr_next_addr;
-            public int t_adsr0;
-            public int t_brr_header;
-            public int t_brr_byte;
-            public int t_srcn;
-            public int t_esa;
-            public int t_echo_enabled;
-
-            // internal state that is recalculated every sample
-            public int t_dir_addr;
-            public int t_pitch;
-            public int t_output;
-            public int t_looped;
-            public int t_echo_ptr;
-
-            // left/right sums
-            public int[] t_main_out = new int[2];
-            public int[] t_echo_out = new int[2];
-            public int[] t_echo_in = new int[2];
-
-            public voice_t[] voices = new voice_t[voice_count] { new voice_t(), new voice_t(), new voice_t(), new voice_t(), new voice_t(), new voice_t(), new voice_t(), new voice_t() };
-
-            // non-emulation state
-            public byte[] ram; // 64K shared RAM between DSP and SMP
-            public int mute_mask;
-            public short[] output;
-            public int out_pointer;
-            public int out_end; //sample_t* out_end;
-            public int out_begin;//sample_t* out_begin;
-            public short[] extra = new short[extra_size];
-        }
-        state_t m = new state_t();
+        dsp_state_t m = new dsp_state_t();
 
         //// Counters
 
@@ -916,13 +685,13 @@ namespace SNES_SPC
         int interpolate(voice_t v )
         {
             // Make pointers into gaussian based on fractional position between samples
-            int offset = v.interp_pos >> 4 & 0xFF;  // int offset = v->interp_pos >> 4 & 0xFF;
+            int offset = (v.interp_pos >> 4) & 0xFF;// int offset = v->interp_pos >> 4 & 0xFF;
             int fwd = 255 - offset;                 // short const* fwd = gauss + 255 - offset;
             int rev = offset;                       // short const* rev = gauss       + offset; // mirror left half of gaussian
 
-            int index = v.interp_pos >> 12 + v.buf_pos;             // int const* in = &v->buf [(v->interp_pos >> 12) + v->buf_pos];
+            int index = (v.interp_pos >> 12) + v.buf_pos;           // int const* in = &v->buf [(v->interp_pos >> 12) + v->buf_pos];
             int output;                                             // int out;
-            output = (gauss[fwd + 0] * v.buf[index + 0]) >> 11;     // out  = (fwd [  0] * in [0]) >> 11;
+            output  = (gauss[fwd + 0]   * v.buf[index + 0]) >> 11;  // out  = (fwd [  0] * in [0]) >> 11;
             output += (gauss[fwd + 256] * v.buf[index + 1]) >> 11;  // out += (fwd [256] * in [1]) >> 11;
             output += (gauss[rev + 256] * v.buf[index + 2]) >> 11;  // out += (rev [256] * in [2]) >> 11;
             output = (short)output;                                 // out = (int16_t) out;
@@ -950,7 +719,7 @@ namespace SNES_SPC
             else
             {
                 int rate;
-                int env_data = v.regs[(int)VoiceRegisters.v_adsr1];
+                int env_data = v.regs[v.regs_offset + (int)VoiceRegisters.v_adsr1];
                 if ((m.t_adsr0 & 0x80) != 0) // 99% ADSR
                 {
                     if (v.env_mode >= env_mode_t.env_decay) // 99%
@@ -972,7 +741,7 @@ namespace SNES_SPC
                 else // GAIN
                 {
                     int mode;
-                    env_data = v.regs[(int)VoiceRegisters.v_gain];
+                    env_data = v.regs[v.regs_offset + (int)VoiceRegisters.v_gain];
                     mode = env_data >> 5;
                     if (mode < 4) // direct
                     {
@@ -1132,7 +901,7 @@ namespace SNES_SPC
         void voice_output(voice_t v, int ch)
         {
             // Apply left/right volume
-            int amp = (m.t_output * (sbyte)v.regs[(int)VoiceRegisters.v_voll + ch]) >> 7;
+            int amp = (m.t_output * (sbyte)v.regs[v.regs_offset + (int)VoiceRegisters.v_voll + ch]) >> 7;
 
             // Add to output total
             m.t_main_out[ch] += amp;
@@ -1149,7 +918,7 @@ namespace SNES_SPC
         void voice_V1(voice_t v)
         {
             m.t_dir_addr = m.t_dir * 0x100 + m.t_srcn * 4;
-            m.t_srcn = v.regs[(int)VoiceRegisters.v_srcn];
+            m.t_srcn = v.regs[v.regs_offset + (int)VoiceRegisters.v_srcn];
         }
         void voice_V2(voice_t v)
         {
@@ -1161,10 +930,10 @@ namespace SNES_SPC
             }
             m.t_brr_next_addr = Util.GET_LE16A(m.ram, entry);
 
-            m.t_adsr0 = v.regs[(int)VoiceRegisters.v_adsr0];
+            m.t_adsr0 = v.regs[v.regs_offset + (int)VoiceRegisters.v_adsr0];
 
             // Read pitch, spread over two clocks
-            m.t_pitch = v.regs[(int)VoiceRegisters.v_pitchl];
+            m.t_pitch = v.regs[v.regs_offset + (int)VoiceRegisters.v_pitchl];
         }
         void voice_V3(voice_t v)
         {
@@ -1174,7 +943,7 @@ namespace SNES_SPC
         }
         void voice_V3a(voice_t v)
         {
-            m.t_pitch += (v.regs[(int)VoiceRegisters.v_pitchh] & 0x3F) << 8;
+            m.t_pitch += (v.regs[v.regs_offset + (int)VoiceRegisters.v_pitchh] & 0x3F) << 8;
 
         }
         void voice_V3b(voice_t v)
@@ -1229,7 +998,7 @@ namespace SNES_SPC
                 }
 
                 // Apply envelope
-                m.t_output = (output * v.env) >> 11 & ~1;
+                m.t_output = ((output * v.env) >> 11) & ~1;
                 v.t_envx_out = (byte)(v.env >> 4);
             }
 
@@ -1329,12 +1098,12 @@ namespace SNES_SPC
         void voice_V8(voice_t v)
         {
             // Update OUTX
-            v.regs[(int)VoiceRegisters.v_outx] = m.outx_buf;
+            v.regs[v.regs_offset + (int)VoiceRegisters.v_outx] = m.outx_buf;
         }
         void voice_V9(voice_t v)
         {
             // Update ENVX
-            v.regs[(int)VoiceRegisters.v_envx] = m.envx_buf;
+            v.regs[v.regs_offset + (int)VoiceRegisters.v_envx] = m.envx_buf;
         }
         // Common combinations of voice steps on different voices. This greatly reduces
         // code size and allows everything to be inlined in these functions.
