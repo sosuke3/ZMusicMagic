@@ -40,6 +40,39 @@ namespace SNES_SPC
             disable_surround(false);
             set_output(null, 0);
             reset();
+
+#if false
+            unchecked
+            {
+        		// be sure this sign-extends
+                if ((short)0x8000 != -0x8000)
+                {
+                    throw new Exception("doesn't sign extend");
+                }
+
+        		// be sure right shift preserves sign
+                if((-1 >> 1) != -1)
+                {
+                    throw new Exception("right shift doesn't preserve sign");
+                }
+
+        		// check clamp macro
+                int i;
+                i = +0x8000;
+                i = CLAMP16(i);
+                if(i != +0x7FFF)
+                {
+                    throw new Exception("CLAMP(0x8000) != 0x7FFF");
+                }
+                i = -0x8001;
+                i = CLAMP16(i);
+                if(i != -0x8000)
+                {
+                    throw new Exception("CLAMP(-0x8001) != -0x8000");
+                }
+
+            }
+#endif
         }
 
         // Sets destination for output samples. If out is NULL or out_size is 0,
@@ -631,7 +664,7 @@ namespace SNES_SPC
 
         const int simple_counter_range = 2048 * 5 * 3; // 30720
 
-        static readonly int[] counter_rates = new int[32]
+        static readonly uint[] counter_rates = new uint[32]
         {
            simple_counter_range + 1, // never fires
                   2048, 1536,
@@ -648,7 +681,7 @@ namespace SNES_SPC
                      1
         };
 
-        static readonly int[] counter_offsets = new int[32]
+        static readonly uint[] counter_offsets = new uint[32]
         {
               1, 0, 1040,
             536, 0, 1040,
@@ -677,9 +710,9 @@ namespace SNES_SPC
             }
         }
 
-        int read_counter(int rate)
+        uint read_counter(int rate)
         {
-            return ((int)m.counter + counter_offsets[rate]) % counter_rates[rate];
+            return ((uint)m.counter + counter_offsets[rate]) % counter_rates[rate];
         }
 
         int interpolate(voice_t v )
@@ -722,7 +755,7 @@ namespace SNES_SPC
                 int env_data = v.regs[v.regs_offset + (int)VoiceRegisters.v_adsr1];
                 if ((m.t_adsr0 & 0x80) != 0) // 99% ADSR
                 {
-                    if (v.env_mode >= env_mode_t.env_decay) // 99%
+                    if ((int)v.env_mode >= (int)env_mode_t.env_decay) // 99%   // probably don't need the casts
                     {
                         env--;
                         env -= env >> 8;
@@ -763,7 +796,7 @@ namespace SNES_SPC
                         else // 6,7: linear increase
                         {
                             env += 0x20;
-                            if (mode > 6 && (UInt32)v.hidden_env >= 0x600)
+                            if (mode > 6 && (uint)v.hidden_env >= 0x600)
                             {
                                 env += 0x8 - 0x20; // 7: two-slope linear increase
                             }
@@ -780,7 +813,7 @@ namespace SNES_SPC
                 v.hidden_env = env;
 
                 // unsigned cast because linear decrease going negative also triggers this
-                if ((UInt32)env > 0x7FF)
+                if ((uint)env > 0x7FF)
                 {
                     env = (env < 0 ? 0 : 0x7FF);
                     if (v.env_mode == env_mode_t.env_attack)
@@ -1161,11 +1194,16 @@ namespace SNES_SPC
             buffer[addr] = (byte)(value & 0xFF);
             buffer[addr+1] = (byte)((value >> 8) & 0xFF);
         }
+        void SET_LE16A(byte[] buffer, int addr, int value)
+        {
+            buffer[addr] = (byte)(value & 0xFF);
+            buffer[addr + 1] = (byte)((value >> 8) & 0xFF);
+        }
         void echo_write(int ch)
         {
             if ((m.t_echo_enabled & 0x20) == 0)
             {
-                SET_LE16A(m.ram, m.t_echo_ptr + ch * 2, (short)m.t_echo_out[ch]);
+                SET_LE16A(m.ram, m.t_echo_ptr + ch * 2, m.t_echo_out[ch]);
             }
             m.t_echo_out[ch] = 0;
         }

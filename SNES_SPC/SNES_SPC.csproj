@@ -43,6 +43,7 @@
     <Compile Include="cpu_regs.cs" />
     <Compile Include="dsp_state_t.cs" />
     <Compile Include="env_mode_t.cs" />
+    <Compile Include="opcodes.cs" />
     <Compile Include="Ram.cs" />
     <Compile Include="SNES_SPC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

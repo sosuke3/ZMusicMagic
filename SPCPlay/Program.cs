@@ -22,17 +22,23 @@ namespace SPCPlay
 
             spc.clear_echo();
 
-            WaveFormat waveFormat = new WaveFormat(32000, 16, 2);
+            const int bitrate = 32000;
+            const int bits = 16;
+            const int channels = 2;
+
+            WaveFormat waveFormat = new WaveFormat(bitrate, bits, channels);
             using (WaveFileWriter writer = new WaveFileWriter("test.wav", waveFormat))
             {
-                int sample_count = 0;
-                while (sample_count < 20 * 32000 * 2)
-                {
-                    sample_count += 2048;
+                const int seconds = 2; // 20;
+                const int buffersize = 2048;
 
-                    int count = 2048;
-                    short[] output = new short[count];
-                    spc.play(count, output);
+                int sample_count = 0;
+                while (sample_count < seconds * bitrate * channels)
+                {
+                    sample_count += buffersize;
+
+                    short[] output = new short[buffersize];
+                    spc.play(buffersize, output);
 
                     writer.WriteSamples(output, 0, output.Length);
                 }

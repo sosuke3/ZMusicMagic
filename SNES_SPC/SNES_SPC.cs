@@ -1363,14 +1363,14 @@ namespace SNES_SPC
 
         // Hex value in name to clarify code and bit shifting.
         // Flag stored in indicated variable during emulation
-        const int n80 = 0x80; // nz
-        const int v40 = 0x40; // psw
-        const int p20 = 0x20; // dp
-        const int b10 = 0x10; // psw
-        const int h08 = 0x08; // psw
-        const int i04 = 0x04; // psw
-        const int z02 = 0x02; // nz
-        const int c01 = 0x01; // c
+        public const int n80 = 0x80; // nz
+        public const int v40 = 0x40; // psw
+        public const int p20 = 0x20; // dp
+        public const int b10 = 0x10; // psw
+        public const int h08 = 0x08; // psw
+        public const int i04 = 0x04; // psw
+        public const int z02 = 0x02; // nz
+        public const int c01 = 0x01; // c
 
         const int nz_neg_mask = 0x880; // either bit set indicates N flag set
 
@@ -1387,10 +1387,10 @@ namespace SNES_SPC
         int _psw = 0;
         int _dp = 0;
         int _nz = 0;
-        void GET_PSW(ref int output)
+        public void GET_PSW(ref int output)
         {
             output = _psw & ~(n80 | p20 | z02 | c01);
-            output |= c01 >> 8 & c01;
+            output |= _c >> 8 & c01;
             output |= _dp >> 3 & p20;
             output |= ((_nz >> 4) | _nz) & n80;
             if((byte)_nz == 0)
@@ -1481,7 +1481,7 @@ namespace SNES_SPC
             goto loop;
 
         cbranch_taken_loop:
-            _pc += ram[_pc];
+            _pc += (sbyte)ram[_pc];
         inc_pc_loop:
             _pc++;
         loop:
@@ -1493,7 +1493,15 @@ namespace SNES_SPC
                 //check((unsigned)x < 0x100);
                 //check((unsigned)y < 0x100);
 
+                // was caused by rewind, but let's leave this here just in case we find another problem
+                //if(_pc == 0x857 && a == 0x2d && x == 0x46 && y == 0x9 && (uint)_c == 0xFFFFFFFB && _nz == 0x2D && _sp == 0x1D0 && _psw == 0x2)
+                //{
+                //    Debugger.Break();
+                //}
+
                 opcode = ram[_pc];
+
+                opcodes.Trace((int)opcode, a, x, y, _sp, _dp, _pc, this, ram);
 
                 if ((rel_time += m.cycle_table[opcode]) > 0)
                 {
@@ -3066,16 +3074,16 @@ namespace SNES_SPC
             }
 
             /*
-                        #define SPC_CPU_RUN_FUNC_END \
-                                        m.spc_time += rel_time;\
-                                        m.dsp_time -= rel_time;\
-                                        m.timers [0].next_time -= rel_time;\
-                                        m.timers [1].next_time -= rel_time;\
-                                        m.timers [2].next_time -= rel_time;\
-                                        assert( m.spc_time <= end_time );\
-                                        return &REGS [r_cpuio0];\
-                                    }
-                                    */
+            #define SPC_CPU_RUN_FUNC_END \
+                m.spc_time += rel_time;\
+                m.dsp_time -= rel_time;\
+                m.timers [0].next_time -= rel_time;\
+                m.timers [1].next_time -= rel_time;\
+                m.timers [2].next_time -= rel_time;\
+                assert( m.spc_time <= end_time );\
+                return &REGS [r_cpuio0];\
+            }
+            */
             m.spc_time += rel_time;
             m.dsp_time -= rel_time;
             m.timers[0].next_time -= rel_time;
