@@ -1501,15 +1501,15 @@ namespace SNES_SPC
 
                 opcode = ram[_pc];
 
-                opcodes.Trace((int)opcode, a, x, y, _sp, _dp, _pc, this, ram);
-
                 if ((rel_time += m.cycle_table[opcode]) > 0)
                 {
                     goto out_of_time;
                 }
 
+                opcodes.Trace((int)opcode, a, x, y, _sp, _dp, _pc, this, ram);
+
                 // TODO: if PC is at end of memory, this will get wrong operand (very obscure)
-                if(++_pc >= 0x10000)
+                if (++_pc >= 0x10000)
                 {
                     Debug.WriteLine("uh oh. gonna wrap the _pc");
                     data = 0;
@@ -2577,7 +2577,7 @@ namespace SNES_SPC
                             a = (byte)temp;
                             _nz = ((temp >> 1) | temp) & 0x7F;
                             y = temp >> 8;
-                            _nz |= y;
+                            _nz = y;
                             goto loop;
                         }
 
