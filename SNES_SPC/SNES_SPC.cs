@@ -167,7 +167,7 @@ namespace SNES_SPC
         {
             if (port >= port_count)
             {
-                throw new ArgumentOutOfRangeException(nameof(port), "read_port port is greater than port_count");
+                throw new ArgumentOutOfRangeException(nameof(port), "write_port port is greater than port_count");
             }
 
             int address = run_until_(t);
@@ -1506,7 +1506,8 @@ namespace SNES_SPC
                     goto out_of_time;
                 }
 
-                opcodes.Trace((int)opcode, a, x, y, _sp, _dp, _pc, this, ram);
+                // prepare to wait if you turn this on
+                //opcodes.Trace((int)opcode, a, x, y, _sp, _dp, _pc, this, ram);
 
                 // TODO: if PC is at end of memory, this will get wrong operand (very obscure)
                 if (++_pc >= 0x10000)
@@ -2575,9 +2576,11 @@ namespace SNES_SPC
                         { // MUL YA
                             temp = y * a;
                             a = (byte)temp;
-                            _nz = ((temp >> 1) | temp) & 0x7F;
+                            //_nz = ((temp >> 1) | temp) & 0x7F;
                             y = temp >> 8;
-                            _nz = y;
+                            //_nz = y; // todo: match bsnes for now
+                            _nz = (temp < 0) ? n80 : 0;
+                            _nz |= y != 0 ? z02 : 0;
                             goto loop;
                         }
 

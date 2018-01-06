@@ -41,7 +41,7 @@ namespace SNES_SPC
             { 0x96, new OpCode(0x96, "ADC   A,!a+Y      ", "adc   a,${1}{0}+y", 3, " 5 ", "A = A+(a+Y)+C                    ", "N", "V", ".", ".", "H", ".", "Z", "C") },
             { 0x89, new OpCode(0x89, "ADC   dd,ds       ", "adc   $0{1},$0{0}", 3, " 6 ", "(dd) = (dd)+(d)+C                ", "N", "V", ".", ".", "H", ".", "Z", "C") },
             { 0x98, new OpCode(0x98, "ADC   d,#i        ", "adc   $0{1},#${0}", 3, " 5 ", "(d) = (d)+i+C                    ", "N", "V", ".", ".", "H", ".", "Z", "C") },
-            { 0x7A, new OpCode(0x7A, "ADDW  YA,d        ", "addw  ya,${0}", 2, " 5 ", "YA  = YA + (d), H on high byte   ", "N", "V", ".", ".", "H", ".", "Z", "C") },
+            { 0x7A, new OpCode(0x7A, "ADDW  YA,d        ", "addw  ya,$0{0}", 2, " 5 ", "YA  = YA + (d), H on high byte   ", "N", "V", ".", ".", "H", ".", "Z", "C") },
             { 0x39, new OpCode(0x39, "AND   (X),(Y)     ", "and   (x),(y)", 1, " 5 ", "(X) = (X) & (Y)                  ", "N", ".", ".", ".", ".", ".", "Z", ".") },
             { 0x28, new OpCode(0x28, "AND   A,#i        ", "and   a,#${0}", 2, " 2 ", "A = A & i                        ", "N", ".", ".", ".", ".", ".", "Z", ".") },
             { 0x26, new OpCode(0x26, "AND   A,(X)       ", "and   a,(x)", 1, " 3 ", "A = A & (X)                      ", "N", ".", ".", ".", ".", ".", "Z", ".") },

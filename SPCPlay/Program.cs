@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SNES_SPC;
 using NAudio;
 using NAudio.Wave;
+using System.Diagnostics;
 
 namespace SPCPlay
 {
@@ -17,7 +18,7 @@ namespace SPCPlay
             var spc = new SNES_SPC.SNES_SPC();
             spc.init();
 
-            var spcfile = File.ReadAllBytes("loz.spc");
+            var spcfile = File.ReadAllBytes("loz 1.spc");
             spc.load_spc(spcfile, spcfile.Length);
 
             spc.clear_echo();
@@ -38,7 +39,12 @@ namespace SPCPlay
                     sample_count += buffersize;
 
                     short[] output = new short[buffersize];
-                    spc.play(buffersize, output);
+
+                    var error = spc.play(buffersize, output);
+                    if(error != String.Empty)
+                    {
+                        Debug.WriteLine(error);
+                    }
 
                     writer.WriteSamples(output, 0, output.Length);
                 }
