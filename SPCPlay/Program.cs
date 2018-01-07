@@ -23,6 +23,7 @@ namespace SPCPlay
             //var us2 = Util.GET_LE16A(testbuff, 1);
             //var us3 = Util.GET_LE16A(testbuff, 2);
 
+            var filter = new SNES_SPC.SPC_Filter();
             var spc = new SNES_SPC.SNES_SPC();
             spc.init();
 
@@ -30,6 +31,7 @@ namespace SPCPlay
             spc.load_spc(spcfile, spcfile.Length);
 
             spc.clear_echo();
+            filter.clear();
 
             const int samplerate = 32000;
             const int bits = 16;
@@ -53,6 +55,8 @@ namespace SPCPlay
                     {
                         Debug.WriteLine(error);
                     }
+
+                    filter.run(output, buffersize);
 
                     writer.WriteSamples(output, 0, output.Length);
                 }

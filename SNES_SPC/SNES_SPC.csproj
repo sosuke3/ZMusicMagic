@@ -48,6 +48,7 @@
     <Compile Include="SNES_SPC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SPC_DSP.cs" />
+    <Compile Include="SPC_Filter.cs" />
     <Compile Include="SPC_State_Copier.cs" />
     <Compile Include="spc_state_t.cs" />
     <Compile Include="Timer.cs" />
