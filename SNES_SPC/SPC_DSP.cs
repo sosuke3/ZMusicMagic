@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace SNES_SPC
 {
@@ -856,6 +857,12 @@ namespace SNES_SPC
             output = (short)output;                                 // out = (int16_t) out;
             output += (gauss[rev + 0] * v.buf[index + 3]) >> 11;    // out += (rev [  0] * in [3]) >> 11;
 
+            if(output != 0)
+            {
+                //Debugger.Break();
+                int x = 0;
+            }
+
             output = CLAMP16(output);                               // CLAMP16( out );
             output &= ~1;                                           // out &= ~1;
 
@@ -948,7 +955,7 @@ namespace SNES_SPC
                     }
                 }
 
-                if (read_counter(rate) != 0)
+                if (read_counter(rate) == 0)
                 {
                     v.env = env; // nothing else is controlled by the counter
                 }
@@ -1059,6 +1066,11 @@ namespace SNES_SPC
 
         void voice_output(voice_t v, int ch)
         {
+            if(m.t_output != 0)
+            {
+                //Debugger.Break();
+                int x = 0;
+            }
             // Apply left/right volume
             int amp = (m.t_output * (sbyte)v.regs[v.regs_offset + (int)VoiceRegisters.v_voll + ch]) >> 7;
 
