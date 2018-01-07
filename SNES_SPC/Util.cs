@@ -41,9 +41,9 @@ inline unsigned get_le16( void const* p )
         {
             return get_le16(buffer, index);
         }
-        public static ushort GET_LE16SA(byte[] buffer, int index)
+        public static short GET_LE16SA(byte[] buffer, int index)
         {
-            return get_le16(buffer, index);
+            return (short)get_le16(buffer, index);
         }
         public static ushort READ_PC16(byte[] buffer, int index)
         {

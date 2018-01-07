@@ -613,7 +613,7 @@ namespace SNES_SPC
             int inputPointer = m.buf_begin_pointer + sample_count();
             for (; inputPointer < main_end; inputPointer++)
             {
-                output[outputPointer++] = m.buf_begin[m.buf_begin_pointer + inputPointer];
+                output[outputPointer++] = m.buf_begin[inputPointer];
             }
             var inputBuffer = dsp.extra();
             inputPointer = 0;
@@ -963,9 +963,9 @@ namespace SNES_SPC
                     //#endif
 
                     // Registers other than $F2 and $F4-$F7
-                    //if ( reg != 2 && reg != 4 && reg != 5 && reg != 6 && reg != 7 )
+                    if ( reg != 2 && reg != 4 && reg != 5 && reg != 6 && reg != 7 )
                     // TODO: this is a bit on the fragile side
-                    if (((~0x2F00 << (bits_in_int - 16)) << reg) < 0) // 36%
+                    //if (((~0x2F00 << (bits_in_int - 16)) << reg) < 0) // 36%
                     {
                         cpu_write_smp_reg(data, time, reg);
                     }
@@ -1219,7 +1219,7 @@ namespace SNES_SPC
         //#define DP_ADDR( addr )                     (dp + (addr))
         int DP_ADDR(int dp, uint addr)
         {
-            return dp + (int)addr;
+            return (int)(dp + addr);
         }
 
         //#define READ_DP_TIMER(  time, addr, out )   CPU_READ_TIMER( rel_time, TIME_ADJ(time), DP_ADDR( addr ), out )

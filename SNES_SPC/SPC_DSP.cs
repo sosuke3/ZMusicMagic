@@ -20,7 +20,7 @@ namespace SNES_SPC
 
         // if ( io < -32768 ) io = -32768;
         // if ( io >  32767 ) io =  32767;
-        int CLAMP16(int io)
+        public static int CLAMP16(int io)
         {
             if((short)io != io)
             {
@@ -91,8 +91,8 @@ namespace SNES_SPC
             }
 
             m.output = output;
-            m.out_pointer = 0;
-            m.out_end = out_size;
+            m.out_pointer = output.Length - out_size; // 0;
+            m.out_end = output.Length;
         }
 
         // Volume registers and efb are signed! Easy to forget int8_t cast.
@@ -224,119 +224,207 @@ namespace SNES_SPC
                 {
                     voice_V5(m.voices[0]);
                     voice_V2(m.voices[1]);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 1;
+                        break;
+                    }
                 }
                 if (phase <= 1)
                 {
                     voice_V6(m.voices[0]);
                     voice_V3(m.voices[1]);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 2;
+                        break;
+                    }
                 }
                 if (phase <= 2)
                 {
                     voice_V7_V4_V1(m.voices, 0);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 3;
+                        break;
+                    }
                 }
                 if (phase <= 3)
                 {
                     voice_V8_V5_V2(m.voices, 0);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 4;
+                        break;
+                    }
                 }
                 if (phase <= 4)
                 {
                     voice_V9_V6_V3(m.voices, 0);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 5;
+                        break;
+                    }
                 }
                 if (phase <= 5)
                 {
                     voice_V7_V4_V1(m.voices, 1);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 6;
+                        break;
+                    }
                 }
                 if (phase <= 6)
                 {
                     voice_V8_V5_V2(m.voices, 1);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 7;
+                        break;
+                    }
                 }
                 if (phase <= 7)
                 {
                     voice_V9_V6_V3(m.voices, 1);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 8;
+                        break;
+                    }
                 }
                 if (phase <= 8)
                 {
                     voice_V7_V4_V1(m.voices, 2);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 9;
+                        break;
+                    }
                 }
                 if (phase <= 9)
                 {
                     voice_V8_V5_V2(m.voices, 2);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 10;
+                        break;
+                    }
                 }
                 if (phase <= 10)
                 {
                     voice_V9_V6_V3(m.voices, 2);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 11;
+                        break;
+                    }
                 }
                 if (phase <= 11)
                 {
                     voice_V7_V4_V1(m.voices, 3);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 12;
+                        break;
+                    }
                 }
                 if (phase <= 12)
                 {
                     voice_V8_V5_V2(m.voices, 3);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 13;
+                        break;
+                    }
                 }
                 if (phase <= 13)
                 {
                     voice_V9_V6_V3(m.voices, 3);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 14;
+                        break;
+                    }
                 }
                 if (phase <= 14)
                 {
                     voice_V7_V4_V1(m.voices, 4);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 15;
+                        break;
+                    }
                 }
                 if (phase <= 15)
                 {
                     voice_V8_V5_V2(m.voices, 4);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 16;
+                        break;
+                    }
                 }
                 if (phase <= 16)
                 {
                     voice_V9_V6_V3(m.voices, 4);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 17;
+                        break;
+                    }
                 }
                 if (phase <= 17)
                 {
                     voice_V1(m.voices[0]);
                     voice_V7(m.voices[5]);
                     voice_V4(m.voices[6]);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 18;
+                        break;
+                    }
                 }
                 if (phase <= 18)
                 {
                     voice_V8_V5_V2(m.voices, 5);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 19;
+                        break;
+                    }
                 }
                 if (phase <= 19)
                 {
                     voice_V9_V6_V3(m.voices, 5);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 20;
+                        break;
+                    }
                 }
                 if (phase <= 20)
                 {
                     voice_V1(m.voices[1]);
                     voice_V7(m.voices[6]);
                     voice_V4(m.voices[7]);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 21;
+                        break;
+                    }
                 }
                 if (phase <= 21)
                 {
                     voice_V8(m.voices[6]);
                     voice_V5(m.voices[7]);
                     voice_V2(m.voices[0]);
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 22;
+                        break;
+                    }
                 }
                 if (phase <= 22)
                 {
@@ -344,61 +432,99 @@ namespace SNES_SPC
                     voice_V9(m.voices[6]);
                     voice_V6(m.voices[7]);
                     echo_22();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 23;
+                        break;
+                    }
                 }
                 if (phase <= 23)
                 {
                     voice_V7(m.voices[7]);
                     echo_23();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 24;
+                        break;
+                    }
                 }
                 if (phase <= 24)
                 {
                     voice_V8(m.voices[7]);
                     echo_24();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 25;
+                        break;
+                    }
                 }
                 if (phase <= 25)
                 {
                     voice_V3b(m.voices[0]);
                     voice_V9(m.voices[7]);
                     echo_25();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 26;
+                        break;
+                    }
                 }
                 if (phase <= 26)
                 {
                     echo_26();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 27;
+                        break;
+                    }
                 }
                 if (phase <= 27)
                 {
                     misc_27();
                     echo_27();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 28;
+                        break;
+                    }
                 }
                 if (phase <= 28)
                 {
                     misc_28();
                     echo_28();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 29;
+                        break;
+                    }
                 }
                 if (phase <= 29)
                 {
                     misc_29();
                     echo_29();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 30;
+                        break;
+                    }
                 }
                 if (phase <= 30)
                 {
                     misc_30();
                     voice_V3c(m.voices[0]);
                     echo_30();
-                    if (--clocks_remain == 0) break;
+                    if (--clocks_remain == 0)
+                    {
+                        //m.phase = 31;
+                        break;
+                    }
                 }
                 if (phase <= 31)
                 {
                     voice_V4(m.voices[0]);
                     voice_V1(m.voices[2]);
+                    //m.phase = 0;
+                    phase = 0;
                 }
             } while (--clocks_remain > 0);
         }
@@ -1185,7 +1311,7 @@ namespace SNES_SPC
         int echo_output(int ch)
         {
             int output = (short)((m.t_main_out[ch] * (sbyte)m.regs[(int)GlobalRegisters.r_mvoll + ch * 0x10]) >> 7) +
-                    (short)((m.t_echo_in[ch] * (sbyte)m.regs[(int)GlobalRegisters.r_evoll + ch * 0x10]) >> 7);
+                         (short)((m.t_echo_in[ch]  * (sbyte)m.regs[(int)GlobalRegisters.r_evoll + ch * 0x10]) >> 7);
             output = CLAMP16(output);
             return output;
         }

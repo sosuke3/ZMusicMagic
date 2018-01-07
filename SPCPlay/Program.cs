@@ -15,6 +15,14 @@ namespace SPCPlay
     {
         static void Main(string[] args)
         {
+            //byte[] testbuff = new byte[] { 0xFF, 0xFF, 0x00, 0xFF };
+            //var s1 = Util.GET_LE16SA(testbuff, 0);
+            //var s2 = Util.GET_LE16SA(testbuff, 1);
+            //var s3 = Util.GET_LE16SA(testbuff, 2);
+            //var us1 = Util.GET_LE16A(testbuff, 0);
+            //var us2 = Util.GET_LE16A(testbuff, 1);
+            //var us3 = Util.GET_LE16A(testbuff, 2);
+
             var spc = new SNES_SPC.SNES_SPC();
             spc.init();
 
@@ -23,18 +31,18 @@ namespace SPCPlay
 
             spc.clear_echo();
 
-            const int bitrate = 32000;
+            const int samplerate = 32000;
             const int bits = 16;
             const int channels = 2;
 
-            WaveFormat waveFormat = new WaveFormat(bitrate, bits, channels);
+            WaveFormat waveFormat = new WaveFormat(samplerate, bits, channels);
             using (WaveFileWriter writer = new WaveFileWriter("test.wav", waveFormat))
             {
-                const int seconds = 2; // 20;
+                const int seconds = 20; // 20;
                 const int buffersize = 2048;
 
                 int sample_count = 0;
-                while (sample_count < seconds * bitrate * channels)
+                while (sample_count < seconds * samplerate * channels)
                 {
                     sample_count += buffersize;
 
