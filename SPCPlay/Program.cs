@@ -61,6 +61,51 @@ namespace SPCPlay
                     writer.WriteSamples(output, 0, output.Length);
                 }
 
+                //spc.write_port(0, 0, 0xF1);
+
+                //sample_count = 0;
+                //while (sample_count < 1 * samplerate * channels)
+                //{
+                //    sample_count += buffersize;
+
+                //    short[] output = new short[buffersize];
+
+                //    var error = spc.play(buffersize, output);
+                //    if (error != String.Empty)
+                //    {
+                //        Debug.WriteLine(error);
+                //    }
+
+                //    filter.run(output, buffersize);
+
+                //    writer.WriteSamples(output, 0, output.Length);
+                //}
+
+
+                spc.write_port(0, 0, 0x02);
+                //spc.write_port(0, 1, 0x0);
+                //spc.write_port(0, 2, 0x0);
+                //spc.write_port(0, 3, 0x0);
+
+
+                sample_count = 0;
+                while (sample_count < seconds * samplerate * channels)
+                {
+                    sample_count += buffersize;
+
+                    short[] output = new short[buffersize];
+
+                    var error = spc.play(buffersize, output);
+                    if (error != String.Empty)
+                    {
+                        Debug.WriteLine(error);
+                    }
+
+                    filter.run(output, buffersize);
+
+                    writer.WriteSamples(output, 0, output.Length);
+                }
+
                 writer.Flush();
             }
         }

@@ -160,8 +160,9 @@ namespace SNES_SPC
                 throw new ArgumentOutOfRangeException(nameof(port), "read_port port is greater than port_count");
             }
 
-            int address = run_until_(t);
-            return m.smp_regs[0, address + port]; //run_until_(t)[port]; // todo: this need to get fixed
+            //int address = run_until_(t);
+            run_until_(t);
+            return m.smp_regs[0, (int)registers.r_cpuio0 + port]; //run_until_(t)[port]; // todo: this need to get fixed
         }
         public void write_port(int t, int port, byte data)
         {
@@ -170,9 +171,10 @@ namespace SNES_SPC
                 throw new ArgumentOutOfRangeException(nameof(port), "write_port port is greater than port_count");
             }
 
-            int address = run_until_(t);
+            //int address = run_until_(t);
+            run_until_(t);
             //run_until_(t)[0x10 + port] = data;
-            m.smp_regs[0, address + 0x10 + port] = data;
+            m.smp_regs[1, (int)registers.r_cpuio0 + port] = data;
         }
 
         const int cpu_lag_max = 12 - 1; // DIV YA,X takes 12 clocks
@@ -3098,6 +3100,7 @@ namespace SNES_SPC
                 throw new Exception("assert(m.spc_time <= end_time);");
             }
 
+            //return m.smp_regs[0, (int)registers.r_cpuio0];
             return (int)registers.r_cpuio0; // m.smp_regs[0, (int)registers.r_cpuio0]; // &REGS[r_cpuio0];
         }
     }

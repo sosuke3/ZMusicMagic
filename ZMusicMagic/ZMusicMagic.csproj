@@ -93,6 +93,7 @@
     <Compile Include="SongPartForm.Designer.cs">
       <DependentUpon>SongPartForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SongPlayer.cs" />
     <Compile Include="SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -168,6 +169,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SNES_SPC\SNES_SPC.csproj">
+      <Project>{3d642dc1-0565-4aeb-b54d-6a18e8b9b411}</Project>
+      <Name>SNES_SPC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ZMusicMagicControls\ZMusicMagicControls.csproj">
       <Project>{4B2C7881-6377-440C-A60B-8B195C4E64B9}</Project>
       <Name>ZMusicMagicControls</Name>

@@ -109,6 +109,21 @@ namespace ZMusicMagic
             m_primarySongCollection = null;
             this.projectTreeView.Nodes.Clear();
         }
+
+        private void playButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
     public class SongPartChangedEventArgs : EventArgs
