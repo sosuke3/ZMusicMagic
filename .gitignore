@@ -240,3 +240,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/my-icons-collection 1
+/my-icons-collection 1.zip
+/ebook.psd
+/sheet-music.psd

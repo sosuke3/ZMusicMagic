@@ -513,7 +513,7 @@ namespace SNES_SPC
         public const int signature_size = 35;
 
         SPC_DSP dsp = new SPC_DSP();
-        spc_state_t m;
+        public spc_state_t m;
 
         public const int rom_addr = 0xFFC0;
 

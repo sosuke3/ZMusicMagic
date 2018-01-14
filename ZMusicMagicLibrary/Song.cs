@@ -10,6 +10,7 @@ namespace ZMusicMagicLibrary
     {
         public List<Part> Parts { get; set; } = new List<Part>();
         public string DisplayName { get; set; }
+        public int SongIndex { get; set; }
 
         public void FixDurations()
         {

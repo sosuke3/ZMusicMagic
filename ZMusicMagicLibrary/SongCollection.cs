@@ -45,9 +45,12 @@ namespace ZMusicMagicLibrary
 
         void LoadSongs(NSPC.NSPC nspc)
         {
+            int songIndex = 1; // why is this game 1 based? (0 will do strange things)
             foreach (var s in nspc.Songs)
             {
                 var song = new Song();
+                song.SongIndex = songIndex;
+                songIndex++;
 
                 foreach (var p in s.Parts)
                 {

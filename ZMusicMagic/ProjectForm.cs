@@ -19,12 +19,25 @@ namespace ZMusicMagic
 
         public event EventHandler<SongPartChangedEventArgs> OnSongPartSelectionChanged;
 
+        SongPlayer songPlayer = new SongPlayer();
+
         public ProjectForm()
         {
             InitializeComponent();
 
             CloseButton = false;
             CloseButtonVisible = false;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            songPlayer.Shutdown();
+            base.OnClosed(e);
+        }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            songPlayer.Shutdown();
+            base.OnFormClosed(e);
         }
 
         public void SetRom(Rom currentRom)
@@ -54,11 +67,15 @@ namespace ZMusicMagic
             var baseNode = new TreeNode();
             baseNode.Text = songCollection.DisplayName;
             baseNode.Tag = songCollection;
+            baseNode.ImageIndex = 0;
+            baseNode.SelectedImageIndex = 0;
             foreach (var s in songCollection.Songs)
             {
                 var node = new TreeNode();
                 node.Text = s.DisplayName;
                 node.Tag = s;
+                node.ImageIndex = 1;
+                node.SelectedImageIndex = 1;
 
                 int partNumber = 0;
                 foreach (var p in s.Parts)
@@ -66,6 +83,8 @@ namespace ZMusicMagic
                     var partNode = new TreeNode();
                     partNode.Text = $"Part {partNumber}";
                     partNode.Tag = p;
+                    partNode.ImageIndex = 2;
+                    partNode.SelectedImageIndex = 2;
                     node.Nodes.Add(partNode);
 
                     partNumber++;
@@ -108,21 +127,43 @@ namespace ZMusicMagic
             m_currentRom = null;
             m_primarySongCollection = null;
             this.projectTreeView.Nodes.Clear();
+
+            songPlayer.Shutdown();
         }
 
         private void playButton_Click(object sender, EventArgs e)
         {
+            if (m_primarySongCollection != null && projectTreeView.SelectedNode != null)
+            {
+                TreeNode node = null;
+                if (projectTreeView.SelectedNode.Tag is Song)
+                {
+                    node = projectTreeView.SelectedNode;
+                }
+                else if (projectTreeView.SelectedNode.Tag is Part)
+                {
+                    node = projectTreeView.SelectedNode.Parent;
+                }
 
+                if (node != null)
+                {
+                    var song = node.Tag as Song;
+                    if (song != null)
+                    {
+                        songPlayer.Play(song.SongIndex);
+                    }
+                }
+            }
         }
 
         private void pauseButton_Click(object sender, EventArgs e)
         {
-
+            songPlayer.Pause();
         }
 
         private void stopButton_Click(object sender, EventArgs e)
         {
-
+            songPlayer.Stop();
         }
     }
 
