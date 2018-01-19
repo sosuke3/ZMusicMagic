@@ -41,14 +41,15 @@ namespace ZMusicMagicLibrary
                 if(c is CallLoopCommand)
                 {
                     var loop = c as CallLoopCommand;
-                    var loopDuration = 0;
+                    var loopDuration = new LoopDurationInfo();
                     for(int i = 0; i < loop.LoopCount; ++i)
                     {
                         loopDuration = loop.CalculateDuration(currentDuration);
                     }
 
-                    loop.Duration = loopDuration;
-                    currentTime += loopDuration * loop.LoopCount;
+                    currentDuration = loopDuration.LoopLastDurationChange;
+                    loop.Duration = loopDuration.LoopDuration;
+                    currentTime += loopDuration.LoopDuration * loop.LoopCount;
                 }
             }
 

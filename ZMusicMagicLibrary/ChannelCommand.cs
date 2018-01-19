@@ -185,8 +185,10 @@ namespace ZMusicMagicLibrary
             }
         }
 
-        public int CalculateDuration(int previousCommandDuration)
+        public LoopDurationInfo CalculateDuration(int previousCommandDuration)
         {
+            var loopDurationInfo = new LoopDurationInfo();
+
             int totalDuration = 0;
 
             int duration = previousCommandDuration;
@@ -196,6 +198,7 @@ namespace ZMusicMagicLibrary
                 if(c is DurationCommand)
                 {
                     duration = c.Command;
+                    loopDurationInfo.LoopLastDurationChange = duration;
                 }
                 if(c is NoteCommand)
                 {
@@ -207,8 +210,16 @@ namespace ZMusicMagicLibrary
                 }
             }
 
-            return totalDuration;
+            loopDurationInfo.LoopDuration = totalDuration;
+
+            return loopDurationInfo;
         }
+    }
+
+    public class LoopDurationInfo
+    {
+        public int LoopDuration { get; set; }
+        public int LoopLastDurationChange { get; set; }
     }
 
     public class ReturnCommand : ChannelCommand
