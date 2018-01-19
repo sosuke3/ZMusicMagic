@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectForm));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.projectTreeView = new System.Windows.Forms.TreeView();
             this.iconImageList = new System.Windows.Forms.ImageList(this.components);
             this.buttonImageList = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
@@ -39,6 +38,7 @@
             this.pauseButton = new System.Windows.Forms.Button();
             this.playButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.projectTreeView = new System.Windows.Forms.TreeView();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,26 +50,12 @@
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // projectTreeView
-            // 
-            this.projectTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.projectTreeView.HideSelection = false;
-            this.projectTreeView.ImageIndex = 0;
-            this.projectTreeView.ImageList = this.iconImageList;
-            this.projectTreeView.Location = new System.Drawing.Point(0, 25);
-            this.projectTreeView.Name = "projectTreeView";
-            this.projectTreeView.SelectedImageIndex = 0;
-            this.projectTreeView.Size = new System.Drawing.Size(387, 447);
-            this.projectTreeView.TabIndex = 1;
-            this.projectTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseClick);
-            this.projectTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.projectTreeView_NodeMouseDoubleClick);
-            // 
             // iconImageList
             // 
             this.iconImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconImageList.ImageStream")));
             this.iconImageList.TransparentColor = System.Drawing.Color.Transparent;
             this.iconImageList.Images.SetKeyName(0, "collection.png");
-            this.iconImageList.Images.SetKeyName(1, "sheet-music.png");
+            this.iconImageList.Images.SetKeyName(1, "song-sheet.png");
             this.iconImageList.Images.SetKeyName(2, "notes.png");
             // 
             // buttonImageList
@@ -134,13 +120,25 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "label1";
             // 
+            // projectTreeView
+            // 
+            this.projectTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectTreeView.HideSelection = false;
+            this.projectTreeView.ImageIndex = 0;
+            this.projectTreeView.ImageList = this.iconImageList;
+            this.projectTreeView.Location = new System.Drawing.Point(0, 25);
+            this.projectTreeView.Name = "projectTreeView";
+            this.projectTreeView.SelectedImageIndex = 0;
+            this.projectTreeView.Size = new System.Drawing.Size(387, 347);
+            this.projectTreeView.TabIndex = 3;
+            // 
             // ProjectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(387, 472);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.projectTreeView);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.toolStrip1);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft | WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight) 
             | WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop) 
@@ -161,7 +159,6 @@
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.TreeView projectTreeView;
         private System.Windows.Forms.ImageList buttonImageList;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button stopButton;
@@ -169,5 +166,6 @@
         private System.Windows.Forms.Button playButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ImageList iconImageList;
+        private System.Windows.Forms.TreeView projectTreeView;
     }
 }

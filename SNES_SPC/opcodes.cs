@@ -9,6 +9,8 @@ namespace SNES_SPC
 {
     public static class opcodes
     {
+        public static StringBuilder StringBuilder { get; set; } = new StringBuilder();
+
         public static void Trace(int opcode, int a, int x, int y, int sp, int dp, int pc, SNES_SPC spc, byte[] ram)
         {
             var op = OpCodeTable[opcode];
@@ -25,8 +27,16 @@ namespace SNES_SPC
             string c = ((psw & SNES_SPC.c01)) == 1 ? "C" : "c";
             string nvpbhizc = $"{n}{v}{p}{b}{h}{i}{z}{c}";
             sp -= 1; // quick maths
-            Debug.WriteLine($"..{pc.ToString("x4")} {op.GetInstructionWithValues(a, x, y, pc+1, dp, sp, ram)} A:{a.ToString("x2")} X:{x.ToString("x2")} Y:{y.ToString("x2")} SP:{sp.ToString("x4")} YA:{y.ToString("x2")}{a.ToString("x2")} {nvpbhizc}");
+            //Debug.WriteLine($"..{pc.ToString("x4")} {op.GetInstructionWithValues(a, x, y, pc+1, dp, sp, ram)} A:{a.ToString("x2")} X:{x.ToString("x2")} Y:{y.ToString("x2")} SP:{sp.ToString("x4")} YA:{y.ToString("x2")}{a.ToString("x2")} {nvpbhizc}");
+            opcodes.StringBuilder.AppendLine($"..{pc.ToString("x4")} {op.GetInstructionWithValues(a, x, y, pc + 1, dp, sp, ram)} A:{a.ToString("x2")} X:{x.ToString("x2")} Y:{y.ToString("x2")} SP:{sp.ToString("x4")} YA:{y.ToString("x2")}{a.ToString("x2")} {nvpbhizc}");
         }
+
+        public static void DumpDebug()
+        {
+            Debug.Write(opcodes.StringBuilder);
+            opcodes.StringBuilder.Clear();
+        }
+
         public static Dictionary<int, OpCode> OpCodeTable { get; private set; } = new Dictionary<int, OpCode>()
         {
             { 0x99, new OpCode(0x99, "ADC   (X),(Y)     ", "adc   (x),(y)", 1, " 5 ", "(X) = (X)+(Y)+C                  ", "N", "V", ".", ".", "H", ".", "Z", "C") },

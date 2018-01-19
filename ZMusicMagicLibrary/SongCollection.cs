@@ -14,6 +14,7 @@ namespace ZMusicMagicLibrary
         public Dictionary<int, CallLoopPart> LoopParts { get; set; } = new Dictionary<int, CallLoopPart>();
         public string DisplayName { get; set; }
         public SongCollectionType SongCollectionType { get; set; }
+        public NSPC.NSPC NSPC { get; set; }
 
         public SongCollection(SongCollectionType type)
         {
@@ -38,6 +39,8 @@ namespace ZMusicMagicLibrary
 
         public void LoadFromNspc(NSPC.NSPC nspc)
         {
+            NSPC = nspc;
+
             LoadSongs(nspc);
 
             LoadLoopParts(nspc);

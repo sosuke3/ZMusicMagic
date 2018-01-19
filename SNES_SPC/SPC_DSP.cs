@@ -45,19 +45,19 @@ namespace SNES_SPC
 #if false
             unchecked
             {
-        		// be sure this sign-extends
+                // be sure this sign-extends
                 if ((short)0x8000 != -0x8000)
                 {
                     throw new Exception("doesn't sign extend");
                 }
 
-        		// be sure right shift preserves sign
+                // be sure right shift preserves sign
                 if((-1 >> 1) != -1)
                 {
                     throw new Exception("right shift doesn't preserve sign");
                 }
 
-        		// check clamp macro
+                // check clamp macro
                 int i;
                 i = +0x8000;
                 i = CLAMP16(i);
@@ -1474,14 +1474,14 @@ if ( out >= m.out_end )\
             }
 
             /*
-	        // Output sample to DAC
-	        #ifdef SPC_DSP_OUT_HOOK
-		        SPC_DSP_OUT_HOOK( l, r );
-	        #else
-		        sample_t* out = m.out;
-		        WRITE_SAMPLES( l, r, out );
-		        m.out = out;
-	        #endif
+            // Output sample to DAC
+            #ifdef SPC_DSP_OUT_HOOK
+                SPC_DSP_OUT_HOOK( l, r );
+            #else
+                sample_t* out = m.out;
+                WRITE_SAMPLES( l, r, out );
+                m.out = out;
+            #endif
             */
             m.output = WRITE_SAMPLES((short)l, (short)r, m.output);
         }

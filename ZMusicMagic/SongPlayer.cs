@@ -16,6 +16,7 @@ namespace ZMusicMagic
     {
         volatile SongState state;
         public SongState State { get { return state; } }
+        public bool IsRunning { get { return thread != null; } }
 
         ConcurrentQueue<SongPlayerMessage> messageQueue = new ConcurrentQueue<SongPlayerMessage>();
 
@@ -107,8 +108,8 @@ namespace ZMusicMagic
             {
                 return bufferedWaveProvider != null &&
                     bufferedWaveProvider.BufferedDuration > TimeSpan.FromSeconds(bufferProviderLength - 1);
-                       //bufferedWaveProvider.BufferLength - bufferedWaveProvider.BufferedBytes
-                       //< bufferProviderLength; // bufferedWaveProvider.WaveFormat.AverageBytesPerSecond / 4;
+                //bufferedWaveProvider.BufferLength - bufferedWaveProvider.BufferedBytes
+                //< bufferProviderLength; // bufferedWaveProvider.WaveFormat.AverageBytesPerSecond / 4;
             }
         }
 
@@ -127,16 +128,16 @@ namespace ZMusicMagic
 
                 while (true)
                 {
-                    if(state == SongState.Shutdown)
+                    if (state == SongState.Shutdown)
                     {
                         break;
                     }
-                    while(messageQueue.IsEmpty == false)
+                    while (messageQueue.IsEmpty == false)
                     {
-                        SongPlayerMessage message; 
-                        if(messageQueue.TryDequeue(out message))
+                        SongPlayerMessage message;
+                        if (messageQueue.TryDequeue(out message))
                         {
-                            switch(message) // todo: switch to vs2017 so these don't show as errors in intellisense...
+                            switch (message) // todo: switch to vs2017 so these don't show as errors in intellisense...
                             {
                                 case SongPlayerPauseMessage pause:
                                     state = SongState.Paused;
@@ -155,11 +156,14 @@ namespace ZMusicMagic
                                     state = SongState.Playing;
                                     break;
                                 case SongPlayerStopMessage stop:
-                                    state = SongState.Stopped;
-                                    bufferedWaveProvider.ClearBuffer();
-                                    spc.write_port(0, 0, 0xF0); // stop the song
-                                    spc.write_port(0, 1, 0x00);
-                                    spc.play(buffer.Length, buffer);
+                                    if (state != SongState.Stopped) // make sure we're not trying to double up since the spc emulator isn't thread safe
+                                    {
+                                        bufferedWaveProvider.ClearBuffer();
+                                        spc.write_port(0, 0, 0xF0); // stop the song
+                                        spc.write_port(0, 1, 0x00);
+                                        spc.play(buffer.Length, buffer);
+                                        state = SongState.Stopped;
+                                    }
                                     break;
                             }
                         }
@@ -192,7 +196,7 @@ namespace ZMusicMagic
                     //Thread.Sleep(500);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
@@ -211,6 +215,138 @@ namespace ZMusicMagic
         {
             state = SongState.Shutdown;
         }
+
+        public void LoadData(List<ZMusicMagicLibrary.NSPC.Chunk> chunks)
+        {
+            Stop(); // stop playing
+            //spc.skip(1000);
+            spc.reset();
+            spc.set_output(null, 2);
+
+            //spc.write_port(0, 0, 0xFF); // tell driver to setup load mode
+            //spc.skip(1000);
+
+            while (true)
+            {
+                int port0 = spc.read_port(0, 0);
+                int port1 = spc.read_port(0, 1);
+                if (port0 == 0xAA && port1 == 0xBB)
+                {
+                    break;
+                }
+                spc.skip(2);
+                // wait until driver sets up for loading
+            }
+
+            int A = 0xCC;
+
+            foreach (var c in chunks)
+            {
+                if (c.ChunkLength == 0 && Object.ReferenceEquals(c, chunks.Last()) == false)
+                {
+                    // skip the 0 length from the "base" chunks
+                    continue;
+                }
+                A = LoadData(c.ChunkARAMAddress, c.ChunkLength, c.ChunkData, A);
+            }
+
+            // just in case we didn't get a 0 length chunk at the end of the collection, 
+            // we need to write one so the N-SPC knows to get out of its load routine
+            if (chunks.Count > 0 && chunks.Last().ChunkLength != 0)
+            {
+                LoadData(0, 0, new byte[] { }, A);
+            }
+        }
+
+        int LoadData(int address, int length, byte[] data, int A)
+        {
+
+            // write the SPC ram address
+            spc.write_port(0, 2, (byte)(address & 0xFF));
+            spc.write_port(0, 3, (byte)((address >> 8) & 0xFF));
+
+            //// LDA.b #$00 : ROL A : STA $2141 : ADC.b #$7F // if there is data then we write 1 to high byte port
+            int haveData = data.Length > 0 ? 0x01 : 0x00;
+            spc.write_port(0, 1, (byte)(haveData));
+
+            spc.write_port(0, 0, (byte)A); // tell the driver we are ready to write data
+            while(true)
+            {
+                int temp = spc.read_port(0, 0);
+                if(temp == (A & 0xFF))
+                {
+                    break;
+                }
+                spc.skip(2);
+            }
+
+
+            // write the number of bytes
+            //spc.write_port(0, 0, (byte)(length & 0xFF));
+            //spc.write_port(0, 1, (byte)((length >> 8) & 0xFF));
+            //spc.skip(1000);
+
+
+            //int deb = 0;
+
+            //while (true)
+            //{
+            //    int temp = spc.read_port(0, 0);
+            //    if(temp == (length & 0xFF))
+            //    {
+            //        break;
+            //    }
+            //    spc.skip(1000);
+            //    deb++;
+            //}
+
+            A = 0;
+
+            int index = 0;
+            while(index < data.Length)
+            {
+                // write A so it knows to go
+                spc.write_port(0, 0, (byte)A); // "index"
+                spc.write_port(0, 1, data[index++]); // write data
+                                                     //spc.skip(1000);
+
+                //Debug.WriteLine($"A: {A}, data: {data[index-1]}");
+                while (true)
+                {
+                    int temp = spc.read_port(0, 0);
+                    if(temp == (A & 0xFF))
+                    {
+                        break;
+                    }
+                    //spc.skip(1000);
+                    spc.skip(2);
+                    // wait for N-SPC to say it read the last data successfully
+                }
+
+                if (index < data.Length)
+                {
+                    A++; // the byte cast above should make this wrap around when written to N-SPC like it would in 65816 asm
+                }
+            }
+
+            spc.skip(2);
+
+            //Debug.WriteLine($"A: {A.ToString("X")}");
+            while (true)
+            {
+                int temp = spc.read_port(0, 0);
+                if (temp == (A & 0xFF))
+                {
+                    break;
+                }
+                //spc.skip(1000);
+                spc.skip(2);
+                // wait for N-SPC to say it read the last data successfully
+            }
+
+            return A + 4; // needed to start the next transfer properlly
+        }
+
     }
 
     internal abstract class SongPlayerMessage

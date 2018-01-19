@@ -21,6 +21,8 @@ namespace ZMusicMagic
 
         SongPlayer songPlayer = new SongPlayer();
 
+        ZMusicMagicLibrary.NSPC.NSPC lastNpsc = null;
+
         public ProjectForm()
         {
             InitializeComponent();
@@ -147,6 +149,18 @@ namespace ZMusicMagic
 
                 if (node != null)
                 {
+                    // load the data
+                    // todo: change this to load the new stuff not the original
+                    var nspc = (node.Parent.Tag as SongCollection).NSPC;
+                    if (false == Object.ReferenceEquals(nspc, lastNpsc))
+                    {
+                        songPlayer.Stop();
+                        while (songPlayer.IsRunning && songPlayer.State != SongState.Stopped) { } // wait for it to stop
+                        // load the chunks
+                        lastNpsc = nspc;
+                        songPlayer.LoadData(nspc.Chunks);
+                    }
+
                     var song = node.Tag as Song;
                     if (song != null)
                     {
